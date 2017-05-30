@@ -271,6 +271,6 @@ diff = abs(diff)
 diff[is.nan(diff)] = 0
 mean(diff)
 
-
-
-22019-11099
+# check out google maps difference between different times in the day
+dummy30_travelTimes8pm = getTravelTimes(dummy30_lonlats, dimension = 31)
+dummy30_travelTimesMat8pm = getTravelTimesMatrixFromVector(dummy30_travelTimes8pm, 31)

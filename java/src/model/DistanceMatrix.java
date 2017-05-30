@@ -168,4 +168,33 @@ public class DistanceMatrix {
 		}
 		return new DistanceMatrix(entries);
 	}
+	
+	public double getShortestTripFromDepot() {
+		double shortest = Double.MAX_VALUE;
+		for (double d : entries) {
+			if (d < shortest) shortest = d;
+		}
+		return shortest;
+	}
+	
+	public void setDiagonalToInfinity() {
+		int counter = 0;
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				if (i == j) entries[counter] = Double.MAX_VALUE;
+				counter++;
+			}
+		}
+	}
+	
+	public DistanceMatrix subtractDuals(double[] duals) {
+		for (int i = 0; i < duals.length; i++) {
+			for (int j = i; j < entries.length; j += dimension) {
+				entries[j] -= duals[i];
+			}
+		}
+		DistanceMatrix distmat = new DistanceMatrix(entries);
+		return distmat;
+	}
+	
 }

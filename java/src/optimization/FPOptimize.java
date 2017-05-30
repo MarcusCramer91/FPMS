@@ -15,7 +15,13 @@ import util.CSVExporter;
 
 public class FPOptimize {
 
-	
+	/**
+	 * Checks if optimization is due for the FP appraoch
+	 * @param currentTime
+	 * @param vehicles
+	 * @param orders
+	 * @return
+	 */
 	public static boolean checkOptimizationNecessity(int currentTime, ArrayList<Vehicle> vehicles, ArrayList<Order> orders) {
 		boolean orderDue = false;
 		for (Order o : orders) {
@@ -33,15 +39,14 @@ public class FPOptimize {
 	}
 	
 	public static ArrayList<Order[]> assignRoutes(DistanceMatrix distanceMatrix, DistanceMatrix airDistanceMatrix, 
-			ArrayList<Order> orders, ArrayList<Vehicle> vehicles, 
-			int currentTime, boolean generateOutput) throws Exception {
+			ArrayList<Order> orders, int nVehicles, int currentTime, boolean generateOutput, boolean correctMETs) throws Exception {
 		// copy orders ArrayList (avoid call by reference updates)
 		ArrayList<Order> ordersCopy = new ArrayList<Order>();
 		ordersCopy.addAll(orders);
 		ArrayList<Order[]> allRoutes = new ArrayList<Order[]>();
 		
 		
-		for (int j = 0; j < ModelHelperMethods.getNumberOfAvailableVehiclesInDepot(vehicles); j++) {
+		for (int j = 0; j < nVehicles; j++) {
 			// if no more orders remain
 			if (ordersCopy.isEmpty()) break;
 			// add oldest order to current route and remove from orders copy
@@ -74,7 +79,15 @@ public class FPOptimize {
 				Order[] tspRouteList = ModelHelperMethods.parseTSPOutput(tspRoute, route);
 				
 				// if time window cannot be kept anymore
-				if (!ModelHelperMethods.checkTimeWindowAdherence(distanceMatrix, tspRouteList, currentTime)) {
+				// correctMETs differentiates between: 
+				// 1) Routes are set up so the MET of 120 is always kept
+				// 2) Routes are set up so that the total route (except for the trip back to the depot) is <= 120
+				// The latter is the actual (wrong) Flaschenpost approach
+				if (j == 2) {
+					System.out.println();
+				}
+				if ((correctMETs && !ModelHelperMethods.checkTimeWindowAdherenceMET(distanceMatrix, tspRouteList, currentTime)) ||
+						(!correctMETs && !ModelHelperMethods.checkTimeWindowAdherence(distanceMatrix, tspRouteList, currentTime))) {
 					// remove last item from route
 					route.remove(route.size()-1);
 					// assign this route to the next vehicle in queue
@@ -87,7 +100,7 @@ public class FPOptimize {
 				previousTspRoute = new int[tspRoute.length];
 				System.arraycopy(tspRoute, 0, previousTspRoute, 0, tspRoute.length);
 			}
-			if (tspRoute == null) new Exception("Route failure with the current configuration");
+			if (tspRoute == null) throw new Exception("Route failure with the current configuration");
 			allRoutes.add(ModelHelperMethods.parseTSPOutput(tspRoute, route));
 		}
 		if (generateOutput) generateOutput(allRoutes);

@@ -6,6 +6,8 @@ public class Order {
 	private int distanceMatrixLink;
 	private int id;
 	private int status;
+	private int earliest;
+	private int latest;
 	
 	public Order(int id, int time, double weight, int distanceMatrixLink) {
 		this.time = time;
@@ -13,6 +15,24 @@ public class Order {
 		this.distanceMatrixLink = distanceMatrixLink;
 		this.id = id;
 		this.status = 0;
+		earliest = 0;
+	}
+	
+	/**
+	 * purely for solomon instances
+	 * @param id
+	 * @param earliest
+	 * @param latest
+	 * @param weight
+	 * @param distanceMatrixLink
+	 */
+	public Order(int id, int earliest, int latest, double weight, int distanceMatrixLink) {
+		this.weight = weight;
+		this.distanceMatrixLink = distanceMatrixLink;
+		this.id = id;
+		this.status = 0;
+		this.earliest = earliest;
+		this.latest = latest;
 	}
 
 	public int getTime() {
@@ -53,5 +73,13 @@ public class Order {
 	
 	public int getStatus() {
 		return this.status;
+	}
+	
+	public int getEarliest() {
+		return earliest;
+	}
+	
+	public int getLatest() {
+		return ModelConstants.TIME_WINDOW - time;
 	}
 }

@@ -24,7 +24,7 @@ public class OrdersImporter {
 				String[] currentLine = line.split(",");
 				int id = Integer.parseInt(currentLine[0]);
 				double weight = Double.parseDouble(currentLine[1]);
-				int time = Integer.parseInt(currentLine[2]);
+				int time = Integer.parseInt(currentLine[2]) * 60;
 				int locationID = Integer.parseInt(currentLine[3]);
 				Order o = new Order(id, time, weight, locationID);
 				orders.add(o);

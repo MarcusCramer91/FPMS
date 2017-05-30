@@ -72,13 +72,13 @@ public class CPlexTSP {
         	 }
          }
          cplex.solve();
-         System.out.println("Total distance: " + cplex.getObjValue());
+         /**System.out.println("Total distance: " + cplex.getObjValue());
          for (int i = 0; i < n; i++) {
         	 for (int j = 0; j < n; j++) {
         		 if (i == j) continue;
         		 if (cplex.getValue(x[i][j]) > 0) System.out.println(i + "->" + j);
         	 }
-         }
+         }*/
 		 
          cplex.end();
       }
@@ -144,13 +144,13 @@ public class CPlexTSP {
         	 }
          }
          cplex.solve();
-         System.out.println("Total distance: " + cplex.getObjValue());
+         /**System.out.println("Total distance: " + cplex.getObjValue());
          for (int i = 0; i < n; i++) {
         	 for (int j = 0; j < n; j++) {
         		 if (i == j) continue;
         		 if (cplex.getValue(x[i][j]) > 0) System.out.println(i + "->" + j);
         	 }
-         }
+         }*/
          int[] result = parseCplexOutput(cplex, x, n);
          cplex.end();
 		 return result;
