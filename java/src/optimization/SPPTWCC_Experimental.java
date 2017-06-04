@@ -20,7 +20,7 @@ import model.Order;
  * @author Marcus
  *
  */
-public class ESPPTWCC_Heuristic {
+public class SPPTWCC_Experimental {
 	
 	private ArrayList<Node> nodes;
 	private ArrayList<ArrayList<Label>> labelList;
@@ -30,7 +30,7 @@ public class ESPPTWCC_Heuristic {
 	private ArrayList<Integer> shortestPath;
 	private int currentTime;
 	private ArrayList<ArrayList<Integer>> noGoRoutes;
-	private int nBestRounds;
+	private double nogoRouteFactor;
 	
 	private int labelCount;
 	
@@ -43,8 +43,8 @@ public class ESPPTWCC_Heuristic {
 		 for (int i = 0; i < reducedCosts.length; i++) {
 			 reducedCosts[i] = distmat.getAllEntries()[i];
 		 }
-		 double[] duals = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6140.0, 
-				 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7228.0, 0.0, 0.0, 0.0, 0.0, 4870.0, 0.0, 0.0, 6504.0};
+		 double[] duals = new double[]{0, 3381, 3697, 3922, 3594, 3691, 3536, 3334, 3517,3445,3442,3006,3056,2863,3262, 2915, 
+			 3128, 3149, 2916, 2831, 3089, 3414, 3406, 3464, 3159, 3801, 3739, 3508, 3515, 3406, 3387};
 		 distmat = distmat.insertDummyDepotAsFinalNode();
 		 distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
 		 distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
@@ -67,12 +67,12 @@ public class ESPPTWCC_Heuristic {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 ESPPTWCC_Heuristic spptwcc = new ESPPTWCC_Heuristic(distmat, reducedCostsMat, orders, 40*60, 1);
+		 SPPTWCC_Experimental spptwcc = new SPPTWCC_Experimental(distmat, reducedCostsMat, orders, 40*60, 1.4);
 		 spptwcc.labelNodes();
 	}
 	
-	public ESPPTWCC_Heuristic(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
-			int nBestRounds) {
+	public SPPTWCC_Experimental(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
+			double nogoRouteFactor) {
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
@@ -80,7 +80,7 @@ public class ESPPTWCC_Heuristic {
 		this.distanceMatrix = distmat;
 		this.reducedCostsMatrix = reducedCostsMat;
 		this.labelCount = 0;
-		this.nBestRounds = nBestRounds;
+		this.nogoRouteFactor = nogoRouteFactor;
 		// initialize nodes
 		// add dummy node for the depots
 		nodes.add(new Node(0,0));
@@ -99,14 +99,13 @@ public class ESPPTWCC_Heuristic {
 	}
 	
 	
-	public ArrayList<Path> labelNodes() throws IOException {
+	public Path labelNodes() throws IOException {
 		long time = System.currentTimeMillis();
-		//determineNoGoRoutes(Math.floor(distanceMatrix.getDimension()/3));
+		determineNoGoRoutes(Math.floor(distanceMatrix.getDimension()/nogoRouteFactor));
 		Label initialLabel = new Label(0,0,0,0);
 		labelList.get(0).add(initialLabel);
 		nps.add(initialLabel);
 		while (!nps.isEmpty()) {
-			
 			// find label with the lowest costs that is not assigned to the final node
 			double lowestCosts = Double.MAX_VALUE;
 			int lowestCostsIndex = -1;
@@ -121,37 +120,51 @@ public class ESPPTWCC_Heuristic {
 			nps.remove(lowestCostsIndex);
 			labelNext(nextLabel);
 		}
-		/**FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\LabelsGeneratedStandard.csv", true);
+		FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\LabelsGenerated_SPPTWCC_Standard.csv", true);
 		writer.write(labelCount + "\n");
-		writer.close();*/
+		writer.close();
 		System.out.println("Labels created: " + labelCount);
-		
-		
 		// compute the shortest path
 		ArrayList<Label> allFinalLabels = labelList.get(distanceMatrix.getDimension()-1);
-		if (allFinalLabels.size() == 0) return null;
-		ArrayList<Path> paths = new ArrayList<Path>();
-		
-		// get n best routes
-		for (int i = 0; i < nBestRounds; i++) {
-			if (allFinalLabels.size() == 0) break;
-			paths.add(getNextBestPath(allFinalLabels));
+		double minimalCosts = Double.MAX_VALUE;
+		int index = -1;
+		for (int i = 0; i < allFinalLabels.size(); i++) {
+			if (allFinalLabels.get(i).getCosts() < minimalCosts) {
+				minimalCosts = allFinalLabels.get(i).getCosts();
+				index = i;
+			}
 		}
-		System.out.println(paths.get(0).getReducedCosts());
-		return paths;
+		
+		getShortestPath(allFinalLabels.get(index));
+		ArrayList<Integer> path = new ArrayList<Integer>();
+		
+		//FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\paths.txt", true);		
+		
+		for (int i = shortestPath.size() - 1; i >= 0; i--) {
+			path.add(shortestPath.get(i));
+			//writer.write(shortestPath.get(i) + "->");
+		}
+		for (int i = 0; i < path.size()-1; i++) {
+			System.out.print(path.get(i) + "->");
+		}
+		System.out.println(path.get(path.size()-1));
+		
+		System.out.println("Costs of the shortest path: " + labelList.get(distanceMatrix.getDimension()-1).get(0).getCosts());
+		System.out.println("Number of reduced costs paths: " + labelList.get(distanceMatrix.getDimension()-1).size());
+		System.out.println("Time consumed: " + (System.currentTimeMillis() - time));
+		double costs = getPathCosts(path);
+		Path result = new Path(path, costs, labelList.get(distanceMatrix.getDimension()-1).get(0).getCosts(), 
+				distanceMatrix.getDimension());
+		return result;
 	}
 
 	private void labelNext(Label currentLabel) {
 		
 		// for all neighbors of the current label (which are all nodes)
 		for (int i = 1; i < distanceMatrix.getDimension(); i++) {
-			if (i == currentLabel.getNode()) continue;
-			
-			// check elementary constraint
-			if (checkNodeRepetition(currentLabel,i)) continue;
-
 			// skip nogo routes
-			if (noGoRoutes != null && noGoRoutes.get(currentLabel.getNode()).contains(i)) continue;
+			if (noGoRoutes.get(currentLabel.getNode()).contains(i)) continue;
+			if (i == currentLabel.getNode()) continue;
 			
 			// check if new label is feasible wrt time
 			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
@@ -159,18 +172,34 @@ public class ESPPTWCC_Heuristic {
 			// check if new label is feasible wrt demand
 			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
 			if (newDemand > ModelConstants.VEHICLE_CAPACITY) continue;
+		
 			int newCosts = (int)(currentLabel.getCosts() + reducedCostsMatrix.getEntry(currentLabel.getNode()+1, i+1));
 			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel);
+			
 
 			// check if new label is dominated or dominates a label
 			ArrayList<Label> labels = labelList.get(i);
 			// different dominance criterion for the final node
 			// only depends on the costs
-			if (i == distanceMatrix.getDimension()-1) {
-				if (l.getCosts() < 0) labels.add(l);
+			/**if (i == distanceMatrix.getDimension()-1) {
+				if (labels.size() == 0) {
+					labels.add(l);
+				}
+				else {
+					Label lab = labels.get(0);
+					if (l.getCosts() < lab.getCosts()) {
+						labels.remove(0);
+						labels.add(l);
+						labelCount++;
+					}
+				}
+			}*/
+			
+			if (i == distanceMatrix.getDimension()-1 && l.getCosts() < 0) {
 				labelCount++;
+				labels.add(l);
 			}
-			else {
+			else if (i != distanceMatrix.getDimension()-1) {
 				boolean dominated = false;
 				for (int j = 0; j < labels.size(); j++) {
 					Label lab = labels.get(j);				
@@ -188,17 +217,16 @@ public class ESPPTWCC_Heuristic {
 				}
 				// add only if non-dominated
 				if (!dominated) {
-					//System.out.println("Created label: (" + l.getNode() + "," + l.getTime() + "," + l.getDemand() + ") = " + l.getCosts());
+					if (l.getNode() == 31) System.out.println("Why");
 					labels.add(l);
 					nps.add(l);
 					labelCount++;
 				}
 			}
-			
 		}
 	}
 	
-	private boolean dominates(Label l1, Label l2) {
+	private boolean dominates(Label l1, Label l2) {	
 		if (l1.getCosts() > l2.getCosts() || l1.getDemand() > l2.getDemand() || l1.getTime() > l2.getTime()) return false;
 		return true;
 	}
@@ -228,7 +256,6 @@ public class ESPPTWCC_Heuristic {
 		return costs;
 	}
 	
-
 	/**
 	 * For every node determines a set of no-go successor nodes based on the 
 	 * numberOfNoGoRoutesPerLocation longest distances
@@ -258,27 +285,6 @@ public class ESPPTWCC_Heuristic {
 			}
 			noGoRoutes.add(nogo);
 		}
-	}
-	
-	private Path getNextBestPath(ArrayList<Label> labels) {
-		double minimalCosts = Double.MAX_VALUE;
-		int index = -1;
-		for (int i = 0; i < labels.size(); i++) {
-			if (labels.get(i).getCosts() < minimalCosts) {
-				minimalCosts = labels.get(i).getCosts();
-				index = i;
-			}
-		}
-		double reducedCosts = labels.get(index).getCosts();
-		getShortestPath(labels.get(index));
-		ArrayList<Integer> path = new ArrayList<Integer>();		
-		for (int i = shortestPath.size() - 1; i >= 0; i--) {
-			path.add(shortestPath.get(i));
-		}
-		labels.remove(index);
-		double costs = ModelHelperMethods.getRouteCostsIndexed0(distanceMatrix, path);
-		Path result = new Path(path, costs, reducedCosts, distanceMatrix.getDimension());
-		return result;
 	}
 	
 	private class Node {
@@ -365,5 +371,7 @@ public class ESPPTWCC_Heuristic {
 		public void setPredecessor(Label predecessor) {
 			this.predecessor = predecessor;
 		}
+
+		
 	}
 }

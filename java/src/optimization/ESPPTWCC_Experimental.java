@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
@@ -18,11 +17,10 @@ import model.Order;
 
 /**
  * Solves an SPPTWCC via dynamic programming labeling approach
- * With elimination of 2-cycles
  * @author Marcus
  *
  */
-public class SPPTWCC2Experimental {
+public class ESPPTWCC_Experimental {
 	
 	private ArrayList<Node> nodes;
 	private ArrayList<ArrayList<Label>> labelList;
@@ -32,9 +30,6 @@ public class SPPTWCC2Experimental {
 	private ArrayList<Integer> shortestPath;
 	private int currentTime;
 	private ArrayList<ArrayList<Integer>> noGoRoutes;
-	private double[] costRatios;
-	private int highestTimeRemaining;
-	private double lowestCosts = 0;
 	
 	private int labelCount;
 	
@@ -47,14 +42,12 @@ public class SPPTWCC2Experimental {
 		 for (int i = 0; i < reducedCosts.length; i++) {
 			 reducedCosts[i] = distmat.getAllEntries()[i];
 		 }
-		 Random r = new Random();
-		 r.setSeed(0);
-		 double[] duals = new double[distmat.getDimension()];
-		 duals[0] = 0;
-		 for (int i = 0; i < duals.length-1; i++) { 
-			 duals[i+1] = r.nextInt(1344); //1344 highest entry of the distance matrix
-			 //duals[i+1] += ModelConstants.CUSTOMER_LOADING_TIME;
-		 }
+
+		 //double[] duals = new double[]{0, 3381, 3697, 3922, 3594, 3691, 3536, 3334, 3517,3445,3442,3006,3056,2863,3262, 2915, 
+		//	 3128, 3149, 2916, 2831, 3089, 3414, 3406, 3464, 3159, 3801, 3739, 3508, 3515, 3406, 3387};
+
+		 double[] duals = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6140.0, 
+				 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7228.0, 0.0, 0.0, 0.0, 0.0, 4870.0, 0.0, 0.0, 6504.0};
 		 distmat = distmat.insertDummyDepotAsFinalNode();
 		 distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
 		 distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
@@ -69,7 +62,6 @@ public class SPPTWCC2Experimental {
 		 
 		 // set entry from depot to depot to infinity
 		 reducedCostsMat.setEntry(Double.MAX_VALUE, 1, reducedCostsMat.getDimension());
-
 		 /**
 		 for (int i = 0; i < reducedCostsMat.getDimension(); i++) {
 			 for (int j = 0; j < reducedCostsMat.getDimension(); j++) {
@@ -78,11 +70,11 @@ public class SPPTWCC2Experimental {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 SPPTWCC2Experimental spptwcc = new SPPTWCC2Experimental(distmat, reducedCostsMat, orders, 40*60);
+		 ESPPTWCC_Experimental spptwcc = new ESPPTWCC_Experimental(distmat, reducedCostsMat, orders, 40*60);
 		 spptwcc.labelNodes();
 	}
 	
-	public SPPTWCC2Experimental(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime) {
+	public ESPPTWCC_Experimental(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime) {
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
@@ -110,16 +102,13 @@ public class SPPTWCC2Experimental {
 	
 	public Path labelNodes() throws IOException {
 		long time = System.currentTimeMillis();
-		// determine a set of no-go routes based on their costs
-		determineNoGoRoutes(Math.floor(distanceMatrix.getDimension()/1.7));
-		getSortedCostRatios();
-		getHighestTimeRemaining();
-		
-		
+		//determineNoGoRoutes(Math.floor(distanceMatrix.getDimension()/1.5));
 		Label initialLabel = new Label(0,0,0,0);
+		setReachableNodes(initialLabel);
 		labelList.get(0).add(initialLabel);
 		nps.add(initialLabel);
 		while (!nps.isEmpty()) {
+			
 			// find label with the lowest costs that is not assigned to the final node
 			double lowestCosts = Double.MAX_VALUE;
 			int lowestCostsIndex = -1;
@@ -134,38 +123,33 @@ public class SPPTWCC2Experimental {
 			nps.remove(lowestCostsIndex);
 			labelNext(nextLabel);
 		}
-		FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\LabelsGenerated_SPPTWCC2_Standard.csv", true);
+		/**FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\LabelsGeneratedStandard.csv", true);
 		writer.write(labelCount + "\n");
-		writer.close();
+		writer.close();*/
 		System.out.println("Labels created: " + labelCount);
 		// compute the shortest path
-		ArrayList<Label> allFinalLabels = labelList.get(distanceMatrix.getDimension()-1);
-		double minimalCosts = Double.MAX_VALUE;
-		int index = -1;
-		for (int i = 0; i < allFinalLabels.size(); i++) {
-			if (allFinalLabels.get(i).getCosts() < minimalCosts) {
-				minimalCosts = allFinalLabels.get(i).getCosts();
-				index = i;
-			}
-		}
-		
-		getShortestPath(allFinalLabels.get(index));
+		getShortestPath(labelList.get(distanceMatrix.getDimension()-1).get(0));
 		ArrayList<Integer> path = new ArrayList<Integer>();
 		
 		//FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\paths.txt", true);
 		
 		
-		for (int i = shortestPath.size() - 1; i >= 0; i--) {
+		for (int i = shortestPath.size() - 1; i > 0; i--) {
 			path.add(shortestPath.get(i));
 			//writer.write(shortestPath.get(i) + "->");
 		}
+		path.add(distanceMatrix.getDimension()-1);
 		for (int i = 0; i < path.size()-1; i++) {
 			System.out.print(path.get(i) + "->");
 		}
 		System.out.println(path.get(path.size()-1));
 		
-		System.out.println("Costs of the shortest path: " + allFinalLabels.get(index).getCosts());
-		System.out.println("Number of reduced costs paths: " + allFinalLabels.size());
+		//writer.write(distanceMatrix.getDimension() - 1 + "\n");
+		//writer.close();
+		
+		
+		System.out.println("Costs of the shortest path: " + labelList.get(distanceMatrix.getDimension()-1).get(0).getCosts());
+		
 		System.out.println("Time consumed: " + (System.currentTimeMillis() - time));
 		double costs = getPathCosts(path);
 		Path result = new Path(path, costs, labelList.get(distanceMatrix.getDimension()-1).get(0).getCosts(), 
@@ -176,45 +160,25 @@ public class SPPTWCC2Experimental {
 	private void labelNext(Label currentLabel) {
 		
 		// for all neighbors of the current label (which are all nodes)
-		boolean breakLater = false;
 		for (int i = 1; i < distanceMatrix.getDimension(); i++) {
-			if (breakLater) break;
 			// skip nogo routes
-			if (noGoRoutes.get(currentLabel.getNode()).contains(i)) continue;
-			
-			if (i == currentLabel.getNode()) continue;
-			// if strongly dominant and current node is predecessor, continue
-			if (currentLabel.getPredecessor() != null && 
-					(currentLabel.getType() == 0 && currentLabel.getPredecessor().getNode() == i)) continue;
-			
-			// if semi-strongly dominant and current node is predecessor, continue
-			if (currentLabel.getPredecessor() != null && 
-					(currentLabel.getType() == 1 && currentLabel.getPredecessor().getNode() == i)) continue;
-			
-			// if weakly dominant can only extend to the successor of the dominating label
-			if (currentLabel.getType() == 2) {
-				i = currentLabel.getDominatingLabel().getPredecessor().getNode();
-				breakLater = true;
-			}
-			
-			// check if new label is feasible wrt time
+			if (noGoRoutes != null && noGoRoutes.get(currentLabel.getNode()).contains(i)) continue;
+			boolean[] reachableNodes = currentLabel.getReachableNodes();
+			if (!reachableNodes[i]) continue;
 			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
-			if (newTime > nodes.get(i).getUpperTimeWindow()) continue;
-			// check if new label is feasible wrt demand
 			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
-			if (newDemand > ModelConstants.VEHICLE_CAPACITY) continue;
-		
 			int newCosts = (int)(currentLabel.getCosts() + reducedCostsMatrix.getEntry(currentLabel.getNode()+1, i+1));
-			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel, 1);
+			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel, currentLabel.getReachableNodes(), 
+					currentLabel.getNumberOfReachableNodes());
 			
-			// check if from this label the goal of negative reduced costs can still be reached
-			if (!checkCostsInfeasibility(l)) continue;
+			// update reachable nodes
+			setReachableNodes(l);
 
 			// check if new label is dominated or dominates a label
 			ArrayList<Label> labels = labelList.get(i);
 			// different dominance criterion for the final node
 			// only depends on the costs
-			/**if (i == distanceMatrix.getDimension()-1) {
+			if (i == distanceMatrix.getDimension()-1) {
 				if (labels.size() == 0) {
 					labels.add(l);
 				}
@@ -226,119 +190,80 @@ public class SPPTWCC2Experimental {
 						labelCount++;
 					}
 				}
-			}*/
-			
-			if (i == distanceMatrix.getDimension()-1 && l.getCosts() < 0) {
-				/**for (int j = 0; j < labels.size(); j++) {
-					Label lab = labels.get(j);
-					if (dominates(lab, l)) continue;
-					if (dominates(l, lab)) labels.remove(lab);
-				}*/
-				labelCount++;
-				labels.add(l);
-				//if (l.getCosts() < lowestCosts) lowestCosts = l.getCosts();
 			}
-			
-			// check dominance
-			else if (i != distanceMatrix.getDimension()-1) {
+			else {
 				boolean dominated = false;
 				for (int j = 0; j < labels.size(); j++) {
-					Label lab = labels.get(j);
-					if (dominates(lab, l)) {
-						// case 1
-						if (lab.getType() != 1) {
-							dominated = true;
-							break;
-						}
-						// case 2
-						else if (l.getPredecessor().getNode() == lab.getPredecessor().getNode()) {
-							dominated = true;
-							break;
-						}
-						// case 3
-						boolean dominatedByTwo = false;
-						for (int k = 0; k < labels.size(); k++) {
-							if (j == k) continue;
-							Label lab1 = labels.get(k);
-							if (dominates(lab1, l) && lab1.getPredecessor().getNode() != lab.getPredecessor().getNode()) {
-								dominatedByTwo = true;
-								break;
-							}
-						}
-						if (dominatedByTwo) {
-							dominated = true;
-							break;
-						}
-						// case 4
-						if (((l.getDemand() + nodes.get(l.getNode()).getDemand()) > ModelConstants.VEHICLE_CAPACITY) ||
-								(l.getTime() + distanceMatrix.getEntry(l.getNode()+1, lab.getPredecessor().getNode()+1) >
-								nodes.get(lab.getPredecessor().getNode()).getUpperTimeWindow())) {
-							dominated = true;
-							break;
-						}
-						
-						// set weakly dominant and add dominating label
-						l.setType(2);
-						l.setDominatingLabel(lab);
-					}
-				}
-				// check if strongly dominant
-				if (!dominated) {
-					if (nodes.get(l.getPredecessor().getNode()).getDemand() + l.getDemand() > ModelConstants.VEHICLE_CAPACITY ||
-							l.getTime() + distanceMatrix.getEntry(l.getNode()+1, l.getPredecessor().getNode()+1) >
-					nodes.get(l.getPredecessor().getNode()).getUpperTimeWindow()) l.setType(0);
-				}
-				
-				// check if existing labels are dominated
-				for (int j = 0; j < labels.size(); j++) {
-					Label lab = labels.get(j);
-					// case 1
+					Label lab = labels.get(j);				
+					// check if existing labels are dominated
 					if (dominates(l, lab)) {
-						if (l.getType() != 1) {
-							labels.remove(j);
-							if (nps.contains(lab)) nps.remove(lab);
-						}
-						// case 2
-						else if (l.getPredecessor().getNode() == lab.getPredecessor().getNode()) {
-							labels.remove(j);
-							if (nps.contains(lab)) nps.remove(lab);
-						}
-						// case 3
-						else {
-							boolean dominatedByTwo = false;
-							for (int k = 0; k < labels.size(); k++) {
-								if (j == k) continue;
-								Label lab1 = labels.get(k);
-								if (dominates(lab1, lab) && l.getPredecessor().getNode() != lab1.getPredecessor().getNode()) {
-									dominatedByTwo = true;
-									break;
-								}
-							}
-							if (dominatedByTwo) {
-								labels.remove(j);
-								if (nps.contains(lab)) nps.remove(lab);
-							}
-						}
-						
-						// case 4 can be skipped
+						// remove both from nps and the labels map if dominated
+						labels.remove(j);
+						if (nps.contains(lab)) nps.remove(lab);
 					}
-					
+					// check if existing labels dominate the new one
+					if (dominates(lab,l)) {
+						dominated = true;
+						break;
+					}
 				}
-				
 				// add only if non-dominated
 				if (!dominated) {
-					labelCount++;
+					//System.out.println("Created label: (" + l.getNode() + "," + l.getTime() + "," + l.getDemand() + ") = " + l.getCosts());
 					labels.add(l);
 					nps.add(l);
+					labelCount++;
 				}
 			}
-			if (currentLabel.getType() == 2) break;
+			
 		}
 	}
 	
-	private boolean dominates(Label l1, Label l2) {	
+	private boolean dominates(Label l1, Label l2) {
+		// check if l2 has more reachable nodes first
+		if (l2.getNumberOfReachableNodes() > l1.getNumberOfReachableNodes()) return false;
+		
+		// then assess reachable nodes individually
+		for (int i = 0; i < l1.getReachableNodes().length; i++) {
+			if (!l1.getReachableNodes()[i] && l2.getReachableNodes()[i]) {
+				return false;
+			}
+		}	
+		// if that is not the case, check for distances and costs and weight
 		if (l1.getCosts() > l2.getCosts() || l1.getDemand() > l2.getDemand() || l1.getTime() > l2.getTime()) return false;
 		return true;
+	}
+	
+	private void setReachableNodes(Label currentLabel) {
+		boolean[] newReachableNodes = new boolean[distanceMatrix.getDimension()];
+		boolean[] previousReachableNodes = currentLabel.getReachableNodes();
+		int numberOfReachableNodes = currentLabel.getNumberOfReachableNodes();
+		// copy array
+		for (int i = 0; i < newReachableNodes.length; i++) {
+			newReachableNodes[i] = previousReachableNodes[i];
+		}
+		newReachableNodes[currentLabel.getNode()] = false;
+		numberOfReachableNodes--;
+		// update
+		for (int i = 0; i < newReachableNodes.length; i++) {
+			if (!newReachableNodes[i]) continue;
+			// check if new label is feasible wrt time
+			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
+			if (newTime > nodes.get(i).getUpperTimeWindow()) {
+				newReachableNodes[i] = false;
+				numberOfReachableNodes--;
+				continue;
+			}
+			// check if new label is feasible wrt demand
+			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
+			if (newDemand > ModelConstants.VEHICLE_CAPACITY) {
+				newReachableNodes[i] = false;
+				numberOfReachableNodes--;
+			}
+		}
+		
+		currentLabel.setReachableNodes(newReachableNodes);
+		currentLabel.setNumberOfReachableNodes(numberOfReachableNodes);
 	}
 	
 	/** 
@@ -352,6 +277,12 @@ public class SPPTWCC2Experimental {
 		getShortestPath(currentLabel.getPredecessor());	
 	}
 	
+	private boolean checkNodeRepetition(Label currentLabel, int next) {
+		if (currentLabel.getPredecessor() == null) return false;
+		else if (currentLabel.getPredecessor().getNode() == next) return true;
+		else return checkNodeRepetition(currentLabel.getPredecessor(), next);
+	}
+	
 	private double getPathCosts(ArrayList<Integer> path) {	
 		double costs = 0;
 		for (int i = 0; i < path.size() - 1; i++) {
@@ -359,6 +290,7 @@ public class SPPTWCC2Experimental {
 		}
 		return costs;
 	}
+	
 
 	/**
 	 * For every node determines a set of no-go successor nodes based on the 
@@ -391,42 +323,6 @@ public class SPPTWCC2Experimental {
 		}
 	}
 	
-	/**
-	 * Checks for the given label whether the goal of negative reduced costs can still be reached
-	 * @param label
-	 */
-	private boolean checkCostsInfeasibility(Label label) {
-		int timeRemaining = highestTimeRemaining - label.getTime();
-		if (label.getCosts() + (timeRemaining * costRatios[0]) >= lowestCosts) return false;
-		return true;
-	}
-	
-	/**
-	 * Gets the lowest reduced costs divided by actual travel times
-	 * @param number
-	 */
-	private void getSortedCostRatios() {
-		double[] entries = new double[reducedCostsMatrix.getDimension() * reducedCostsMatrix.getDimension()];
-		
-		// find the shortest path between two all pair-wise combinations of customers
-		int counter = 0;
-		for (int i = 0; i < reducedCostsMatrix.getDimension(); i++) {
-			for (int j = 0; j < reducedCostsMatrix.getDimension(); j++) {
-				entries[counter++] = reducedCostsMatrix.getEntry(i+1, j+1)/distanceMatrix.getEntry(i+1, j+1);
-			}
-		}
-		
-		Arrays.sort(entries);
-		costRatios = entries;
-	}
-	
-	private void getHighestTimeRemaining() {
-		highestTimeRemaining = 0;
-		for (int i = 0; i < nodes.size()-1; i++) {
-			if (nodes.get(i).getUpperTimeWindow() > highestTimeRemaining) highestTimeRemaining = nodes.get(i).getUpperTimeWindow();
-		}
-	}
-	
 	private class Node {
 		private int upperTimeWindow;
 		private int demand;
@@ -456,33 +352,30 @@ public class SPPTWCC2Experimental {
 		private int time;
 		private int node;
 		private Label predecessor;
-		private Label dominatingLabel; // only filled if current label type is 2
-		private int type; // 0 = strongly dominant, 1 = semi-strongly dominant, 2 = weakly dominant
+		private int numberOfReachableNodes;
+		private boolean[] reachableNodes;
 		
 		public Label(double costs, int demand, int time, int node) {
 			this.setCosts(costs);
 			this.setDemand(demand);
 			this.setTime(time);
 			this.setNode(node);
+			this.setNumberOfReachableNodes(distanceMatrix.getDimension()-1);
+			setReachableNodes(new boolean[distanceMatrix.getDimension()]);
+			for (int i = 0; i < reachableNodes.length; i++) {
+				reachableNodes[i] = true;
+			}
 		}
 		
-		public Label(double costs, int demand, int time, int node, Label predecessor, int type) {
+		public Label(double costs, int demand, int time, int node, Label predecessor,
+				boolean[] reachableNodes, int numberOfReachableNodes) {
 			this.setCosts(costs);
 			this.setDemand(demand);
 			this.setTime(time);
 			this.setNode(node);
 			this.predecessor = predecessor;
-			this.type = type;
-		}
-		
-		public Label(double costs, int demand, int time, int node, Label predecessor, int type, Label dominatingLabel) {
-			this.setCosts(costs);
-			this.setDemand(demand);
-			this.setTime(time);
-			this.setNode(node);
-			this.predecessor = predecessor;
-			this.type = type;
-			this.setDominatingLabel(dominatingLabel);
+			this.setNumberOfReachableNodes(numberOfReachableNodes);
+			this.setReachableNodes(reachableNodes);
 		}
 
 		public double getCosts() {
@@ -525,22 +418,20 @@ public class SPPTWCC2Experimental {
 			this.predecessor = predecessor;
 		}
 
-		public int getType() {
-			return type;
+		public boolean[] getReachableNodes() {
+			return reachableNodes;
 		}
 
-		public void setType(int type) {
-			this.type = type;
+		public void setReachableNodes(boolean[] reachableNodes) {
+			this.reachableNodes = reachableNodes;
 		}
-
-		public Label getDominatingLabel() {
-			return dominatingLabel;
-		}
-
-		public void setDominatingLabel(Label dominatingLabel) {
-			this.dominatingLabel = dominatingLabel;
-		}
-
 		
+		public void setNumberOfReachableNodes(int n) {
+			this.numberOfReachableNodes = n;
+		}
+		
+		public int getNumberOfReachableNodes() {
+			return this.numberOfReachableNodes;
+		}
 	}
 }

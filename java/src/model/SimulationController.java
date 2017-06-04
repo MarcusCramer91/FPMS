@@ -79,9 +79,9 @@ public class SimulationController {
 		boolean useInitial = false;
 		boolean useUpperBound = false;
 		boolean useMaxRoute = false;
-		boolean useEarliestArrival = true;
-		int computationTime = 3600;
-		//controller.testOneIterationCPlex(currentTime, computationTime, useInitial, useUpperBound, useMaxRoute, useEarliestArrival);
+		boolean useEarliestArrival = false;
+		int computationTime = 15000;
+		controller.testOneIterationCPlex(currentTime, computationTime, useInitial, useUpperBound, useMaxRoute, useEarliestArrival);
 		//controller.testOneIterationCPlexExperimental(currentTime, computationTime);
 	}
 
@@ -278,12 +278,12 @@ public class SimulationController {
 		double[][][] initialArray = null;
 		if (useInitial) {
 			//  convert result to int[][][]
-			initialArray = new double[distanceMatrix.getDimension()+1][distanceMatrix.getDimension()+1][vehicles.size()];
-			int[] currentLocations = new int[vehicles.size()];
+			initialArray = new double[distanceMatrix.getDimension()+1][distanceMatrix.getDimension()+1][nVehicles];
+			int[] currentLocations = new int[nVehicles];
 			for (int i = 0; i < currentLocations.length; i++) {
 				currentLocations[i] = 0;
 			}
-			for (int k = 0; k < vehicles.size(); k++) {
+			for (int k = 0; k < nVehicles; k++) {
 				Order[] currentOrders = initial.get(k);
 				int currentNode = currentOrders[0].getDistanceMatrixLink()-1;
 				initialArray[0][currentNode][k] = 1;
@@ -300,7 +300,7 @@ public class SimulationController {
 				null, costs, useMaxRoute, useEarliestArrival);
 					
 		else {
-			routes = CPlexConnector.getRoutes(distanceMatrix, orders, nVehicles, currentTime, compTimeLimit, true, 
+			routes = CPlexConnector.getRoutes(distanceMatrix, orders, nVehicles-1, currentTime, compTimeLimit, true, 
 					null, -1, useMaxRoute, useEarliestArrival);		
 		}
 		

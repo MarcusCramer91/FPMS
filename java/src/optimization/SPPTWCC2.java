@@ -42,14 +42,9 @@ public class SPPTWCC2 {
 		 for (int i = 0; i < reducedCosts.length; i++) {
 			 reducedCosts[i] = distmat.getAllEntries()[i];
 		 }
-		 Random r = new Random();
-		 r.setSeed(0);
-		 double[] duals = new double[distmat.getDimension()];
-		 duals[0] = 0;
-		 for (int i = 0; i < duals.length-1; i++) { 
-			 duals[i+1] = r.nextInt(1344); //1344 highest entry of the distance matrix
-			 duals[i+1] += ModelConstants.CUSTOMER_LOADING_TIME;
-		 }
+
+		 double[] duals = new double[]{0, 3381, 3697, 3922, 3594, 3691, 3536, 3334, 3517,3445,3442,3006,3056,2863,3262, 2915, 
+			 3128, 3149, 2916, 2831, 3089, 3414, 3406, 3464, 3159, 3801, 3739, 3508, 3515, 3406, 3387};
 		 distmat = distmat.insertDummyDepotAsFinalNode();
 		 distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
 		 distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
@@ -152,19 +147,20 @@ public class SPPTWCC2 {
 		}
 		System.out.println(path.get(path.size()-1));
 		
-		System.out.println("Costs of the shortest path: " + labelList.get(distanceMatrix.getDimension()-1).get(0).getCosts());
+		System.out.println("Costs of the shortest path: " + allFinalLabels.get(index).getCosts());
 		System.out.println("Number of reduced costs paths: " + allFinalLabels.size());
 		System.out.println("Time consumed: " + (System.currentTimeMillis() - time));
 		double costs = getPathCosts(path);
-		Path result = new Path(path, costs, labelList.get(distanceMatrix.getDimension()-1).get(0).getCosts(), 
+		Path result = new Path(path, costs, allFinalLabels.get(index).getCosts(), 
 				distanceMatrix.getDimension());
 		return result;
 	}
 
 	private void labelNext(Label currentLabel) {
-		
+		boolean breakLater = false;
 		// for all neighbors of the current label (which are all nodes)
 		for (int i = 1; i < distanceMatrix.getDimension(); i++) {
+			if (breakLater) break;
 			if (i == currentLabel.getNode()) continue;
 			// if strongly dominant and current node is predecessor, continue
 			if (currentLabel.getPredecessor() != null && 
@@ -174,8 +170,11 @@ public class SPPTWCC2 {
 			if (currentLabel.getPredecessor() != null && 
 					(currentLabel.getType() == 1 && currentLabel.getPredecessor().getNode() == i)) continue;
 			
-			// if weakly dominant can only extend to the successor of the dominating label
-			if (currentLabel.getType() == 2) i = currentLabel.getDominatingLabel().getPredecessor().getNode();
+			// if weakly dominant can only extend to the successor of the dominating label			
+			if (currentLabel.getType() == 2) {
+				i = currentLabel.getDominatingLabel().getPredecessor().getNode();
+				breakLater = true;
+			}
 			
 			// check if new label is feasible wrt time
 			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
@@ -322,12 +321,6 @@ public class SPPTWCC2 {
 		//		")=" + currentLabel.getCosts());
 		if (currentLabel.getPredecessor() == null) return;
 		getShortestPath(currentLabel.getPredecessor());	
-	}
-	
-	private boolean checkNodeRepetition(Label currentLabel, int next) {
-		if (currentLabel.getPredecessor() == null) return false;
-		else if (currentLabel.getPredecessor().getNode() == next) return true;
-		else return checkNodeRepetition(currentLabel.getPredecessor(), next);
 	}
 	
 	private double getPathCosts(ArrayList<Integer> path) {	

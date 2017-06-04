@@ -41,14 +41,9 @@ public class ESPPTWCC {
 		 for (int i = 0; i < reducedCosts.length; i++) {
 			 reducedCosts[i] = distmat.getAllEntries()[i];
 		 }
-		 Random r = new Random();
-		 r.setSeed(0);
-		 double[] duals = new double[distmat.getDimension()];
-		 duals[0] = 0;
-		 for (int i = 0; i < duals.length-1; i++) { 
-			 duals[i+1] = r.nextInt(1344) - (1344/2); //1344 highest entry of the distance matrix
-			 duals[i+1] += ModelConstants.CUSTOMER_LOADING_TIME;
-		 }
+
+		 double[] duals = new double[]{0, 3381, 3697, 3922, 3594, 3691, 3536, 3334, 3517,3445,3442,3006,3056,2863,3262, 2915, 
+			 3128, 3149, 2916, 2831, 3089, 3414, 3406, 3464, 3159, 3801, 3739, 3508, 3515, 3406, 3387};
 		 distmat = distmat.insertDummyDepotAsFinalNode();
 		 distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
 		 distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
@@ -161,6 +156,7 @@ public class ESPPTWCC {
 		
 		// for all neighbors of the current label (which are all nodes)
 		for (int i = 1; i < distanceMatrix.getDimension(); i++) {
+			// skip nogo routes
 			boolean[] reachableNodes = currentLabel.getReachableNodes();
 			if (!reachableNodes[i]) continue;
 			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));

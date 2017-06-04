@@ -20,13 +20,15 @@ import model.Order;
  * @author Marcus
  *
  */
-public class ESPPTWCC_Heuristic {
+public class ESPPTWCC_Heuristic_Recomputation {
 	
 	private ArrayList<Node> nodes;
 	private ArrayList<ArrayList<Label>> labelList;
 	private ArrayList<Label> nps;
 	private DistanceMatrix distanceMatrix;
+	private DistanceMatrix distmatCopy;
 	private DistanceMatrix reducedCostsMatrix;
+	private DistanceMatrix reducedCostsMatCopy;
 	private ArrayList<Integer> shortestPath;
 	private int currentTime;
 	private ArrayList<ArrayList<Integer>> noGoRoutes;
@@ -43,8 +45,9 @@ public class ESPPTWCC_Heuristic {
 		 for (int i = 0; i < reducedCosts.length; i++) {
 			 reducedCosts[i] = distmat.getAllEntries()[i];
 		 }
-		 double[] duals = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6140.0, 
-				 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7228.0, 0.0, 0.0, 0.0, 0.0, 4870.0, 0.0, 0.0, 6504.0};
+
+		 double[] duals = new double[]{0, 3381, 3697, 3922, 3594, 3691, 3536, 3334, 3517,3445,3442,3006,3056,2863,3262, 2915, 
+			 3128, 3149, 2916, 2831, 3089, 3414, 3406, 3464, 3159, 3801, 3739, 3508, 3515, 3406, 3387};
 		 distmat = distmat.insertDummyDepotAsFinalNode();
 		 distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
 		 distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
@@ -67,39 +70,128 @@ public class ESPPTWCC_Heuristic {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 ESPPTWCC_Heuristic spptwcc = new ESPPTWCC_Heuristic(distmat, reducedCostsMat, orders, 40*60, 1);
+		 ESPPTWCC_Heuristic_Recomputation spptwcc = new ESPPTWCC_Heuristic_Recomputation(distmat, reducedCostsMat, orders, 40*60, 10);
 		 spptwcc.labelNodes();
 	}
 	
-	public ESPPTWCC_Heuristic(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
+	public ESPPTWCC_Heuristic_Recomputation(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
 			int nBestRounds) {
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
-		this.shortestPath = new ArrayList<Integer>();
 		this.distanceMatrix = distmat;
 		this.reducedCostsMatrix = reducedCostsMat;
-		this.labelCount = 0;
 		this.nBestRounds = nBestRounds;
 		// initialize nodes
 		// add dummy node for the depots
 		nodes.add(new Node(0,0));
 		for (Order o : orders) {
-			int met = o.getMET(currentTime);
 			Node n = new Node(ModelConstants.TIME_WINDOW - o.getMET(currentTime), (int)o.getWeight());
 			nodes.add(n);
 		}
 		nodes.add(new Node(Integer.MAX_VALUE,0));
 		
 		// initialize labels
-		for (Node n : nodes) {
+		for (@SuppressWarnings("unused") Node n : nodes) {
 			labelList.add(new ArrayList<Label>());
 		}
 		this.currentTime = currentTime;
 	}
 	
-	
 	public ArrayList<Path> labelNodes() throws IOException {
+		ArrayList<Path> result = new ArrayList<Path>();
+		ArrayList<Integer> indexList = new ArrayList<Integer>();
+		
+		// copy distance matrices
+		double[] entries = distanceMatrix.getAllEntries();
+		double[] newEntries = new double[entries.length];
+		for (int i = 0; i < entries.length; i++) {
+			newEntries[i] = entries[i];
+		}
+		distmatCopy = new DistanceMatrix(newEntries);
+		
+		for (int i = 0; i < distanceMatrix.getDimension(); i++) {
+			indexList.add(i);
+		}
+		
+		double[] entriesReducedCosts = reducedCostsMatrix.getAllEntries();
+		double[] newEntriesReducesCosts = new double[entriesReducedCosts.length];
+		for (int i = 0; i < entriesReducedCosts.length; i++) {
+			newEntriesReducesCosts[i] = entriesReducedCosts[i];
+		}
+		reducedCostsMatCopy = new DistanceMatrix(newEntriesReducesCosts);
+		
+		// return shortest paths
+		while (indexList.size() > 2) {
+			this.labelCount = 0;
+			this.shortestPath = new ArrayList<Integer>();
+			this.labelList = new ArrayList<ArrayList<Label>>();
+			for (@SuppressWarnings("unused") Node n : nodes) {
+				labelList.add(new ArrayList<Label>());
+			}
+			this.nps = new ArrayList<Label>();
+			
+			// get the path
+			Path p = labelNodesInternal();
+			
+			// if first path has positive reduced costs, return null
+			if (result.size() == 0 && p.getReducedCosts() >= 0) return null;
+			
+			// if any path has contains only the depot and is not the first path, break
+			if (result.size() > 0 && p.getNodes().size() == 2) break;
+			
+			// reconvert the path 
+			ArrayList<Integer> nodes = p.getNodes();
+			ArrayList<Integer> newNodes = new ArrayList<Integer>();
+			for (int i = 0; i < nodes.size(); i++) {
+				newNodes.add(indexList.get(nodes.get(i)));
+			}
+			p = new Path(newNodes, p.getCosts(), p.getReducedCosts(), distanceMatrix.getDimension());
+			result.add(p);
+			for (int i : p.getNodes()) System.out.print(i + "->");
+			System.out.println();
+			
+			// crop matrices
+			int[] relevantEntries = new int[indexList.size() - nodes.size() + 2];
+			int counter = 0;
+			relevantEntries[counter++] = 1;
+			for (int i = 0; i < indexList.size()-1; i++) {
+				if (!nodes.contains(i) && i != 0) relevantEntries[counter++] = i+1;
+			}
+			relevantEntries[relevantEntries.length-1] = distmatCopy.getDimension();
+			distmatCopy = distmatCopy.getCroppedMatrix(relevantEntries);
+			
+			int[] relevantEntriesReducedCosts = new int[indexList.size() - nodes.size() + 2];
+			counter = 0;
+			relevantEntriesReducedCosts[counter++] = 1;
+			for (int i = 0; i < indexList.size()-1; i++) {
+				if (!nodes.contains(i) && i != 0) relevantEntriesReducedCosts[counter++] = i+1;
+			}
+			relevantEntriesReducedCosts[relevantEntriesReducedCosts.length-1] = distmatCopy.getDimension();
+			reducedCostsMatCopy = reducedCostsMatCopy.getCroppedMatrix(relevantEntriesReducedCosts);
+			
+			// crop index list 
+			for (int i = 0; i < indexList.size(); i++) {
+				if (newNodes.contains(indexList.get(i)) && indexList.get(i) != 0 
+						&& indexList.get(i) != (distanceMatrix.getDimension()-1)) {
+					indexList.remove(i);
+					i--;
+				}
+			}
+			
+			// crop nodes list
+			for (int i = 0; i < this.nodes.size(); i++) {
+				if (nodes.contains(this.nodes.get(i))) {
+					this.nodes.remove(i);
+					i--;
+				}
+			}
+		}
+		return result;
+	}
+	
+	
+	private Path labelNodesInternal() throws IOException {
 		long time = System.currentTimeMillis();
 		//determineNoGoRoutes(Math.floor(distanceMatrix.getDimension()/3));
 		Label initialLabel = new Label(0,0,0,0);
@@ -111,12 +203,13 @@ public class ESPPTWCC_Heuristic {
 			double lowestCosts = Double.MAX_VALUE;
 			int lowestCostsIndex = -1;
 			for (int i = 0; i < nps.size(); i++) {
-				if (nps.get(i).getNode() == distanceMatrix.getDimension()-1) continue;
+				if (nps.get(i).getNode() == distmatCopy.getDimension()-1) continue;
 				if (nps.get(i).getCosts() < lowestCosts) {
 					lowestCosts = nps.get(i).getCosts();
 					lowestCostsIndex = i;
 				}
 			}
+			if (lowestCostsIndex == -1) break;
 			Label nextLabel = nps.get(lowestCostsIndex);
 			nps.remove(lowestCostsIndex);
 			labelNext(nextLabel);
@@ -128,47 +221,46 @@ public class ESPPTWCC_Heuristic {
 		
 		
 		// compute the shortest path
-		ArrayList<Label> allFinalLabels = labelList.get(distanceMatrix.getDimension()-1);
+		ArrayList<Label> allFinalLabels = labelList.get(distmatCopy.getDimension()-1);
 		if (allFinalLabels.size() == 0) return null;
-		ArrayList<Path> paths = new ArrayList<Path>();
 		
 		// get n best routes
-		for (int i = 0; i < nBestRounds; i++) {
-			if (allFinalLabels.size() == 0) break;
-			paths.add(getNextBestPath(allFinalLabels));
-		}
-		System.out.println(paths.get(0).getReducedCosts());
-		return paths;
+		
+		if (allFinalLabels.size() == 0) return null;
+		Path path = getNextBestPath(allFinalLabels);
+		System.out.println(path.getReducedCosts());
+		return path;
 	}
 
 	private void labelNext(Label currentLabel) {
 		
 		// for all neighbors of the current label (which are all nodes)
-		for (int i = 1; i < distanceMatrix.getDimension(); i++) {
+		for (int i = 1; i < distmatCopy.getDimension(); i++) {
 			if (i == currentLabel.getNode()) continue;
 			
 			// check elementary constraint
 			if (checkNodeRepetition(currentLabel,i)) continue;
-
-			// skip nogo routes
-			if (noGoRoutes != null && noGoRoutes.get(currentLabel.getNode()).contains(i)) continue;
 			
 			// check if new label is feasible wrt time
-			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
+			int newTime = (int)(currentLabel.getTime() + distmatCopy.getEntry(currentLabel.getNode()+1, i+1));
 			if (newTime > nodes.get(i).getUpperTimeWindow()) continue;
 			// check if new label is feasible wrt demand
 			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
 			if (newDemand > ModelConstants.VEHICLE_CAPACITY) continue;
-			int newCosts = (int)(currentLabel.getCosts() + reducedCostsMatrix.getEntry(currentLabel.getNode()+1, i+1));
+			int newCosts = (int)(currentLabel.getCosts() + reducedCostsMatCopy.getEntry(currentLabel.getNode()+1, i+1));
 			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel);
 
 			// check if new label is dominated or dominates a label
 			ArrayList<Label> labels = labelList.get(i);
 			// different dominance criterion for the final node
 			// only depends on the costs
-			if (i == distanceMatrix.getDimension()-1) {
-				if (l.getCosts() < 0) labels.add(l);
-				labelCount++;
+			if (i == distmatCopy.getDimension()-1) {
+				ArrayList<Label> finalLabel = labelList.get(distmatCopy.getDimension()-1);
+				if (finalLabel.size() == 0) finalLabel.add(l);
+				else if (finalLabel.get(0).getCosts() > l.getCosts()) {
+					finalLabel.remove(0);
+					finalLabel.add(l);
+				}
 			}
 			else {
 				boolean dominated = false;
@@ -220,45 +312,6 @@ public class ESPPTWCC_Heuristic {
 		else return checkNodeRepetition(currentLabel.getPredecessor(), next);
 	}
 	
-	private double getPathCosts(ArrayList<Integer> path) {	
-		double costs = 0;
-		for (int i = 0; i < path.size() - 1; i++) {
-			costs += distanceMatrix.getEntry(path.get(i)+1, path.get(i+1)+1);
-		}
-		return costs;
-	}
-	
-
-	/**
-	 * For every node determines a set of no-go successor nodes based on the 
-	 * numberOfNoGoRoutesPerLocation longest distances
-	 * Exploits the problem characteristic of very relaxed resource constraints, in which 
-	 * reduced costs outweigh decisions based on restrictions
-	 * @param numberOfNoGoRoutesPerLocation
-	 */
-	private void determineNoGoRoutes(double numberOfNoGoRoutesPerLocation) {
-		noGoRoutes = new ArrayList<ArrayList<Integer>>();
-		ArrayList<Integer> nogo = new ArrayList<Integer>();
-		// can go everywhere from the depot
-		noGoRoutes.add(nogo);
-		for (int i = 1; i < nodes.size()-1; i++) {
-			nogo = new ArrayList<Integer>();
-			double[] costs = distanceMatrix.getRow(i+1);
-			for (int j = 0; j < numberOfNoGoRoutesPerLocation; j++) {
-				double highestCosts = 0;
-				int highestCostsIndex = -1;
-				for (int k = 1; k < nodes.size()-1; k++) {
-					if (costs[k] > highestCosts) {
-						highestCosts = costs[k];
-						highestCostsIndex = k;
-					}
-				}
-				nogo.add(highestCostsIndex);
-				costs[highestCostsIndex] = 0;
-			}
-			noGoRoutes.add(nogo);
-		}
-	}
 	
 	private Path getNextBestPath(ArrayList<Label> labels) {
 		double minimalCosts = Double.MAX_VALUE;
@@ -276,8 +329,8 @@ public class ESPPTWCC_Heuristic {
 			path.add(shortestPath.get(i));
 		}
 		labels.remove(index);
-		double costs = ModelHelperMethods.getRouteCostsIndexed0(distanceMatrix, path);
-		Path result = new Path(path, costs, reducedCosts, distanceMatrix.getDimension());
+		double costs = ModelHelperMethods.getRouteCostsIndexed0(distmatCopy, path);
+		Path result = new Path(path, costs, reducedCosts, distmatCopy.getDimension());
 		return result;
 	}
 	

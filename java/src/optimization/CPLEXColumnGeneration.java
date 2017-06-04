@@ -21,7 +21,6 @@ public class CPLEXColumnGeneration {
 	
 	private DistanceMatrix distmat;
 	private ArrayList<Order> orders;
-	private int nVehicles;
 	private int currentTime;
 	private ArrayList<Path> paths;
 	private double currentRelaxedCosts;
@@ -35,37 +34,62 @@ public class CPLEXColumnGeneration {
 		
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");
 		int currentTime = 40*60;
-		int compTimeLimit = 300;
-		CPLEXColumnGeneration colgen = new CPLEXColumnGeneration(distmat, orders, distmat.getDimension()-1, currentTime);
-		// initialize with flaschenpost
-		/**
-		ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
-		ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
-		for (int i = 0; i < initialPathsOrders.size(); i++) {
-			Order[] current = initialPathsOrders.get(i);
-			ArrayList<Integer> currentList = new ArrayList<Integer>();
-			currentList.add(0);
-			for (Order o : current) {
-				currentList.add(o.getDistanceMatrixLink()-1);
-			}
-			currentList.add(distmat.getDimension());
-			initialPathsNodes.add(currentList);
-		}
-		colgen.getRoutesWithFPInitial(compTimeLimit, initialPathsNodes);*/
+		int compTimeLimit = 120;
+		CPLEXColumnGeneration colgen = new CPLEXColumnGeneration(distmat, orders, currentTime);
 		
-		colgen.getRoutes(compTimeLimit);
+		
+		String sppAlgorithm = "spptwcc";
+		/**colgen.getRoutes(compTimeLimit, sppAlgorithm, true);
+		
+		sppAlgorithm = "spptwcc2";
+		colgen = new CPLEXColumnGeneration(distmat, orders, currentTime);
+		colgen.getRoutes(compTimeLimit, sppAlgorithm, true);
+		
+		sppAlgorithm = "spptwcc_heur";
+		colgen = new CPLEXColumnGeneration(distmat, orders, currentTime);
+		colgen.getRoutes(compTimeLimit, sppAlgorithm, true);
+		
+		sppAlgorithm = "spptwcc2_heur";
+		colgen = new CPLEXColumnGeneration(distmat, orders, currentTime);
+		colgen.getRoutes(compTimeLimit, sppAlgorithm, true);*/
+		
+		sppAlgorithm = "espptwcc_heur";
+		colgen = new CPLEXColumnGeneration(distmat, orders, currentTime);
+		colgen.getRoutes(compTimeLimit, sppAlgorithm, true);
+		
+		// initialize with flaschenpost
+
+		//sppAlgorithm = "espptwcc_heur_fp";
+		//sppAlgorithm = "espptwcc_fp";
+		//sppAlgorithm = "espptwcc_heur_fp_recomp";
+		if (sppAlgorithm.equals("espptwcc_heur_fp") || sppAlgorithm.equals("espptwcc_heur_fp_recomp") ||
+				sppAlgorithm.equals("espptwcc_fp")) {
+			ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
+			ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
+			for (int i = 0; i < initialPathsOrders.size(); i++) {
+				Order[] current = initialPathsOrders.get(i);
+				ArrayList<Integer> currentList = new ArrayList<Integer>();
+				currentList.add(0);
+				for (Order o : current) {
+					currentList.add(o.getDistanceMatrixLink()-1);
+				}
+				currentList.add(distmat.getDimension());
+				initialPathsNodes.add(currentList);
+			}
+			colgen.getRoutesWithFPInitial(compTimeLimit, initialPathsNodes, sppAlgorithm, true);			
+		}
 	}
 	
-	public CPLEXColumnGeneration(DistanceMatrix distmat, ArrayList<Order> orders, int nVehicles, 
+	public CPLEXColumnGeneration(DistanceMatrix distmat, ArrayList<Order> orders, 
 			   int currentTime) {
 		this.distmat = distmat;
 		this.orders = orders;
-		this.nVehicles = nVehicles;
 		this.currentTime = currentTime;
 		this.paths = new ArrayList<Path>();
 	}
 	
-	public void getRoutesWithFPInitial(int compTimeLimit, ArrayList<ArrayList<Integer>> initialPaths) throws IloException, IOException {
+	public void getRoutesWithFPInitial(int compTimeLimit, ArrayList<ArrayList<Integer>> initialPaths, 
+			String sppAlgorithm, boolean generateOutput) throws IloException, IOException {
 		 distmat = distmat.insertDummyDepotAsFinalNode();
 		 distmat = distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
 		 distmat = distmat.addCustomerServiceTimes(ModelConstants.REALISTIC_CUSTOMER_LOADING_TIME);
@@ -76,10 +100,10 @@ public class CPLEXColumnGeneration {
 					 nLocations);
 			 paths.add(p);
 		 }
-		 getRoutesInternal(compTimeLimit);
+		 getRoutesInternal(compTimeLimit, sppAlgorithm, generateOutput);
 	}
 	
-	public void getRoutes(int compTimeLimit) throws IloException, IOException {
+	public void getRoutes(int compTimeLimit, String sppAlgorithm, boolean generateOutput) throws IloException, IOException {
 		
 		 distmat = distmat.insertDummyDepotAsFinalNode();
 		 distmat = distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
@@ -97,41 +121,49 @@ public class CPLEXColumnGeneration {
 			 Path p = new Path(nodes, costs, 0, nLocations);
 			 paths.add(p);
 		 }
-		 getRoutesInternal(compTimeLimit);
+		 getRoutesInternal(compTimeLimit, sppAlgorithm, generateOutput);
 	}
 	
-	private void getRoutesInternal(int compTimeLimit) throws IloException, IOException {
+	private void getRoutesInternal(int compTimeLimit, String sppAlgorithm, boolean generateOutput) throws IloException, IOException {
 		 long time = System.currentTimeMillis();
 		 int iterationCount = 0;
 		 
 		 // column generation 
 		 while((System.currentTimeMillis() - time) < compTimeLimit*1000) {
 			 iterationCount++;
-			 if (iterationCount == 215) {
-				 System.out.println("halo");
-			 }
-			 System.out.println(iterationCount);
-		     
-		     // log information
-		     int decision[] = solveMIP();
-		     ArrayList<ArrayList<Integer>> routes = computeSolution(decision);
-		     double costs = 0;
-		     System.out.println("Decision in this iteration");
-		     for (int i = 0; i < routes.size(); i++) {
-		    	 for (int j = 0; j < routes.get(i).size(); j++) {
-					 System.out.print(routes.get(i).get(j) + "->");
-		    	 }
-		    	 System.out.println();
-				 costs += ModelHelperMethods.getRouteCosts(distmat, routes.get(i));
-		     }
-		     solveRelaxation();
-			 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen_spptwcc_heuristic.csv", true);
-			 writer.write((Math.floor(System.currentTimeMillis() - time) / 1000)+  "," + costs + "," + currentRelaxedCosts + "\n");
-		     writer.close();
-		     
 		     // get duals
 		     double[] duals = solveDual();
-		     //double[] duals = solveDualWithIntegerDecision(decision);
+		     
+		     // log information
+			 if (generateOutput) {
+			     int decision[] = solveMIP();
+			     /**for (int i = 0; i < decision.length; i++) {
+			    	 if (decision[i] == 1) System.out.println("Route: " + i);
+			     }*/
+			     ArrayList<ArrayList<Integer>> routes = computeSolution(decision);
+			     
+			     solveRelaxation();
+				 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen" + sppAlgorithm + ".csv", true);
+				 writer.write((Math.floor(System.currentTimeMillis() - time) / 1000)+  "," + currentMIPCosts + "," + currentRelaxedCosts + "\n");
+			     writer.close();
+				 FileWriter writer2 = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen" + sppAlgorithm + "_duals.csv", true);
+				 String dualsString = "" + (Math.floor(System.currentTimeMillis() - time) / 1000 + ",");
+				 for (double d : duals) {			  
+					 dualsString += d + ",";
+				 }
+				 dualsString += "\n";
+				 writer2.write(dualsString);		
+				 writer2.close();
+			     
+			     ArrayList<Integer> customersContained = new ArrayList<Integer>();
+			     for (int i = 1; i < 30 + 1; i++) {
+			    	 for (int p = 0; p < routes.size(); p++) {
+			    		 if (routes.get(p).contains(i)) {
+			    			 if (!customersContained.contains(i)) customersContained.add(i);
+			    		 }
+			    	 }
+			     }
+			 }
 		     
 		     
 		     if ((System.currentTimeMillis() - time) > compTimeLimit*1000) break;
@@ -148,31 +180,81 @@ public class CPLEXColumnGeneration {
 			 // use espptwcc only for problems with tight bounds
 			 //ESPPTWCC espptwcc = new ESPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
 			 //Path newPath = espptwcc.labelNodes();
+			 Path newPath = null;
+			 ArrayList<Path> newPaths = null;
+			 if (sppAlgorithm.equals("espptwcc_heur") || sppAlgorithm.equals("espptwcc_heur_fp")) {
+				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 10);
+				 newPaths = espptwcc_heuristic.labelNodes();			 
+			 }
 			 
-			 //SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
-			 //Path newPath = spptwcc.labelNodes();
+			 else if (sppAlgorithm.equals("espptwcc_heur_fp_recomp")) {
+				 ESPPTWCC_Heuristic_Recomputation espptwcc_heuristic_recomp = 
+						 new ESPPTWCC_Heuristic_Recomputation(distmat, reducedCostsMatrix, orders, currentTime, 20);
+				 newPaths = espptwcc_heuristic_recomp.labelNodes();			 
+			 }
+			 
+			 else if (sppAlgorithm.equals("espptwcc_fp")) {
+				 ESPPTWCC espptwcc = new ESPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
+				 newPath = espptwcc.labelNodes();
+			 }
+		     
+			 else if (sppAlgorithm.equals("spptwcc")) {
+				 SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
+				 newPath = spptwcc.labelNodes();			 
+			 }
 			 
 			 // 2-cycle elimination
-			 //SPPTWCC2 spptwcc2 = new SPPTWCC2(distmat, reducedCostsMatrix, orders, currentTime);
-			 // Path newPath = spptwcc2.labelNodes();
+			 else if (sppAlgorithm.equals("spptwcc2")) {
+				 SPPTWCC2 spptwcc2 = new SPPTWCC2(distmat, reducedCostsMatrix, orders, currentTime);
+				 newPath = spptwcc2.labelNodes();			 
+			 }
+			 
+			 // 2-cycle elimination with nogo routes
+			 else if (sppAlgorithm.equals("spptwcc2_heur")) {
+				 double factor = 1.4;
+				 SPPTWCC2_Experimental spptwcc2_experimental = new SPPTWCC2_Experimental(distmat, reducedCostsMatrix, orders, currentTime, factor);
+				 newPath = spptwcc2_experimental.labelNodes();	 
+			 }
+
+			 // spptwcc nogo routes
+			 else if (sppAlgorithm.equals("spptwcc_heur")) {
+				 double factor = 1.4;
+				 SPPTWCC_Experimental spptwcc_experimental = new SPPTWCC_Experimental(distmat, reducedCostsMatrix, orders, currentTime, factor);
+				 newPath = spptwcc_experimental.labelNodes();	 
+			 }
+			 else return;
 			 
 			 // heuristic for espptwcc
-			 ESPPTWCC_Heuristic spptwcc_heu = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime);
-			 Path newPath = spptwcc_heu.labelNodes();
+			 //ESPPTWCC_Heuristic spptwcc_heu = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime);
+			 //Path newPath = spptwcc_heu.labelNodes();
 		     
-			 // check if path has negative reduced costs, if not exist loop
-			 if (newPath.getReducedCosts() >= 0) break;
-			 
-			 paths.add(newPath);
+			 if (!sppAlgorithm.equals("espptwcc_heur") && !sppAlgorithm.equals("espptwcc_heur_fp") && 
+					 !sppAlgorithm.equals("espptwcc_heur_fp_recomp")) {
+				 // check if path has negative reduced costs, if not exist loop
+				 if (newPath.getReducedCosts() >= 0) break;
+				 
+				 paths.add(newPath);		 
+			 }
+			 else {
+				 if (newPaths == null) {
+					 break;
+				 }
+				 paths.addAll(newPaths);
+			 }
 		 }
 		 
-		 solveRelaxation();
+		 /**double[] relaxedValues = solveRelaxation();
+		 for (int i = 0; i < relaxedValues.length; i++) {
+			 System.out.println(i + " = " + relaxedValues[i]);
+		 }*/
 		 
 		 // now optimize via branch and bound
 		 int[] decision = solveMIP();
-		 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen_spptwcc_heuristic.csv", true);
-		 writer.write((Math.floor(System.currentTimeMillis() - time) / 1000)+  "," + currentMIPCosts + "," + currentRelaxedCosts + "\n");
-	     writer.close(); 
+		 if (generateOutput) {
+			 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen" + sppAlgorithm + ".csv", true);
+			 writer.write((Math.floor(System.currentTimeMillis() - time) / 1000)+  "," + currentMIPCosts + "," + currentRelaxedCosts + "\n");
+		     writer.close(); 
+		 }
 		 
 	     System.out.println("Paths used with overlapping: " );
 
@@ -182,7 +264,7 @@ public class CPLEXColumnGeneration {
 	     for (int i = 0; i < paths.size(); i++) {
 	    	 if (decision[i] == 1) {
 	    		 int[][] arcsUsed = paths.get(i).getArcsUsed();
-	    		 ArrayList<Integer> path = ModelHelperMethods.convertArcsUsedToPath(arcsUsed);
+	    		 ArrayList<Integer> path = paths.get(i).getNodes();
 	    		 ArrayList<Integer> newPath = new ArrayList<Integer>();
 	    		 // eliminate duplicates except for the depot
 	    		 for (Integer j : path) {
@@ -207,21 +289,36 @@ public class CPLEXColumnGeneration {
 				 System.out.print(routes.get(i).get(j) + "->");
 	    	 }
 	    	 System.out.println();
-			 costs += ModelHelperMethods.getRouteCosts(distmat, routes.get(i));
+			 costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, routes.get(i));
 	     }
 	     System.out.println("Final costs: "  + costs);
+	     if (generateOutput) {
+		     try {
+				ModelHelperMethods.generateOutput(routes, compTimeLimit);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	     }
 	     
-	     try {
-			ModelHelperMethods.generateOutput(routes, compTimeLimit);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	     // restart with current best solution
+	     /**
+	     paths = new ArrayList<Path>();
+	     for (ArrayList<Integer> route : routes) {
+	    	 double c = ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
+	    	 Path p = new Path(route, c, 0, distmat.getDimension());
+	    	 paths.add(p);
+	     }
+	     
+	     getRoutesInternal(compTimeLimit, sppAlgorithm, generateOutput);*/
 	}
 	
 	private double[] solveDual() throws IloException {
 		 int nLocations = distmat.getDimension();
 		 int nCustomers = nLocations - 2;
 		 IloCplex cplex = new IloCplex();
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Feasibility, 1e-9);
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Optimality, 1e-9);
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Markowitz, 0.999);
 		 cplex.setOut(null);
 		 IloNumVar[] pi = cplex.numVarArray(nCustomers, 0.0, Double.MAX_VALUE);
 			
@@ -254,11 +351,13 @@ public class CPLEXColumnGeneration {
 	     return result;
 	}
 	
-	
 	private int[] solveMIP() throws IloException {
 		 int nLocations = distmat.getDimension();
 		 int nCustomers = nLocations - 2;
 		 IloCplex cplex = new IloCplex();
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Feasibility, 1e-9);
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Optimality, 1e-9);
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Markowitz, 0.999);
 		 cplex.setOut(null);
 		 IloNumVar[] y = cplex.boolVarArray(paths.size());
 		
@@ -273,47 +372,11 @@ public class CPLEXColumnGeneration {
 	     for (int i = 1; i < nCustomers + 1; i++) {
 	    	 IloLinearNumExpr expr = cplex.linearNumExpr();
 		     for (int p = 0; p < paths.size(); p++) {
-		    	 for (int j = 0; j < nLocations; j++) {
-		    		 expr.addTerm(paths.get(p).getArcsUsed()[i][j], y[p]);
-		    	 }
+		    	 if (paths.get(p).getNodes().contains(i)) expr.addTerm(1.0, y[p]);
 		     }
 		     cplex.addGe(expr, 1.0);
-	     }
-	     cplex.solve();
-	     int[] decision = new int[y.length];
-	     for (int i = 0; i < y.length; i++) {
-	    	 if (cplex.getValue(y[i]) == 1) decision[i] = 1;
-	     }
-	     currentMIPCosts = cplex.getObjValue();
-	     //System.out.println("Costs: " + cplex.getObjValue());
-	     cplex.end();
-	     return decision;
-	}
-	
-	private int[] solveMIPAlternative() throws IloException {
-		 int nLocations = distmat.getDimension();
-		 int nCustomers = nLocations - 2;
-		 IloCplex cplex = new IloCplex();
-		 cplex.setOut(null);
-		 IloNumVar[] y = cplex.boolVarArray(paths.size());
-		
-		 // build objective function
-	     IloLinearNumExpr obj = cplex.linearNumExpr();	
-	     for (int p = 0; p < paths.size(); p++) {
-	         obj.addTerm(paths.get(p).getCosts(), y[p]);
-	     }
-	     cplex.addMinimize(obj);
+	     }	     
 	     
-	     // constraint 1
-	     for (int i = 1; i < nCustomers + 1; i++) {
-	    	 IloLinearNumExpr expr = cplex.linearNumExpr();
-		     for (int p = 0; p < paths.size(); p++) {
-		    	 for (int j = 0; j < nLocations; j++) {
-		    		 expr.addTerm(1.0, y[p]);
-		    	 }
-		     }
-		     cplex.addGe(expr, 1.0);
-	     }
 	     cplex.solve();
 	     int[] decision = new int[y.length];
 	     for (int i = 0; i < y.length; i++) {
@@ -329,6 +392,9 @@ public class CPLEXColumnGeneration {
 		int nLocations = distmat.getDimension();
 		 int nCustomers = nLocations - 2;
 		 IloCplex cplex = new IloCplex();
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Feasibility, 1e-9);
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Optimality, 1e-9);
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Markowitz, 0.999);
 		 cplex.setOut(null);
 		 IloNumVar[] y = cplex.numVarArray(paths.size(), 0, 1);
 		
@@ -348,7 +414,7 @@ public class CPLEXColumnGeneration {
 		    		 expr.addTerm(paths.get(p).getArcsUsed()[i][j], y[p]);
 		    	 }
 		     }
-		     constraints.add(cplex.addEq(1.0, expr));
+		     constraints.add(cplex.addGe(expr, 1.0));
 	     }
 	     cplex.solve();
 	     /**
@@ -358,110 +424,12 @@ public class CPLEXColumnGeneration {
 	     
 	     //System.out.println("Relaxed costs = " + cplex.getObjValue());
 	     
-	     double[] duals = new double[y.length];
-	     for (int i = 0; i < nCustomers; i++) {
-	    	 duals[i] = cplex.getDual(constraints.get(i));
+	     double[] result = new double[paths.size()];
+	     for (int p = 0; p < paths.size(); p++) {
+	    	 result[p] = cplex.getValue(y[p]);
 	    	 //System.out.println("pi_" + i + "=" + duals[i]);
 	     }
 	     currentRelaxedCosts = cplex.getObjValue();
-	     cplex.end();
-	     return duals;
-	}
-	
-	private double[] solveRelaxationWithConstraints(int[] decision) throws IloException {
-		 int nLocations = distmat.getDimension();
-		 int nCustomers = nLocations - 2;
-		 IloCplex cplex = new IloCplex();
-		 cplex.setOut(null);
-		 IloNumVar[] y = cplex.numVarArray(paths.size(), 0, 1);
-		
-		 // build objective function
-	     IloLinearNumExpr obj = cplex.linearNumExpr();	
-	     for (int p = 0; p < paths.size(); p++) {
-	         obj.addTerm(paths.get(p).getCosts(), y[p]);
-	     }
-	     cplex.addMinimize(obj);
-	     
-	     // constraint 1
-	     ArrayList<IloRange> constraints = new ArrayList<IloRange>();
-	     for (int i = 1; i < nCustomers + 1; i++) {
-	    	 IloLinearNumExpr expr = cplex.linearNumExpr();
-		     for (int p = 0; p < paths.size(); p++) {
-		    	 for (int j = 0; j < nLocations; j++) {
-		    		 expr.addTerm(paths.get(p).getArcsUsed()[i][j], y[p]);
-		    	 }
-		     }
-		     constraints.add(cplex.addEq(1.0, expr));
-	     }
-	     
-	     // add constraints
-	     for (int p = 0; p < Math.floor(paths.size()/2); p++) {
-	    	 if (decision[p] == 1) {
-	    		 IloLinearNumExpr expr = cplex.linearNumExpr();
-	    		 expr.addTerm(1.0, y[p]);
-	    		 cplex.addGe(expr, 0.5);
-	    	 }
-	     }
-	     
-	     cplex.solve();
-	     
-	     
-	     
-	     double[] duals = new double[y.length];
-	     for (int i = 0; i < nCustomers; i++) {
-	    	 duals[i] = cplex.getDual(constraints.get(i));
-	    	 System.out.println("pi_" + i + "=" + duals[i]);
-	     }
-	     cplex.end();
-	     return duals;
-	}
-
-	private double[] solveDualWithIntegerDecision(int[] decision) throws IloException {
-		 int nLocations = distmat.getDimension();
-		 int nCustomers = nLocations - 2;
-		 IloCplex cplex = new IloCplex();
-		 cplex.setOut(null);
-		 
-		 // determine number of decisions = 1 for fixing constraints
-		 int nDecisions = 0;
-	     for (int i = 0; i < decision.length; i++) {
-	    	 nDecisions += decision[i];
-	     }
-		 
-		 IloNumVar[] pi = cplex.numVarArray(nCustomers+nDecisions, 0.0, Double.MAX_VALUE);
-			
-		 // build objective function
-	     IloLinearNumExpr obj = cplex.linearNumExpr();	
-	     for (int i = 0; i < nCustomers; i++) {
-	         obj.addTerm(1.0, pi[i]);
-	     }
-	     
-	     // add PIs for fixing integer decisions
-	     for (int i = nCustomers; i < pi.length; i++) {
-	    	 if (decision[i] == 1) obj.addTerm(1.0, pi[i]);
-	     }
-	     
-	     
-	     cplex.addMaximize(obj);
-	     
-	     // build constraints
-	     for (int p = 0; p < paths.size(); p++) {
-		     IloLinearNumExpr expr = cplex.linearNumExpr();
-	    	 for (int i = 1; i < nCustomers + 1; i++) {
-	    		 for (int j = 0; j < nLocations; j++) {
-	    			 expr.addTerm(paths.get(p).getArcsUsed()[i][j], pi[i-1]);
-	    		 }
-	    	 }
-	    	 cplex.addLe(expr, paths.get(p).getCosts());
-	     }
-
-	     cplex.solve();
-	     double[] result = new double[nCustomers+1];
-	     result[0] = 0;
-	     for (int i = 0; i < nCustomers; i++) {
-	    	 result[i+1] = cplex.getValue(pi[i]);
-	    	 //System.out.println("pi_"+ (i+2) + "=" + cplex.getValue(pi[i]));
-	     }
 	     cplex.end();
 	     return result;
 	}
@@ -474,7 +442,7 @@ public class CPLEXColumnGeneration {
 		HashMap<Integer, ArrayList<Integer>> duplicatesMap = new HashMap<Integer, ArrayList<Integer>>();
 		for (int i = 0; i < routes.size(); i++) {
 			ArrayList<Integer> route = routes.get(i);
-			for (int j = 0; j < route.size()-1; j++) {
+			for (int j = 1; j < route.size()-1; j++) {
 				if (route.get(j) == 1) continue;
 				if (nodes.contains(route.get(j))) {
 					if (!duplicates.contains(route.get(j))) duplicates.add(route.get(j));
@@ -526,11 +494,17 @@ public class CPLEXColumnGeneration {
 				routesCopy.get(duplicateRoutes.get(j)).remove(new Integer(duplicate));
 			}
 			ArrayList<ArrayList<Integer>> newRoutes = eliminateDuplicateCustomersBranchingStep(routesCopy, mapCopy);
+			/**for (int j = 0; j < newRoutes.size(); j++) {
+				for (int k = 0; k < newRoutes.get(j).size(); k++) {
+					System.out.print(newRoutes.get(j).get(k) + "->");
+				}
+				System.out.println();
+			}*/
 			
 			// calculate costs
 			double totalCosts = 0;
 			for (int j = 0; j < newRoutes.size(); j++) {
-				totalCosts += ModelHelperMethods.getRouteCosts(distmat, newRoutes.get(i));
+				totalCosts += ModelHelperMethods.getRouteCostsIndexed0(distmat, newRoutes.get(j));
 			}
 			if (totalCosts < minimumCost) minimumCostsConfiguration = newRoutes;
 		}
