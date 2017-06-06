@@ -135,7 +135,7 @@ public class SPPTWCC2_Experimental {
 		FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\LabelsGenerated_SPPTWCC2_Standard.csv", true);
 		writer.write(labelCount + "\n");
 		writer.close();
-		System.out.println("Labels created: " + labelCount);
+		//System.out.println("Labels created: " + labelCount);
 		// compute the shortest path
 		ArrayList<Label> allFinalLabels = labelList.get(distanceMatrix.getDimension()-1);
 		double minimalCosts = Double.MAX_VALUE;
@@ -156,15 +156,15 @@ public class SPPTWCC2_Experimental {
 		for (int i = shortestPath.size() - 1; i >= 0; i--) {
 			path.add(shortestPath.get(i));
 			//writer.write(shortestPath.get(i) + "->");
-		}
+		}/**
 		for (int i = 0; i < path.size()-1; i++) {
 			System.out.print(path.get(i) + "->");
 		}
-		System.out.println(path.get(path.size()-1));
+		System.out.println(path.get(path.size()-1));*/
 		
-		System.out.println("Costs of the shortest path: " + allFinalLabels.get(index).getCosts());
-		System.out.println("Number of reduced costs paths: " + allFinalLabels.size());
-		System.out.println("Time consumed: " + (System.currentTimeMillis() - time));
+		//System.out.println("Costs of the shortest path: " + allFinalLabels.get(index).getCosts());
+		//System.out.println("Number of reduced costs paths: " + allFinalLabels.size());
+		//System.out.println("Time consumed: " + (System.currentTimeMillis() - time));
 		double costs = getPathCosts(path);
 		Path result = new Path(path, costs, labelList.get(distanceMatrix.getDimension()-1).get(0).getCosts(), 
 				distanceMatrix.getDimension());

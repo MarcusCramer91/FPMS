@@ -90,8 +90,8 @@ timeStamps = c(data_spptwcc[,1], data_spptwcc2[,1], data_spptwcc_heuristic[,1], 
                data_espptwcc_heuristic[,1])
 timeStamps = as.data.frame(cbind(time = as.numeric(timeStamps), 
                                  groups = c(rep(1, length(data_spptwcc[,1])), rep(2, length(data_spptwcc2[,1])), 
-                                               rep(3, length(data_spptwcc_heuristic[,1])), rep(4, length(data_spptwcc2_heuristic[,1])), 
-                                               rep(5, length(data_espptwcc_heuristic[,1])))))
+                                            rep(3, length(data_spptwcc_heuristic[,1])), rep(4, length(data_spptwcc2_heuristic[,1])), 
+                                            rep(5, length(data_espptwcc_heuristic[,1])))))
 timeStamps = timeStamps[sort.int(timeStamps[,1], index.return = TRUE)$ix,]
 results = numeric(nrow(timeStamps))
 for (i in 1:nrow(timeStamps)) {
@@ -259,3 +259,524 @@ plot(duals[,1], distance)
 points(dualsFp[,1], distanceFp, col = "red")
 
 plot(dualsFp[,1], dualsFp[,7])
+
+########################################################
+# test cases
+espptwcc_heur_fp_20 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_30 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_40 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("espptwcc_heur_fp", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      espptwcc_heur_fp_20 = cbind(espptwcc_heur_fp_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      espptwcc_heur_fp_30 = cbind(espptwcc_heur_fp_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      espptwcc_heur_fp_40 = cbind(espptwcc_heur_fp_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      espptwcc_heur_fp_50 = cbind(espptwcc_heur_fp_50, alignedData)
+    }
+  }
+}
+
+espptwcc_heur_20 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_30 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_40 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_espptwcc_heur", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      espptwcc_heur_20 = cbind(espptwcc_heur_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      espptwcc_heur_30 = cbind(espptwcc_heur_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      espptwcc_heur_40 = cbind(espptwcc_heur_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      espptwcc_heur_50 = cbind(espptwcc_heur_50, alignedData)
+    }
+  }
+}
+
+spptwcc_heur_20 = data.frame(time = seq(1, 180, by = 1))
+spptwcc_heur_30 = data.frame(time = seq(1, 180, by = 1))
+spptwcc_heur_40 = data.frame(time = seq(1, 180, by = 1))
+spptwcc_heur_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_spptwcc_heur", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      spptwcc_heur_20 = cbind(spptwcc_heur_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      spptwcc_heur_30 = cbind(spptwcc_heur_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      spptwcc_heur_40 = cbind(spptwcc_heur_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      spptwcc_heur_50 = cbind(spptwcc_heur_50, alignedData)
+    }
+  }
+}
+
+spptwcc_20 = data.frame(time = seq(1, 180, by = 1))
+spptwcc_30 = data.frame(time = seq(1, 180, by = 1))
+spptwcc_40 = data.frame(time = seq(1, 180, by = 1))
+spptwcc_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_spptwcc", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      spptwcc_20 = cbind(spptwcc_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      spptwcc_30 = cbind(spptwcc_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      spptwcc_40 = cbind(spptwcc_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      spptwcc_50 = cbind(spptwcc_50, alignedData)
+    }
+  }
+}
+
+spptwcc2_20 = data.frame(time = seq(1, 180, by = 1))
+spptwcc2_30 = data.frame(time = seq(1, 180, by = 1))
+spptwcc2_40 = data.frame(time = seq(1, 180, by = 1))
+spptwcc2_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_spptwcc2", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      spptwcc2_20 = cbind(spptwcc2_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      spptwcc2_30 = cbind(spptwcc2_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      spptwcc2_40 = cbind(spptwcc2_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      spptwcc2_50 = cbind(spptwcc2_50, alignedData)
+    }
+  }
+}
+
+spptwcc2_heur_20 = data.frame(time = seq(1, 180, by = 1))
+spptwcc2_heur_30 = data.frame(time = seq(1, 180, by = 1))
+spptwcc2_heur_40 = data.frame(time = seq(1, 180, by = 1))
+spptwcc2_heur_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_spptwcc2_heur", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      spptwcc2_heur_20 = cbind(spptwcc2_heur_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      spptwcc2_heur_30 = cbind(spptwcc2_heur_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      spptwcc2_heur_40 = cbind(spptwcc2_heur_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      spptwcc2_heur_50 = cbind(spptwcc2_heur_50, alignedData)
+    }
+  }
+}
+
+espptwcc_heur_fp_5paths_20 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_5paths_30 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_5paths_40 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_5paths_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_espptwcc_heur_fp_5paths", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      espptwcc_heur_fp_5paths_20 = cbind(espptwcc_heur_fp_5paths_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      espptwcc_heur_fp_5paths_30 = cbind(espptwcc_heur_fp_5paths_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      espptwcc_heur_fp_5paths_40 = cbind(espptwcc_heur_fp_5paths_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      espptwcc_heur_fp_5paths_50 = cbind(espptwcc_heur_fp_5paths_50, alignedData)
+    }
+  }
+}
+
+espptwcc_heur_fp_10paths_20 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_10paths_30 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_10paths_40 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_10paths_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_espptwcc_heur_fp_10paths", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      espptwcc_heur_fp_10paths_20 = cbind(espptwcc_heur_fp_10paths_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      espptwcc_heur_fp_10paths_30 = cbind(espptwcc_heur_fp_10paths_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      espptwcc_heur_fp_10paths_40 = cbind(espptwcc_heur_fp_10paths_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      espptwcc_heur_fp_10paths_50 = cbind(espptwcc_heur_fp_10paths_50, alignedData)
+    }
+  }
+}
+
+espptwcc_heur_fp_20paths_20 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_20paths_30 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_20paths_40 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_20paths_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_espptwcc_heur_fp_20paths", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      espptwcc_heur_fp_20paths_20 = cbind(espptwcc_heur_fp_20paths_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      espptwcc_heur_fp_20paths_30 = cbind(espptwcc_heur_fp_20paths_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      espptwcc_heur_fp_20paths_40 = cbind(espptwcc_heur_fp_20paths_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      espptwcc_heur_fp_20paths_50 = cbind(espptwcc_heur_fp_20paths_50, alignedData)
+    }
+  }
+}
+
+espptwcc_heur_fp_50paths_20 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_50paths_30 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_50paths_40 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_50paths_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_espptwcc_heur_fp_50paths", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      espptwcc_heur_fp_50paths_20 = cbind(espptwcc_heur_fp_50paths_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      espptwcc_heur_fp_50paths_30 = cbind(espptwcc_heur_fp_50paths_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      espptwcc_heur_fp_50paths_40 = cbind(espptwcc_heur_fp_50paths_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      espptwcc_heur_fp_50paths_50 = cbind(espptwcc_heur_fp_50paths_50, alignedData)
+    }
+  }
+}
+
+espptwcc_heur_fp_recomp_20 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_recomp_30 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_recomp_40 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_recomp_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_espptwcc_heur_fp_recomp", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      espptwcc_heur_fp_recomp_20 = cbind(espptwcc_heur_fp_recomp_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      espptwcc_heur_fp_recomp_30 = cbind(espptwcc_heur_fp_recomp_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      espptwcc_heur_fp_recomp_40 = cbind(espptwcc_heur_fp_recomp_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      espptwcc_heur_fp_recomp_50 = cbind(espptwcc_heur_fp_recomp_50, alignedData)
+    }
+  }
+}
+
+espptwcc_heur_fp_50paths_box_20 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_50paths_box_30 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_50paths_box_40 = data.frame(time = seq(1, 180, by = 1))
+espptwcc_heur_fp_50paths_box_50 = data.frame(time = seq(1, 180, by = 1))
+allResults = list.files("results/colgen")
+for (i in 1:length(allResults)) {
+  if (grepl("_espptwcc_heur_fp_50paths_box", allResults[i])) {
+    data = read.csv(paste("results/colgen/", allResults[i], sep = ""), header = FALSE)
+    alignedData = data.frame(integer = numeric(180), relaxed = numeric(180))
+    for (j in 1:nrow(alignedData)) {
+      alignedData[j,] = data[which((data[data[,1] < j,1]-j) == max(data[data[,1] < j,1]-j)),2:3]
+    }
+    if (grepl("_20_", allResults[i])) {
+      espptwcc_heur_fp_50paths_box_20 = cbind(espptwcc_heur_fp_50paths_box_20, alignedData)
+    }
+    else if (grepl("_30_", allResults[i])) {
+      espptwcc_heur_fp_50paths_box_30 = cbind(espptwcc_heur_fp_50paths_box_30, alignedData)
+    }
+    else if (grepl("_40_", allResults[i])) {
+      espptwcc_heur_fp_50paths_box_40 = cbind(espptwcc_heur_fp_50paths_box_40, alignedData)
+    }
+    else if (grepl("_50_", allResults[i])) {
+      espptwcc_heur_fp_50paths_box_50 = cbind(espptwcc_heur_fp_50paths_box_50, alignedData)
+    }
+  }
+}
+
+
+espptwcc_heur_fp_all = cbind(espptwcc_heur_fp_20, espptwcc_heur_fp_30[,-1], espptwcc_heur_fp_40[,-1], espptwcc_heur_fp_50[,-1])
+espptwcc_heur_all = cbind(espptwcc_heur_20, espptwcc_heur_30[,-1], espptwcc_heur_40[,-1], espptwcc_heur_50[,-1])
+spptwcc_all = cbind(spptwcc_20, spptwcc_30[,-1], spptwcc_40[,-1], spptwcc_50[,-1])
+spptwcc_heur_all = cbind(spptwcc_heur_20, spptwcc_heur_30[,-1], spptwcc_heur_40[,-1], spptwcc_heur_50[,-1])
+spptwcc2_all = cbind(spptwcc2_20, spptwcc2_30[,-1], spptwcc2_40[,-1], spptwcc2_50[,-1])
+spptwcc2_heur_all = cbind(spptwcc2_heur_20, spptwcc2_heur_30[,-1], spptwcc2_heur_40[,-1], spptwcc2_heur_50[,-1])
+espptwcc_heur_fp_5paths_all = cbind(espptwcc_heur_fp_5paths_20, espptwcc_heur_fp_5paths_30[,-1], espptwcc_heur_fp_5paths_40[,-1], espptwcc_heur_fp_5paths_50[,-1])
+espptwcc_heur_fp_10paths_all = cbind(espptwcc_heur_fp_10paths_20, espptwcc_heur_fp_10paths_30[,-1], espptwcc_heur_fp_10paths_40[,-1], espptwcc_heur_fp_10paths_50[,-1])
+espptwcc_heur_fp_20paths_all = cbind(espptwcc_heur_fp_20paths_20, espptwcc_heur_fp_20paths_30[,-1], espptwcc_heur_fp_20paths_40[,-1], espptwcc_heur_fp_20paths_50[,-1])
+espptwcc_heur_fp_50paths_all = cbind(espptwcc_heur_fp_50paths_20, espptwcc_heur_fp_50paths_30[,-1], espptwcc_heur_fp_50paths_40[,-1], espptwcc_heur_fp_50paths_50[,-1])
+espptwcc_heur_fp_recomp_all = cbind(espptwcc_heur_fp_recomp_20, espptwcc_heur_fp_recomp_30[,-1], espptwcc_heur_fp_recomp_40[,-1], espptwcc_heur_fp_recomp_50[,-1])
+espptwcc_heur_fp_50paths_box_all = cbind(espptwcc_heur_fp_50paths_box_20, espptwcc_heur_fp_50paths_box_30[,-1], espptwcc_heur_fp_50paths_box_40[,-1], espptwcc_heur_fp_50paths_box_50[,-1])
+
+# plot initial spp algorithms comparison
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_all[,seq(2, ncol(spptwcc_all), by = 2)], 1, mean),
+                                             apply(spptwcc2_all[,seq(2, ncol(spptwcc2_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_all[,seq(2, ncol(espptwcc_heur_all), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_all[,seq(2, ncol(spptwcc_heur_all), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_all[,seq(2, ncol(spptwcc2_heur_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_all)),
+                                          rep(2, nrow(spptwcc_all)),
+                                          rep(3, nrow(spptwcc_heur_all)),
+                                          rep(4, nrow(spptwcc2_all)),
+                                          rep(5, nrow(spptwcc2_heur_all))))
+
+pdf("images/sppComparison1.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_all[,seq(3, ncol(spptwcc_all), by = 2)], 1, mean),
+                                             apply(spptwcc2_all[,seq(3, ncol(spptwcc2_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_all[,seq(3, ncol(espptwcc_heur_all), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_all[,seq(3, ncol(spptwcc_heur_all), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_all[,seq(3, ncol(spptwcc2_heur_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_all)),
+                                          rep(2, nrow(spptwcc_all)),
+                                          rep(3, nrow(spptwcc_heur_all)),
+                                          rep(4, nrow(spptwcc2_all)),
+                                          rep(5, nrow(spptwcc2_heur_all))))
+
+pdf("images/sppComparisonRelaxed1.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# plot dummy initial vs. flaschenpost initial
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 2),
+                                distance = c(apply(espptwcc_heur_all[,seq(2, ncol(espptwcc_heur_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_all[,seq(2, ncol(espptwcc_heur_fp_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_all)),
+                                          rep(2, nrow(espptwcc_heur_fp_all))))
+
+pdf("images/sppComparison2.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 2),
+                                distance = c(apply(espptwcc_heur_all[,seq(3, ncol(espptwcc_heur_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_all[,seq(3, ncol(espptwcc_heur_fp_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_all)),
+                                          rep(2, nrow(espptwcc_heur_fp_all))))
+
+pdf("images/sppComparisonRelaxed2.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+# plot different paths returned
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_all[,seq(2, ncol(espptwcc_heur_fp_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_all[,seq(2, ncol(espptwcc_heur_fp_5paths_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_all[,seq(2, ncol(espptwcc_heur_fp_10paths_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_all[,seq(2, ncol(espptwcc_heur_fp_20paths_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_all[,seq(2, ncol(espptwcc_heur_fp_50paths_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_all)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_all)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_all)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_all)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_all))))
+
+pdf("images/sppComparison3.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_all[,seq(3, ncol(espptwcc_heur_fp_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_all[,seq(3, ncol(espptwcc_heur_fp_5paths_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_all[,seq(3, ncol(espptwcc_heur_fp_10paths_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_all[,seq(3, ncol(espptwcc_heur_fp_20paths_all), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_all[,seq(3, ncol(espptwcc_heur_fp_50paths_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_all)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_all)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_all)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_all)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_all))))
+
+pdf("images/sppComparisonRelaxed3.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+# plot 20 paths returned vs. recomputation
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_all[,seq(2, ncol(espptwcc_heur_fp_50paths_all), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_all[,seq(2, ncol(espptwcc_heur_fp_recomp_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_all)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_all))))
+
+pdf("images/sppComparison4.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_all[,seq(3, ncol(espptwcc_heur_fp_50paths_all), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_all[,seq(3, ncol(espptwcc_heur_fp_recomp_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_all)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_all))))
+
+pdf("images/sppComparisonRelaxed4.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# plot box method vs. non-box method
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_all[,seq(2, ncol(espptwcc_heur_fp_50paths_all), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_all[,seq(2, ncol(espptwcc_heur_fp_50paths_box_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_all)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_all))))
+
+pdf("images/sppComparison5.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_all[,seq(3, ncol(espptwcc_heur_fp_50paths_all), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_all[,seq(3, ncol(espptwcc_heur_fp_50paths_box_all), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_all)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_all))))
+
+pdf("images/sppComparisonRelaxed5.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()

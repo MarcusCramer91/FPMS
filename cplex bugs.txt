@@ -1,0 +1,118 @@
+Successfully imported a distance matrix of dimension 31*31
+Successfully imported a distance matrix of dimension 31*31
+Initial Flaschenpost solution:
+0->7->8->1->9->2->3->10->30->31->
+0->24->22->21->28->23->29->25->26->14->31->
+0->19->13->11->16->17->20->12->15->18->31->
+0->27->4->5->6->31->
+Costs: 24742.0
+
+########################################
+
+Exploring branch node 1...
+MIP costs: 22841.0
+Costs without overlapping: 22004.0
+
+########################################
+
+Branching... Setting arc (17,25) to 1
+847 paths removed in branching step
+Exploring branch node 2...
+MIP costs: 22663.0
+Costs without overlapping: 22233.0
+
+########################################
+
+Branching... Setting arc (26,27) to 1
+404 paths removed in branching step
+Exploring branch node 3...
+MIP costs: 22663.000000000044
+Costs without overlapping: 14438.0
+
+########################################
+
+Branching... Setting arc (20,15) to 1
+363 paths removed in branching step
+Exploring branch node 4...
+MIP costs: 22923.0
+Costs without overlapping: 22187.0
+
+########################################
+
+Cutting off branch
+
+########################################
+
+Branching... Setting arc (20,15) to 0
+9 paths removed in branching step
+Exploring branch node 5...
+MIP costs: 22663.0
+Costs without overlapping: 22233.0
+
+########################################
+
+Branching... Setting arc (25,26) to 1
+188 paths removed in branching step
+Exploring branch node 6...
+MIP costs: 22663.0
+Costs without overlapping: 22233.0
+
+########################################
+
+Branching... Setting arc (27,9) to 1
+408 paths removed in branching step
+Exploring branch node 7...
+MIP costs: 23071.0
+Costs without overlapping: 22030.0
+
+########################################
+
+Cutting off branch
+
+########################################
+
+Branching... Setting arc (27,9) to 0
+57 paths removed in branching step
+Exploring branch node 8...
+MIP costs: 23187.0
+Costs without overlapping: 22128.0
+
+########################################
+
+Cutting off branch
+
+########################################
+
+Branching... Setting arc (25,26) to 0
+110 paths removed in branching step
+Exploring branch node 9...
+MIP costs: 22825.0
+Costs without overlapping: 121354.0
+
+########################################
+
+Cutting off branch
+
+########################################
+
+Branching... Setting arc (26,27) to 0
+97 paths removed in branching step
+Exploring branch node 10...
+MIP costs: 23097.999999999996
+Costs without overlapping: 8295.0
+
+########################################
+
+Cutting off branch
+
+########################################
+
+Branching... Setting arc (17,25) to 0
+62 paths removed in branching step
+Exploring branch node 11...
+MIP costs: 22840.999999999996
+Costs without overlapping: 8308.0
+
+########################################
+
+Cutting off branch

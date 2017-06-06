@@ -124,7 +124,7 @@ public class ESPPTWCC_Heuristic {
 		/**FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\LabelsGeneratedStandard.csv", true);
 		writer.write(labelCount + "\n");
 		writer.close();*/
-		System.out.println("Labels created: " + labelCount);
+		//System.out.println("Labels created: " + labelCount);
 		
 		
 		// compute the shortest path
@@ -137,7 +137,7 @@ public class ESPPTWCC_Heuristic {
 			if (allFinalLabels.size() == 0) break;
 			paths.add(getNextBestPath(allFinalLabels));
 		}
-		System.out.println(paths.get(0).getReducedCosts());
+		//System.out.println(paths.get(0).getReducedCosts());
 		return paths;
 	}
 
@@ -270,6 +270,7 @@ public class ESPPTWCC_Heuristic {
 			}
 		}
 		double reducedCosts = labels.get(index).getCosts();
+		shortestPath = new ArrayList<Integer>();
 		getShortestPath(labels.get(index));
 		ArrayList<Integer> path = new ArrayList<Integer>();		
 		for (int i = shortestPath.size() - 1; i >= 0; i--) {

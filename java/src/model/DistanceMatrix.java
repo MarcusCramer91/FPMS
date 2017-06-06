@@ -177,6 +177,14 @@ public class DistanceMatrix {
 		return shortest;
 	}
 	
+	public double getLongestTripFromDepot() {
+		double longest = 0;
+		for (double d : entries) {
+			if (d > longest) longest = d;
+		}
+		return longest;
+	}
+	
 	public void setDiagonalToInfinity() {
 		int counter = 0;
 		for (int i = 0; i < dimension; i++) {

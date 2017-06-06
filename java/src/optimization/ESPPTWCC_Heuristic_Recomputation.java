@@ -32,7 +32,6 @@ public class ESPPTWCC_Heuristic_Recomputation {
 	private ArrayList<Integer> shortestPath;
 	private int currentTime;
 	private ArrayList<ArrayList<Integer>> noGoRoutes;
-	private int nBestRounds;
 	
 	private int labelCount;
 	
@@ -70,18 +69,16 @@ public class ESPPTWCC_Heuristic_Recomputation {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 ESPPTWCC_Heuristic_Recomputation spptwcc = new ESPPTWCC_Heuristic_Recomputation(distmat, reducedCostsMat, orders, 40*60, 10);
+		 ESPPTWCC_Heuristic_Recomputation spptwcc = new ESPPTWCC_Heuristic_Recomputation(distmat, reducedCostsMat, orders, 40*60);
 		 spptwcc.labelNodes();
 	}
 	
-	public ESPPTWCC_Heuristic_Recomputation(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
-			int nBestRounds) {
+	public ESPPTWCC_Heuristic_Recomputation(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime) {
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
 		this.distanceMatrix = distmat;
 		this.reducedCostsMatrix = reducedCostsMat;
-		this.nBestRounds = nBestRounds;
 		// initialize nodes
 		// add dummy node for the depots
 		nodes.add(new Node(0,0));
@@ -148,8 +145,8 @@ public class ESPPTWCC_Heuristic_Recomputation {
 			}
 			p = new Path(newNodes, p.getCosts(), p.getReducedCosts(), distanceMatrix.getDimension());
 			result.add(p);
-			for (int i : p.getNodes()) System.out.print(i + "->");
-			System.out.println();
+			//for (int i : p.getNodes()) System.out.print(i + "->");
+			//System.out.println();
 			
 			// crop matrices
 			int[] relevantEntries = new int[indexList.size() - nodes.size() + 2];

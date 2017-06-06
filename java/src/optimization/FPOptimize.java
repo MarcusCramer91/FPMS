@@ -47,6 +47,7 @@ public class FPOptimize {
 		
 		
 		for (int j = 0; j < nVehicles; j++) {
+			int[] tspRoute = null;
 			// if no more orders remain
 			if (ordersCopy.isEmpty()) break;
 			// add oldest order to current route and remove from orders copy
@@ -55,9 +56,9 @@ public class FPOptimize {
 			Order[] sortedOrders = sortOrders(airDistanceMatrix, ordersCopy, oldestOrder, currentTime);
 			ArrayList<Order> route = new ArrayList<Order>();
 			route.add(oldestOrder);
-			int[] tspRoute = null;
 			// store previous route as well in case the current route produces a route failure
 			int[] previousTspRoute = null;
+			if (sortedOrders.length == 0) tspRoute = new int[]{1,2,1};
 			for (int i = 0; i < sortedOrders.length; i++) {
 				route.add(sortedOrders[i]);
 
@@ -70,11 +71,6 @@ public class FPOptimize {
 				}
 				
 				croppedMatrix = croppedMatrix.getCroppedMatrix(routeIndices);
-				
-				// OLD
-				//if (croppedMatrix.getDimension() < 12) tspRoute = TSPExact2.solveExact(croppedMatrix);
-				//else tspRoute = TSPHeuristics.solveTSP(croppedMatrix); 
-				
 				tspRoute = CPlexTSP.getRoute(croppedMatrix);
 				Order[] tspRouteList = ModelHelperMethods.parseTSPOutput(tspRoute, route);
 				
@@ -83,9 +79,7 @@ public class FPOptimize {
 				// 1) Routes are set up so the MET of 120 is always kept
 				// 2) Routes are set up so that the total route (except for the trip back to the depot) is <= 120
 				// The latter is the actual (wrong) Flaschenpost approach
-				if (j == 2) {
-					System.out.println();
-				}
+				
 				if ((correctMETs && !ModelHelperMethods.checkTimeWindowAdherenceMET(distanceMatrix, tspRouteList, currentTime)) ||
 						(!correctMETs && !ModelHelperMethods.checkTimeWindowAdherence(distanceMatrix, tspRouteList, currentTime))) {
 					// remove last item from route

@@ -266,7 +266,7 @@ public class CPlexConnector {
 		     // compute the longest tour possible in terms of customers visited (take those with the shortest distances for that)
 		     // and the time limit and the smallest MET
 		     // and set the sum of decision variables for all vehicles to that number
-		     int maximumTourLength = CPlexConnector.getMaximumNumberOfCustomers(distmat, orders, timesRemaining) + 1; // add one for the final trip back to the depot
+		     int maximumTourLength = ModelHelperMethods.getMaximumNumberOfCustomers(distmat, orders) + 1; // add one for the final trip back to the depot
 		     for (int k = 0; k < nVehicles; k++) {
 	        	 IloLinearNumExpr expr = cplex.linearNumExpr();
 		    	 for (int i = 0; i < nLocations; i++) {
@@ -543,63 +543,4 @@ public class CPlexConnector {
 	   catch (Exception e) {e.printStackTrace();}
 	   return null;
    }
-   
-	
-
-	
-	/**
-	 * Computes an upper bound for the maximum number of customers
-	 * Based on demands and travel distances plus loading/service times
-	 * @return
-	 */
-	private static int getMaximumNumberOfCustomers(DistanceMatrix distmat, ArrayList<Order> orders, int[] timesRemaining) {
-		// compute the maximum number based on demands
-		double[] demands = new double[orders.size()];
-		for (int i = 0; i < orders.size(); i++) demands[i] = orders.get(i).getWeight();
-		Arrays.sort(demands);
-		int numberOfCustomersCapa = 0;
-		double cumDemand = 0;
-		for (int i = 0; i < demands.length; i++) {
-			cumDemand += demands[i];
-			if (cumDemand > ModelConstants.VEHICLE_CAPACITY) break;
-			numberOfCustomersCapa++;
-		}
-		
-		double[] entries = new double[(distmat.getDimension() * (distmat.getDimension() - 1)) / 2];
-		
-		// find the shortest path between two all pair-wise combinations of customers
-		int counter = 0;
-		for (int i = 0; i < distmat.getDimension(); i++) {
-			for (int j = (i+1); j < distmat.getDimension(); j++) {
-				if (distmat.getEntry(i+1, j+1) < distmat.getEntry(j+1, i+1)) entries[counter++] = distmat.getEntry(i+1, j+1);
-				else entries[counter++] = distmat.getEntry(j+1, i+1);
-			}
-		}
-		
-		Arrays.sort(entries);
-		
-		int numberOfCustomers = 1;
-		
-		// add the shortest trip from the depot to any of the customers
-		int currentTimePassed = ModelConstants.FP_TIME_WINDOW - CPlexConnector.getHighestTimeRemaining(timesRemaining) + 
-				Integer.parseInt(Math.round(distmat.getShortestTripFromDepot())+"");
-		for (int i = distmat.getDimension(); i < entries.length; i++) {		
-			// if entry of next customer would breach the time limit, return
-			if (currentTimePassed + entries[i] >  ModelConstants.FP_TIME_WINDOW) break;
-			// else add one customer and continue
-			numberOfCustomers++;
-			currentTimePassed += entries[i];
-		}
-		if (numberOfCustomers < numberOfCustomersCapa) return numberOfCustomers;
-		else return numberOfCustomersCapa;
-	}
-	
-	private static int getHighestTimeRemaining(int[] timesRemaining) {
-		int time = 0;
-		// ignore the dummy time for the last depot
-		for (int i = 0; i < timesRemaining.length-1; i++) {
-			if (timesRemaining[i] > time) time = timesRemaining[i];
-		}
-		return time;
-	}
 }

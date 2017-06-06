@@ -81,7 +81,7 @@ public class SimulationController {
 		boolean useMaxRoute = false;
 		boolean useEarliestArrival = false;
 		int computationTime = 15000;
-		controller.testOneIterationCPlex(currentTime, computationTime, useInitial, useUpperBound, useMaxRoute, useEarliestArrival);
+		//controller.testOneIterationCPlex(currentTime, computationTime, useInitial, useUpperBound, useMaxRoute, useEarliestArrival);
 		//controller.testOneIterationCPlexExperimental(currentTime, computationTime);
 	}
 

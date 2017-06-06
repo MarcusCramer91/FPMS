@@ -94,6 +94,9 @@ public class CPlexTSP {
 		 double[][] distances = distmat.getTwoDimensionalArray();
 		 int n = distmat.getDimension();
          IloCplex cplex = new IloCplex();
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Feasibility, 1e-9);
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Optimality, 1e-9);
+		 cplex.setParam(IloCplex.Param.Simplex.Tolerances.Markowitz, 0.999);
          cplex.setOut(null);
 		 IloNumVar[][] x = new IloNumVar[n][];
 		 for (int i = 0; i < n; i++) {
