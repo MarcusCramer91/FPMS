@@ -1,0 +1,191 @@
+Successfully imported a distance matrix of dimension 31*31
+Successfully imported a distance matrix of dimension 31*31
+Initial Flaschenpost solution:
+0->7->8->1->9->2->3->10->30->31->
+0->24->22->21->28->23->29->25->26->14->31->
+0->19->13->11->16->17->27->20->12->15->18->31->
+0->4->5->6->31->
+Costs: 25275.0
+
+########################################
+
+Search tree branches explored: 1
+Current upper bound: 21580.0
+Current lower bound: 21352.01896887158
+
+########################################
+
+Percent of tree explored 9.313225746154785E-8
+Branching... Setting arc (27,25) to 1
+
+########################################
+Branch cut-off
+Percent of tree explored 50.00000009313226
+########################################
+
+
+########################################
+
+Branching... Setting arc (27,25) to 0
+Search tree branches explored: 3
+Current upper bound: 21580.0
+Current lower bound: 21424.623054474716
+
+########################################
+
+Percent of tree explored 50.000000186264515
+Branching... Setting arc (21,20) to 1
+Search tree branches explored: 4
+Current upper bound: 21580.0
+Current lower bound: 21438.623054474723
+
+########################################
+
+Percent of tree explored 50.00000027939677
+Branching... Setting arc (29,11) to 1
+
+########################################
+Branch cut-off
+Percent of tree explored 62.50000027939677
+########################################
+
+
+########################################
+
+Branching... Setting arc (29,11) to 0
+Search tree branches explored: 6
+Current upper bound: 21580.0
+Current lower bound: 21420.623054474723
+
+########################################
+
+Percent of tree explored 62.50000037252903
+Branching... Setting arc (20,18) to 1
+
+########################################
+Branch cut-off
+Percent of tree explored 68.75000037252903
+########################################
+
+
+########################################
+
+Branching... Setting arc (20,18) to 0
+Search tree branches explored: 8
+Current upper bound: 21580.0
+Current lower bound: 21455.6230544747
+
+########################################
+
+Percent of tree explored 68.75000046566129
+Branching... Setting arc (11,24) to 1
+
+########################################
+Branch cut-off
+Percent of tree explored 0.7187500046566129
+########################################
+
+
+########################################
+
+Branching... Setting arc (11,24) to 0
+Search tree branches explored: 10
+Current upper bound: 21580.0
+Current lower bound: 21504.68677042804
+
+########################################
+
+No more branching variable found
+
+########################################
+
+Branching... Setting arc (21,20) to 0
+Search tree branches explored: 11
+Current upper bound: 21580.0
+Current lower bound: 21426.24270428014
+
+########################################
+
+Percent of tree explored 71.87500055879354
+Branching... Setting arc (26,18) to 1
+
+########################################
+Branch cut-off
+Percent of tree explored 84.37500055879354
+########################################
+
+
+########################################
+
+Branching... Setting arc (26,18) to 0
+Search tree branches explored: 13
+Current upper bound: 21580.0
+Current lower bound: 21507.836575875543
+
+########################################
+
+Percent of tree explored 84.3750006519258
+Branching... Setting arc (10,16) to 1
+
+########################################
+Branch cut-off
+Percent of tree explored 90.6250006519258
+########################################
+
+
+########################################
+
+Branching... Setting arc (10,16) to 0
+Search tree branches explored: 15
+Current upper bound: 21580.0
+Current lower bound: 21531.236381322953
+
+########################################
+
+Percent of tree explored 90.62500074505806
+Branching... Setting arc (27,29) to 1
+
+########################################
+Branch cut-off
+Percent of tree explored 93.75000074505806
+########################################
+
+
+########################################
+
+Branching... Setting arc (27,29) to 0
+Search tree branches explored: 17
+Current upper bound: 21580.0
+Current lower bound: 21533.667315175215
+
+########################################
+
+Percent of tree explored 93.75000083819032
+Branching... Setting arc (26,29) to 1
+
+########################################
+Branch cut-off
+Percent of tree explored 95.31250083819032
+########################################
+
+
+########################################
+
+Branching... Setting arc (26,29) to 0
+
+########################################
+Branch cut-off
+Percent of tree explored 96.87500083819032
+########################################
+
+
+########################################
+
+Search tree branches explored: 19
+Optimal integer costs: 21580.0
+Optimal route configuration
+0->19->13->16->17->14->20->12->15->1
+0->24->22->25->26->10->30->21->28->23->11->1
+0->7->8->1->9->6->5->4->2->3->27->29->18->1
+Improvement compared to initial: 14.619188921859545%
+Overall time used: 92 seconds

@@ -49,8 +49,8 @@ public class ColGenFrameworkTesterStabilized {
 		int currentTime = 30*60;
 		int compTimeLimit = 600;
 		int branchTimeLimit = 600;
-		for (int i = 20; i <= 90; i += 10) {
-			for (int j = 1; j <= 10; j++) {
+		for (int i = 20; i <= 50; i += 10) {
+			for (int j = 3; j <= 10; j++) {
 				String searchMethod = "depth first";
 				ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_"+i+"_"+j+".csv");
 				DistanceMatrix distmat = new DistanceMatrix(
@@ -136,29 +136,10 @@ public class ColGenFrameworkTesterStabilized {
 		 double costs = 0;
 		 for (ArrayList<Integer> route : bestSolution) costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
 
-		 System.out.println();
-		 System.out.println("########################################");
-		 System.out.println();
-		 System.out.println("Costs before TSPTW post-processing: " + costs);
-		 
-		 
-		 System.out.println("Post-processing...");
-
 		 ArrayList<ArrayList<Integer>> improvedBestSolution = new ArrayList<ArrayList<Integer>>();
 		 for (ArrayList<Integer> route : bestSolution) improvedBestSolution.add(tsptwOptimize(route, distmat, currentTime, orders));
 		 costs = 0;
 		 for (ArrayList<Integer> route : improvedBestSolution) costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
-		 System.out.println("Costs after TSPTW post-processing: " + costs);
-		 System.out.println("Search tree nodes explored: " + branchCount);
-		 System.out.println("Optimal route configuration");
-		 for (ArrayList<Integer> route : bestSolution) {
-			 for (int i = 0; i < route.size()-1; i++) {
-				 System.out.print(route.get(i) + "->");
-			 }
-			 System.out.println("0");
-		 }
-		 System.out.println("Improvement compared to initial: " + (initialCosts-costs)/initialCosts*100 + "%");
-		 System.out.println("Overall time used: " + Math.round((System.currentTimeMillis() - startingTime) / 1000) + " seconds");
 
 		 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilized\\_Summary" + id + ".csv", true);
 		 writer.write(paths.size() + "," + improvedBestSolution.size() + "," + overallLowerBound + "," + fpCosts + "," + 

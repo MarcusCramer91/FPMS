@@ -1,0 +1,36 @@
+DEPTH FIRST
+Current upper bound: 22258.0
+Current lower bound: 20645.6993006993
+Search tree branches explored: 874
+Optimal integer costs: 22258.0
+Optimal costs with duplicates eliminated: 22004.0
+Optimal route configuration
+0->19->13->11->16->17->20->12->15->18->1
+0->7->5->27->10->30->25->26->29->14->1
+0->24->22->21->28->23->1->8->9->6->4->2->3->1
+Improvement compared to initial: 0.10039608762428259%
+Overall time used: 601 seconds
+
+
+BREADTH FIRST
+Current upper bound: 22208.0
+Current lower bound: 20761.79492833517
+Search tree branches explored: 326
+Optimal integer costs: 22208.0
+Optimal costs with duplicates eliminated: 21755.0
+Optimal route configuration
+0->19->13->11->16->17->20->12->15->18->1
+0->24->22->21->28->23->1->8->6->5->4->1
+0->7->9->2->3->27->10->30->25->26->29->14->1
+Improvement compared to initial: 0.10241694285021422%
+Overall time used: 600 seconds
+
+Search tree branches explored: 1
+Optimal integer costs: 22569.0
+Optimal costs with duplicates eliminated: 21841.0
+Optimal route configuration
+0->7->8->1->4->2->3->27->10->30->29->14->1
+0->19->13->11->17->25->26->9->6->5->1
+0->24->22->21->28->23->16->20->12->15->18->1
+Improvement compared to initial: 11.725002020855225%
+Overall time used: 11 seconds
