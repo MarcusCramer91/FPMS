@@ -1,6 +1,5 @@
 package optimization;
 
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,11 +16,16 @@ import model.Order;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 
-public class ColumnGeneration {
+public class ColGenFrameworkTester {
 	
+	private DistanceMatrix distmat;
 	private ArrayList<Order> orders;
 	private int currentTime;
-	private int nPaths;
+	private ArrayList<Path> paths;
+	private double currentRelaxedCosts;
+	private double currentMIPCosts;
+	private String id;
+	private int nPaths = 1;
 	private double overallLowerBound = 0;
 	private double overallUpperBound = Double.MAX_VALUE;
 	private int branchCount = 0;
@@ -32,73 +36,66 @@ public class ColumnGeneration {
 	private double initialCosts;
 	private int treeDepthCovered = 0;
 	private ArrayList<SearchTreeInstance> searchTreeInstances;
-	private ArrayList<ArrayList<Double>> relaxedResults = new ArrayList<ArrayList<Double>>();
-	
+	 ArrayList<ArrayList<Double>> relaxedResults = new ArrayList<ArrayList<Double>>();
+
 	public static void main(String[] args) throws Exception {
-		/*DistanceMatrix distmat = new DistanceMatrix(
-		 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30TravelTimes.csv"));
-		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30AirDistances.csv"));
-		
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
-
-
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_20_1.csv");
-		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv"));
-		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv"));
-		/**
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
-		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
-		DistanceMatrix distmatair = new DistanceMatrix(
-		 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));*/
+		//String[] approaches = {"espptwcc_heur", "espptwcc_heur_fp", "espptwcc_heur_fp_recomp", "spptwcc",
+		//		"spptwcc2", "spptwcc_heur", "spptwcc2_heur"};
+		//String[] approaches = {"espptwcc_heur", "espptwcc_heur_fp_recomp", "spptwcc",
+		//		"spptwcc2", "spptwcc_heur", "spptwcc2_heur"};
 		int currentTime = 30*60;
 		int compTimeLimit = 600;
 		int branchTimeLimit = 600;
-		int nPaths = 50;
-		ColumnGeneration colgen = new ColumnGeneration(distmat, orders, currentTime, nPaths);
-		
-		// initialize with flaschenpost
-		ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
-		ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
-		for (int i = 0; i < initialPathsOrders.size(); i++) {
-			Order[] current = initialPathsOrders.get(i);
-			ArrayList<Integer> currentList = new ArrayList<Integer>();
-			currentList.add(0);
-			for (Order o : current) {
-				currentList.add(o.getDistanceMatrixLink()-1);
+		for (int i = 40; i <= 40; i += 10) {
+			for (int j = 10; j <= 10; j++) {
+				String searchMethod = "depth first";
+				ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_"+i+"_"+j+".csv");
+				DistanceMatrix distmat = new DistanceMatrix(
+						 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
+				DistanceMatrix distmatair = new DistanceMatrix(
+						 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
+				
+				String id = "_whole_" + branchTimeLimit + searchMethod +  "_" + i + "_" + j;
+				System.out.println("Current problem: " + id);
+				ColGenFrameworkTester tester = new ColGenFrameworkTester(distmat, orders, currentTime, id);
+							
+				ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
+				ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
+				for (int k = 0; k < initialPathsOrders.size(); k++) {
+					Order[] current = initialPathsOrders.get(k);
+					ArrayList<Integer> currentList = new ArrayList<Integer>();
+					currentList.add(0);
+					for (Order o : current) {
+						currentList.add(o.getDistanceMatrixLink()-1);
+					}
+					currentList.add(distmat.getDimension());
+					initialPathsNodes.add(currentList);
+				    
+				}
+				distmat = distmat.insertDummyDepotAsFinalNode();
+				distmat = distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
+				distmat = distmat.addCustomerServiceTimes(ModelConstants.REALISTIC_CUSTOMER_LOADING_TIME);
+			    double costs = 0;
+			    for (ArrayList<Integer> route : initialPathsNodes) {
+				     costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
+			    }
+				if (searchMethod.equals("depth first")) 
+					tester.getRoutesWithFPInitial(distmat, branchTimeLimit, compTimeLimit, initialPathsNodes, false, costs);	
+				if (searchMethod.equals("breadth first")) 
+					tester.getRoutesWithFPInitialBreadthFirst(distmat, branchTimeLimit, compTimeLimit, initialPathsNodes, false, costs);
+				
 			}
-			currentList.add(distmat.getDimension());
-			initialPathsNodes.add(currentList);
-		    
 		}
-		distmat = distmat.insertDummyDepotAsFinalNode();
-		distmat = distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
-		distmat = distmat.addCustomerServiceTimes(ModelConstants.REALISTIC_CUSTOMER_LOADING_TIME);
-		System.out.println("Initial Flaschenpost solution:");
-	    double costs = 0;
-	    for (ArrayList<Integer> route : initialPathsNodes) {
-	   	  for (int j : route) System.out.print(j + "->");
-		     System.out.println();
-		     costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
-	    }
-	    System.out.println("Costs: " + costs);
-	    System.out.println();
-	    System.out.println("########################################");
-	    System.out.println();
-		colgen.getRoutesWithFPInitial(distmat, branchTimeLimit, compTimeLimit, initialPathsNodes, true, costs);
-		//colgen.getRoutesWithFPInitialBreadthFirst(distmat, branchTimeLimit, compTimeLimit, initialPathsNodes, true, costs);
 	}
 	
-	public ColumnGeneration(DistanceMatrix distmat, ArrayList<Order> orders, 
-			   int currentTime, int nPaths) {
+	public ColGenFrameworkTester(DistanceMatrix distmat, ArrayList<Order> orders, 
+			   int currentTime, String id) {
+		this.distmat = distmat;
 		this.orders = orders;
 		this.currentTime = currentTime;
-		this.nPaths = nPaths;
+		this.paths = new ArrayList<Path>();
+		this.id = id;
 		this.arcsBranchedOn = new ArrayList<Integer[]>();
-		this.startingTime = System.currentTimeMillis();
 	}
 	
 	public void getRoutesWithFPInitial(DistanceMatrix distmat, int branchTimeLimit, int compTimeLimit, 
@@ -108,11 +105,19 @@ public class ColumnGeneration {
 		 this.initialCosts = initialCosts;
 		 
 		 int nLocations = distmat.getDimension();
+		 double costs = 0;
 		 for (int i = 0; i < initialPaths.size(); i++) {
 			 Path p = new Path(initialPaths.get(i), ModelHelperMethods.getRouteCostsIndexed0(distmat, initialPaths.get(i)), 0, 
 					 nLocations);
 			 paths.add(p);
+			 costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, p.getNodes());
 		 }
+		 this.startingTime = System.currentTimeMillis();
+
+		 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\framework\\" + id + ".csv", true);
+		 writer.write((Math.floor(System.currentTimeMillis() - startingTime) / 1000)+  "," + costs + "," + costs + "\n");
+	     writer.close();
+	     
 		 getRoutesInternal(paths, distmat, branchTimeLimit, compTimeLimit, generateOutput, 0, true);
 		 System.out.println();
 		 System.out.println("########################################");
@@ -121,15 +126,13 @@ public class ColumnGeneration {
 		 System.out.println("Optimal integer costs: " + overallUpperBound);
 		 System.out.println("Optimal costs with duplicates eliminated: " + overallCosts);
 		 System.out.println("Optimal route configuration");
-		 double costs = 0;
 		 for (ArrayList<Integer> route : bestSolution) {
 			 for (int i = 0; i < route.size()-1; i++) {
 				 System.out.print(route.get(i) + "->");
-				 costs+= ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
 			 }
 			 System.out.println("1");
 		 }
-		 System.out.println("Improvement compared to initial: " + (initialCosts-costs)/initialCosts*100 + "%");
+		 System.out.println("Improvement compared to initial: " + (initialCosts-overallUpperBound)/initialCosts + "%");
 		 System.out.println("Overall time used: " + Math.round((System.currentTimeMillis() - startingTime) / 1000) + " seconds");
 	}
 
@@ -148,11 +151,14 @@ public class ColumnGeneration {
 		 searchTreeInstances = new ArrayList<SearchTreeInstance>();
 		 double relaxedResult = getRoutesInternalBreadthFirst(paths, distmat, branchTimeLimit, generateOutput, 0);
 		 // stores the lower bound per tree level
-		 relaxedResults = new ArrayList<ArrayList<Double>>();
+		 ArrayList<ArrayList<Double>> relaxedResults = new ArrayList<ArrayList<Double>>();
 		 overallLowerBound = relaxedResult;
 		 relaxedResults.add(new ArrayList<>());
 		 relaxedResults.get(0).add(relaxedResult);
 		 relaxedResults.add(new ArrayList<>());
+		 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\framework\\" + id + ".csv", true);
+		 writer.write((Math.floor(System.currentTimeMillis() - startingTime) / 1000)+  "," + overallLowerBound + "," + overallUpperBound + "\n");
+	     writer.close();
 
 		 int currentLevel = 1;
 		 while(searchTreeInstances.get(0) != null && (System.currentTimeMillis() - startingTime) < compTimeLimit * 1000) {
@@ -168,45 +174,26 @@ public class ColumnGeneration {
 					 if (lowest > d) lowest = d;
 				 }
 				 overallLowerBound = lowest;
-				 System.out.println();
-				 System.out.println("########################################");
-				 System.out.println("New lower bound: " + overallLowerBound);
-				 System.out.println("########################################");
-				 System.out.println();
 				 currentLevel++;
 			 }
 			 
 			 relaxedResult = getRoutesInternalBreadthFirst(sti.getPaths(), sti.getDistmat(), sti.getBranchTimeLimit(), sti.isGenerateOutput(),
 					 sti.getTreeDepth());
-			 if (relaxedResult == -1) System.out.println("FINAL NODE REACHED IN THIS BRANCH");
-			 else relaxedResults.get(currentLevel).add(relaxedResult);
+
+			 writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\framework\\" + id + ".csv", true);
+			 writer.write((Math.floor(System.currentTimeMillis() - startingTime) / 1000)+  "," + overallLowerBound + "," + overallUpperBound + "\n");
+		     writer.close();
+			 if (relaxedResult != -1) relaxedResults.get(currentLevel).add(relaxedResult);
 		 }
-		 
-		 
-		 System.out.println();
-		 System.out.println("########################################");
-		 System.out.println();
-		 System.out.println("Search tree branches explored: " + branchCount);
-		 System.out.println("Optimal integer costs: " + overallUpperBound);
-		 System.out.println("Optimal route configuration");
-		 for (ArrayList<Integer> route : bestSolution) {
-			 for (int i = 0; i < route.size()-1; i++) {
-				 System.out.print(route.get(i) + "->");
-			 }
-			 System.out.println("1");
-		 }
-		 System.out.println("Improvement compared to initial: " + (initialCosts-overallUpperBound)/initialCosts + "%");
-		 System.out.println("Overall time used: " + Math.round((System.currentTimeMillis() - startingTime) / 1000) + " seconds");
 	}
 	
 	@SuppressWarnings("unused")
 	private void getRoutesInternal(ArrayList<Path> paths, DistanceMatrix distmat, int branchTimeLimit, int compTimeLimit, 
 			boolean generateOutput, int treeDepth, 
 			boolean currentTreeLevelSearched) throws IloException, IOException {
-		 if (System.currentTimeMillis() - startingTime > branchTimeLimit * 1000) return;
+		 if (System.currentTimeMillis() - startingTime > compTimeLimit * 1000) return;
 		 long time = System.currentTimeMillis();
 		 branchCount++;
-		 System.out.println("Exploring branch node " + branchCount + "...");
 		 int iterationCount = 0;
 		 double[] duals = null;
 		 double currentRelaxedResult = 99999;
@@ -217,7 +204,7 @@ public class ColumnGeneration {
 		 int convergenceCount = 0;
 		 double[] dualResult = null;
 		 // column generation 
-		 while((System.currentTimeMillis() - time) < branchTimeLimit*1000&&
+		 while((System.currentTimeMillis() - time) < branchTimeLimit*1000 &&
 	    		 System.currentTimeMillis() - startingTime < compTimeLimit * 1000) {
 			 iterationCount++;
 		     // get duals
@@ -264,20 +251,45 @@ public class ColumnGeneration {
 			 else break;
 			 
 			 paths.addAll(newPaths);
+			 
+			 
+			 // LOGGING
+
+			 // store current upper bound 
+			 double[] mipResult = solveMIP(distmat, paths);
+			 double currentMIPResult = mipResult[mipResult.length-1];
+			 int[] decision = new int[mipResult.length-1];
+			 for (int i = 0; i < decision.length; i++) {
+				 if (mipResult[i] == 0) decision[i] = 0;
+				 else decision[i] = 1;
+			 }
+			 
+		     ArrayList<ArrayList<Integer>> routes = computeSolution(distmat, decision, paths);
+		     double costs = 0;
+		     //System.out.println("Integer solution:");
+		     for (ArrayList<Integer> route : routes) {
+		    	 //for (int i : route) System.out.print(i + "->");
+			     //System.out.println();
+			     costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
+		     }
+		     
+		     if (isValidSolution(routes, distmat) && costs < overallCosts) {
+		    	 overallCosts = costs;
+		    	 bestSolution = routes;
+		     }
+		     
+		     if (costs < overallUpperBound) overallUpperBound = costs;
+		     
+			 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\framework\\" + id + ".csv", true);
+			 writer.write((Math.floor(System.currentTimeMillis() - startingTime) / 1000)+  "," + overallLowerBound + "," + overallUpperBound + "\n");
+		     writer.close();
 		 }
 		 
 		 if (relaxedResults.size() <= treeDepth) relaxedResults.add(new ArrayList<Double>());
 		 relaxedResults.get(treeDepth).add(currentRelaxedResult);
 		 
-		 // if dual has no result, final node is reached
-		 if (dualResult == null) {
-			 System.out.println("FINAL NODE REACHED IN THIS BRANCH");
-			 return;
-		 }
-		 
 		 double[] relaxedDecision = solveRelaxation(distmat, paths);
 		 if (relaxedDecision == null) {
-			 System.out.println("FINAL NODE REACHED IN THIS BRANCH");
 			 return;
 		 }
 	     /**System.out.println("Relaxed solution:");
@@ -321,39 +333,25 @@ public class ColumnGeneration {
 	    	 overallLowerBound = lowest;
 	    	 currentTreeLevelSearched = false;
 	     }
-	     if (currentMIPResult < overallUpperBound) overallUpperBound = costs;
+	     if (costs < overallUpperBound) overallUpperBound = costs;
 	     
 	     // check convergence of this branch
 	     // this branch is obsolete if its lower bound is higher than the best upper bound
 	     // floor because cplex solutions apparently have rounding errors
-	     System.out.println("RelaxedCosts: " + currentRelaxedResult);
-	     System.out.println("MIP costs: " + currentMIPResult);
-	     System.out.println("Costs without overlapping: " + costs);
-	     System.out.println("Current upper bound: " + overallUpperBound);
-	     System.out.println("Current lower bound: " + overallLowerBound);
 	     if (Math.floor(currentRelaxedResult) > overallUpperBound) {
-	    	 System.out.println("CUTTING OFF BRANCH");
 	    	 return;
 	     }
-		 System.out.println();
-		 System.out.println("########################################");
-		 System.out.println();
-
 	     // do depth first with variables set to 1
 	     int[] branchingVariable = findBranchVariable(distmat, relaxedDecision, paths);
+
 	     
 	     // if no more branching can be done return
 	     if (branchingVariable[0] == -1) return;
 	     // branch with set to 1
-	     System.out.println("Branching... Setting arc (" + branchingVariable[0] + "," + branchingVariable[1] + ") to 1");
 	     ArrayList<Path> paths1 = removeConflictingColumns(distmat, branchingVariable[0], branchingVariable[1], true, paths);
 	     DistanceMatrix distmat1 = penalizeArcsInDistanceMatrix(distmat, branchingVariable[0], branchingVariable[1], true);
 	     getRoutesInternal(paths1, distmat1, branchTimeLimit, compTimeLimit, generateOutput, treeDepth + 1, currentTreeLevelSearched);
 		    
-	     System.out.println();  
-	     System.out.println("########################################");		   
-	     System.out.println();
-	     
 	     // checks whether the overallLowerBound can be updated
 	     if (this.treeDepthCovered == treeDepth) {
 	    	 this.treeDepthCovered++;
@@ -361,7 +359,6 @@ public class ColumnGeneration {
 	     }
 	     
 	     // branch with set to 0
-	     System.out.println("Branching... Setting arc (" + branchingVariable[0] + "," + branchingVariable[1] + ") to 0");
 	     ArrayList<Path> paths0 = removeConflictingColumns(distmat, branchingVariable[0], branchingVariable[1], false, paths);
 	     DistanceMatrix distmat0 = penalizeArcsInDistanceMatrix(distmat, branchingVariable[0], branchingVariable[1], false);
 	     getRoutesInternal(paths0, distmat0, branchTimeLimit, compTimeLimit, generateOutput, treeDepth + 1, currentTreeLevelSearched);  
@@ -372,7 +369,6 @@ public class ColumnGeneration {
 			boolean generateOutput, int treeDepth) throws IloException, IOException {
 		 long time = System.currentTimeMillis();
 		 branchCount++;
-		 System.out.println("Exploring branch node " + branchCount + "...");
 		 int iterationCount = 0;
 		 double[] duals = null;
 		 double currentRelaxedResult = 99999;
@@ -476,18 +472,9 @@ public class ColumnGeneration {
 	     // check convergence of this branch
 	     // this branch is obsolete if its lower bound is higher than the best upper bound
 	     // floor because cplex solutions apparently have rounding errors
-	     System.out.println("RelaxedCosts: " + currentRelaxedResult);
-	     System.out.println("MIP costs: " + currentMIPResult);
-	     System.out.println("Costs without overlapping: " + costs);
-	     System.out.println("Current upper bound: " + overallUpperBound);
-	     System.out.println("Current lower bound: " + overallLowerBound);
 	     if (Math.floor(currentRelaxedResult) > overallUpperBound) {
-	    	 System.out.println("CUTTING OFF BRANCH");
 	    	 return currentRelaxedResult;
 	     }
-		 System.out.println();
-		 System.out.println("########################################");
-		 System.out.println();
 
 	     // do depth first with variables set to 1
 	     int[] branchingVariable = findBranchVariable(distmat, relaxedDecision, paths);
@@ -501,10 +488,6 @@ public class ColumnGeneration {
 	     
 	     SearchTreeInstance sti = new SearchTreeInstance(paths1, distmat1, branchTimeLimit, generateOutput, treeDepth+1);
 	     searchTreeInstances.add(sti);
-		    
-	     System.out.println();  
-	     System.out.println("########################################");		   
-	     System.out.println();
 	     
 	     // branch with set to 0
 	     ArrayList<Path> paths0 = removeConflictingColumns(distmat, branchingVariable[0], branchingVariable[1], false, paths);
@@ -513,7 +496,7 @@ public class ColumnGeneration {
 	     searchTreeInstances.add(sti2);
 	     return currentRelaxedResult;
 	}
-	
+
 	private double[] solveDual(DistanceMatrix distmat, ArrayList<Path> paths) throws IloException {
 		 int nLocations = distmat.getDimension();
 		 int nCustomers = nLocations - 2;
@@ -736,13 +719,12 @@ public class ColumnGeneration {
 	     return routes;
 	}
 
-	
 	/**
 	 * Checks whether the current path equals the previous path
 	 * @param currentPath
 	 * @return
 	 */
-	private boolean checkConvergence(ArrayList<Integer> currentPath, ArrayList<Path> paths) {
+	private boolean checkConvergence(ArrayList<Integer> currentPath) {
 		for (int j = paths.size()-1; j <= paths.size() - 1 - nPaths; j--) {
 			ArrayList<Integer> previousPath = paths.get(paths.size()-1).getNodes();
 			boolean converged = true;
@@ -764,6 +746,9 @@ public class ColumnGeneration {
 	 * @param active
 	 */
 	private ArrayList<Path> removeConflictingColumns(DistanceMatrix distmat, int from, int to, boolean active, ArrayList<Path> paths) {
+		if (branchCount == 4) {
+			System.out.println();
+		}
 		// copy paths
 		ArrayList<Path> pathCopy = new ArrayList<Path>();
 		for (Path p : paths) {
@@ -803,7 +788,6 @@ public class ColumnGeneration {
 				}
 			}
 		}
-		System.out.println(removalCounter + " paths removed in branching step");
 		return pathCopy;
 	}
 	
@@ -944,3 +928,4 @@ public class ColumnGeneration {
 
 	}
 }
+

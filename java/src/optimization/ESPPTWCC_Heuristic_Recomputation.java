@@ -32,6 +32,7 @@ public class ESPPTWCC_Heuristic_Recomputation {
 	private ArrayList<Integer> shortestPath;
 	private int currentTime;
 	private ArrayList<ArrayList<Integer>> noGoRoutes;
+	private boolean returnOnlyNegative;
 	
 	private int labelCount;
 	
@@ -69,11 +70,13 @@ public class ESPPTWCC_Heuristic_Recomputation {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 ESPPTWCC_Heuristic_Recomputation spptwcc = new ESPPTWCC_Heuristic_Recomputation(distmat, reducedCostsMat, orders, 40*60);
+		 ESPPTWCC_Heuristic_Recomputation spptwcc = new ESPPTWCC_Heuristic_Recomputation(distmat, reducedCostsMat, orders, 40*60, true);
 		 spptwcc.labelNodes();
 	}
 	
-	public ESPPTWCC_Heuristic_Recomputation(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime) {
+	public ESPPTWCC_Heuristic_Recomputation(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, 
+			int currentTime, boolean returnOnlyNegative) {
+		this.returnOnlyNegative = returnOnlyNegative;
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
@@ -132,7 +135,14 @@ public class ESPPTWCC_Heuristic_Recomputation {
 			Path p = labelNodesInternal();
 			
 			// if first path has positive reduced costs, return null
-			if (result.size() == 0 && p.getReducedCosts() >= 0) return null;
+			if (result.size() == 0 && p.getReducedCosts() >= 0) {
+				ArrayList<Integer> nodes = new ArrayList<Integer>();
+				nodes.add(0);
+				nodes.add(distanceMatrix.getDimension()-1);
+				p = new Path(nodes, 0, 0, distanceMatrix.getDimension());
+				result.add(p);
+				return result;
+			}
 			
 			// if any path has contains only the depot and is not the first path, break
 			if (result.size() > 0 && p.getNodes().size() == 2) break;
@@ -214,7 +224,6 @@ public class ESPPTWCC_Heuristic_Recomputation {
 		/**FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\LabelsGeneratedStandard.csv", true);
 		writer.write(labelCount + "\n");
 		writer.close();*/
-		System.out.println("Labels created: " + labelCount);
 		
 		
 		// compute the shortest path
@@ -225,7 +234,6 @@ public class ESPPTWCC_Heuristic_Recomputation {
 		
 		if (allFinalLabels.size() == 0) return null;
 		Path path = getNextBestPath(allFinalLabels);
-		System.out.println(path.getReducedCosts());
 		return path;
 	}
 

@@ -1,10 +1,11 @@
-package optimization;
+package solomon;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
@@ -21,7 +22,7 @@ import model.Order;
  * @author Marcus
  *
  */
-public class SPPTWCC2 {
+public class SPPTWCC2_Experimental {
 	
 	private ArrayList<Node> nodes;
 	private ArrayList<ArrayList<Label>> labelList;
@@ -30,6 +31,11 @@ public class SPPTWCC2 {
 	private DistanceMatrix reducedCostsMatrix;
 	private ArrayList<Integer> shortestPath;
 	private int currentTime;
+	private ArrayList<ArrayList<Integer>> noGoRoutes;
+	private double nogoRouteFactor;
+	private double[] costRatios;
+	private int highestTimeRemaining;
+	private double lowestCosts = 0;
 	
 	private int labelCount;
 	
@@ -59,6 +65,7 @@ public class SPPTWCC2 {
 		 
 		 // set entry from depot to depot to infinity
 		 reducedCostsMat.setEntry(Double.MAX_VALUE, 1, reducedCostsMat.getDimension());
+
 		 /**
 		 for (int i = 0; i < reducedCostsMat.getDimension(); i++) {
 			 for (int j = 0; j < reducedCostsMat.getDimension(); j++) {
@@ -67,11 +74,12 @@ public class SPPTWCC2 {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 SPPTWCC2 spptwcc = new SPPTWCC2(distmat, reducedCostsMat, orders, 40*60);
+		 SPPTWCC2_Experimental spptwcc = new SPPTWCC2_Experimental(distmat, reducedCostsMat, orders, 40*60, 1.4);
 		 spptwcc.labelNodes();
 	}
 	
-	public SPPTWCC2(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime) {
+	public SPPTWCC2_Experimental(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
+			double nogoRouteFactor) {
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
@@ -79,15 +87,16 @@ public class SPPTWCC2 {
 		this.distanceMatrix = distmat;
 		this.reducedCostsMatrix = reducedCostsMat;
 		this.labelCount = 0;
+		this.nogoRouteFactor = nogoRouteFactor;
 		// initialize nodes
 		// add dummy node for the depots
-		nodes.add(new Node(0,0));
+		nodes.add(new Node(0,0,0));
 		for (Order o : orders) {
 			int met = o.getMET(currentTime);
-			Node n = new Node(ModelConstants.TIME_WINDOW - o.getMET(currentTime), (int)o.getWeight());
+			Node n = new Node(o.getEarliest(), o.getLatest(), (int)o.getWeight());
 			nodes.add(n);
 		}
-		nodes.add(new Node(Integer.MAX_VALUE,0));
+		nodes.add(new Node(0,Integer.MAX_VALUE,0));
 		
 		// initialize labels
 		for (Node n : nodes) {
@@ -99,6 +108,12 @@ public class SPPTWCC2 {
 	
 	public Path labelNodes() throws IOException {
 		long time = System.currentTimeMillis();
+		// determine a set of no-go routes based on their costs
+		determineNoGoRoutes(Math.floor(distanceMatrix.getDimension()/nogoRouteFactor));
+		getSortedCostRatios();
+		getHighestTimeRemaining();
+		
+		
 		Label initialLabel = new Label(0,0,0,0);
 		labelList.get(0).add(initialLabel);
 		nps.add(initialLabel);
@@ -132,6 +147,7 @@ public class SPPTWCC2 {
 			}
 		}
 		
+		if (index == -1) return null;
 		getShortestPath(allFinalLabels.get(index));
 		ArrayList<Integer> path = new ArrayList<Integer>();
 		
@@ -141,26 +157,30 @@ public class SPPTWCC2 {
 		for (int i = shortestPath.size() - 1; i >= 0; i--) {
 			path.add(shortestPath.get(i));
 			//writer.write(shortestPath.get(i) + "->");
-		}
-		/**for (int i = 0; i < path.size()-1; i++) {
+		}/**
+		for (int i = 0; i < path.size()-1; i++) {
 			System.out.print(path.get(i) + "->");
 		}
-		System.out.println(path.get(path.size()-1));
+		System.out.println(path.get(path.size()-1));*/
 		
-		System.out.println("Costs of the shortest path: " + allFinalLabels.get(index).getCosts());
-		System.out.println("Number of reduced costs paths: " + allFinalLabels.size());*/
-		System.out.println("Time consumed: " + (System.currentTimeMillis() - time));
+		//System.out.println("Costs of the shortest path: " + allFinalLabels.get(index).getCosts());
+		//System.out.println("Number of reduced costs paths: " + allFinalLabels.size());
+		//System.out.println("Time consumed: " + (System.currentTimeMillis() - time));
 		double costs = getPathCosts(path);
-		Path result = new Path(path, costs, allFinalLabels.get(index).getCosts(), 
+		Path result = new Path(path, costs, labelList.get(distanceMatrix.getDimension()-1).get(0).getCosts(), 
 				distanceMatrix.getDimension());
 		return result;
 	}
 
 	private void labelNext(Label currentLabel) {
-		boolean breakLater = false;
+		
 		// for all neighbors of the current label (which are all nodes)
+		boolean breakLater = false;
 		for (int i = 1; i < distanceMatrix.getDimension(); i++) {
 			if (breakLater) break;
+			// skip nogo routes
+			if (noGoRoutes.get(currentLabel.getNode()).contains(i)) continue;
+			
 			if (i == currentLabel.getNode()) continue;
 			// if strongly dominant and current node is predecessor, continue
 			if (currentLabel.getPredecessor() != null && 
@@ -170,7 +190,7 @@ public class SPPTWCC2 {
 			if (currentLabel.getPredecessor() != null && 
 					(currentLabel.getType() == 1 && currentLabel.getPredecessor().getNode() == i)) continue;
 			
-			// if weakly dominant can only extend to the successor of the dominating label			
+			// if weakly dominant can only extend to the successor of the dominating label
 			if (currentLabel.getType() == 2) {
 				i = currentLabel.getDominatingLabel().getPredecessor().getNode();
 				breakLater = true;
@@ -179,6 +199,9 @@ public class SPPTWCC2 {
 			// check if new label is feasible wrt time
 			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
 			if (newTime > nodes.get(i).getUpperTimeWindow()) continue;
+
+			// if arrival time is before the earliest for that node, wait
+			if (newTime < nodes.get(i).getLowerTimeWindow()) newTime = nodes.get(i).getLowerTimeWindow();
 			// check if new label is feasible wrt demand
 			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
 			if (newDemand > ModelConstants.VEHICLE_CAPACITY) continue;
@@ -186,6 +209,8 @@ public class SPPTWCC2 {
 			int newCosts = (int)(currentLabel.getCosts() + reducedCostsMatrix.getEntry(currentLabel.getNode()+1, i+1));
 			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel, 1);
 			
+			// check if from this label the goal of negative reduced costs can still be reached
+			if (!checkCostsInfeasibility(l)) continue;
 
 			// check if new label is dominated or dominates a label
 			ArrayList<Label> labels = labelList.get(i);
@@ -206,8 +231,14 @@ public class SPPTWCC2 {
 			}*/
 			
 			if (i == distanceMatrix.getDimension()-1 && l.getCosts() < 0) {
+				/**for (int j = 0; j < labels.size(); j++) {
+					Label lab = labels.get(j);
+					if (dominates(lab, l)) continue;
+					if (dominates(l, lab)) labels.remove(lab);
+				}*/
 				labelCount++;
 				labels.add(l);
+				//if (l.getCosts() < lowestCosts) lowestCosts = l.getCosts();
 			}
 			
 			// check dominance
@@ -330,12 +361,80 @@ public class SPPTWCC2 {
 		}
 		return costs;
 	}
+
+	/**
+	 * For every node determines a set of no-go successor nodes based on the 
+	 * numberOfNoGoRoutesPerLocation longest distances
+	 * Exploits the problem characteristic of very relaxed resource constraints, in which 
+	 * reduced costs outweigh decisions based on restrictions
+	 * @param numberOfNoGoRoutesPerLocation
+	 */
+	private void determineNoGoRoutes(double numberOfNoGoRoutesPerLocation) {
+		noGoRoutes = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> nogo = new ArrayList<Integer>();
+		// can go everywhere from the depot
+		noGoRoutes.add(nogo);
+		for (int i = 1; i < nodes.size()-1; i++) {
+			nogo = new ArrayList<Integer>();
+			double[] costs = distanceMatrix.getRow(i+1);
+			for (int j = 0; j < numberOfNoGoRoutesPerLocation; j++) {
+				double highestCosts = 0;
+				int highestCostsIndex = -1;
+				for (int k = 1; k < nodes.size()-1; k++) {
+					if (costs[k] > highestCosts) {
+						highestCosts = costs[k];
+						highestCostsIndex = k;
+					}
+				}
+				nogo.add(highestCostsIndex);
+				costs[highestCostsIndex] = 0;
+			}
+			noGoRoutes.add(nogo);
+		}
+	}
+	
+	/**
+	 * Checks for the given label whether the goal of negative reduced costs can still be reached
+	 * @param label
+	 */
+	private boolean checkCostsInfeasibility(Label label) {
+		int timeRemaining = highestTimeRemaining - label.getTime();
+		if (label.getCosts() + (timeRemaining * costRatios[0]) >= lowestCosts) return false;
+		return true;
+	}
+	
+	/**
+	 * Gets the lowest reduced costs divided by actual travel times
+	 * @param number
+	 */
+	private void getSortedCostRatios() {
+		double[] entries = new double[reducedCostsMatrix.getDimension() * reducedCostsMatrix.getDimension()];
+		
+		// find the shortest path between two all pair-wise combinations of customers
+		int counter = 0;
+		for (int i = 0; i < reducedCostsMatrix.getDimension(); i++) {
+			for (int j = 0; j < reducedCostsMatrix.getDimension(); j++) {
+				entries[counter++] = reducedCostsMatrix.getEntry(i+1, j+1)/distanceMatrix.getEntry(i+1, j+1);
+			}
+		}
+		
+		Arrays.sort(entries);
+		costRatios = entries;
+	}
+	
+	private void getHighestTimeRemaining() {
+		highestTimeRemaining = 0;
+		for (int i = 0; i < nodes.size()-1; i++) {
+			if (nodes.get(i).getUpperTimeWindow() > highestTimeRemaining) highestTimeRemaining = nodes.get(i).getUpperTimeWindow();
+		}
+	}
 	
 	private class Node {
 		private int upperTimeWindow;
+		private int lowerTimeWindow;
 		private int demand;
 		
-		public Node(int upperTimeWindow, int demand) {
+		public Node(int lowerTimeWindow, int upperTimeWindow, int demand) {
 			this.upperTimeWindow = upperTimeWindow;
 			this.demand = demand;
 		}
@@ -351,6 +450,14 @@ public class SPPTWCC2 {
 		}
 		public void setDemand(int demand) {
 			this.demand = demand;
+		}
+
+		public int getLowerTimeWindow() {
+			return lowerTimeWindow;
+		}
+
+		public void setLowerTimeWindow(int lowerTimeWindow) {
+			this.lowerTimeWindow = lowerTimeWindow;
 		}	
 	}
 	

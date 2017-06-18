@@ -1,4 +1,4 @@
-package optimization;
+package solomon;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,10 +17,11 @@ import model.Order;
 
 /**
  * Solves an SPPTWCC via dynamic programming labeling approach
+ * With elimination of 2-cycles
  * @author Marcus
  *
  */
-public class SPPTWCC {
+public class SPPTWCC2 {
 	
 	private ArrayList<Node> nodes;
 	private ArrayList<ArrayList<Label>> labelList;
@@ -29,7 +30,6 @@ public class SPPTWCC {
 	private DistanceMatrix reducedCostsMatrix;
 	private ArrayList<Integer> shortestPath;
 	private int currentTime;
-	private boolean returnNegativeOnly;
 	
 	private int labelCount;
 	
@@ -42,6 +42,7 @@ public class SPPTWCC {
 		 for (int i = 0; i < reducedCosts.length; i++) {
 			 reducedCosts[i] = distmat.getAllEntries()[i];
 		 }
+
 		 double[] duals = new double[]{0, 3381, 3697, 3922, 3594, 3691, 3536, 3334, 3517,3445,3442,3006,3056,2863,3262, 2915, 
 			 3128, 3149, 2916, 2831, 3089, 3414, 3406, 3464, 3159, 3801, 3739, 3508, 3515, 3406, 3387};
 		 distmat = distmat.insertDummyDepotAsFinalNode();
@@ -66,13 +67,11 @@ public class SPPTWCC {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMat, orders, 40*60, true);
+		 SPPTWCC2 spptwcc = new SPPTWCC2(distmat, reducedCostsMat, orders, 40*60);
 		 spptwcc.labelNodes();
 	}
 	
-	public SPPTWCC(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
-			boolean returnNegativeOnly) {
-		this.returnNegativeOnly = returnNegativeOnly;
+	public SPPTWCC2(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime) {
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
@@ -82,13 +81,13 @@ public class SPPTWCC {
 		this.labelCount = 0;
 		// initialize nodes
 		// add dummy node for the depots
-		nodes.add(new Node(0,0));
+		nodes.add(new Node(0,0,0));
 		for (Order o : orders) {
 			int met = o.getMET(currentTime);
-			Node n = new Node(ModelConstants.TIME_WINDOW - o.getMET(currentTime), (int)o.getWeight());
+			Node n = new Node(o.getEarliest(), o.getLatest(), (int)o.getWeight());
 			nodes.add(n);
 		}
-		nodes.add(new Node(Integer.MAX_VALUE,0));
+		nodes.add(new Node(0, Integer.MAX_VALUE,0));
 		
 		// initialize labels
 		for (Node n : nodes) {
@@ -98,7 +97,7 @@ public class SPPTWCC {
 	}
 	
 	
-	public ArrayList<Path> labelNodes() throws IOException {
+	public Path labelNodes() throws IOException {
 		long time = System.currentTimeMillis();
 		Label initialLabel = new Label(0,0,0,0);
 		labelList.get(0).add(initialLabel);
@@ -114,23 +113,16 @@ public class SPPTWCC {
 					lowestCostsIndex = i;
 				}
 			}
-			if (lowestCostsIndex == -1) break;
 			Label nextLabel = nps.get(lowestCostsIndex);
 			nps.remove(lowestCostsIndex);
 			labelNext(nextLabel);
 		}
+		FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\LabelsGenerated_SPPTWCC2_Standard.csv", true);
+		writer.write(labelCount + "\n");
+		writer.close();
 		//System.out.println("Labels created: " + labelCount);
 		// compute the shortest path
 		ArrayList<Label> allFinalLabels = labelList.get(distanceMatrix.getDimension()-1);
-		ArrayList<Path> paths = new ArrayList<Path>();
-		if (allFinalLabels == null || allFinalLabels.size() == 0) {
-			ArrayList<Integer> nodes = new ArrayList<Integer>();
-			nodes.add(0);
-			nodes.add(distanceMatrix.getDimension()-1);
-			Path p = new Path(nodes, 0, 0, distanceMatrix.getDimension());
-			paths.add(p);
-			return paths;
-		}
 		double minimalCosts = Double.MAX_VALUE;
 		int index = -1;
 		for (int i = 0; i < allFinalLabels.size(); i++) {
@@ -140,31 +132,65 @@ public class SPPTWCC {
 			}
 		}
 		
+		if (index == -1) return null;
 		
-		// get n best routes
-		for (int i = 0; i < 50; i++) {
-			if (allFinalLabels.size() == 0) break;
-			paths.add(getNextBestPath(allFinalLabels));
+		getShortestPath(allFinalLabels.get(index));
+		ArrayList<Integer> path = new ArrayList<Integer>();
+		
+		//FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\paths.txt", true);
+		
+		
+		for (int i = shortestPath.size() - 1; i >= 0; i--) {
+			path.add(shortestPath.get(i));
+			//writer.write(shortestPath.get(i) + "->");
 		}
-		//System.out.println(paths.get(0).getReducedCosts());
-		return paths;
+		/**for (int i = 0; i < path.size()-1; i++) {
+			System.out.print(path.get(i) + "->");
+		}
+		System.out.println(path.get(path.size()-1));
+		
+		System.out.println("Costs of the shortest path: " + allFinalLabels.get(index).getCosts());
+		System.out.println("Number of reduced costs paths: " + allFinalLabels.size());
+		System.out.println("Time consumed: " + (System.currentTimeMillis() - time));*/
+		double costs = getPathCosts(path);
+		Path result = new Path(path, costs, allFinalLabels.get(index).getCosts(), 
+				distanceMatrix.getDimension());
+		return result;
 	}
 
 	private void labelNext(Label currentLabel) {
-		
+		boolean breakLater = false;
 		// for all neighbors of the current label (which are all nodes)
 		for (int i = 1; i < distanceMatrix.getDimension(); i++) {
+			if (breakLater) break;
 			if (i == currentLabel.getNode()) continue;
+			// if strongly dominant and current node is predecessor, continue
+			if (currentLabel.getPredecessor() != null && 
+					(currentLabel.getType() == 0 && currentLabel.getPredecessor().getNode() == i)) continue;
+			
+			// if semi-strongly dominant and current node is predecessor, continue
+			if (currentLabel.getPredecessor() != null && 
+					(currentLabel.getType() == 1 && currentLabel.getPredecessor().getNode() == i)) continue;
+			
+			// if weakly dominant can only extend to the successor of the dominating label			
+			if (currentLabel.getType() == 2) {
+				i = currentLabel.getDominatingLabel().getPredecessor().getNode();
+				breakLater = true;
+			}
 			
 			// check if new label is feasible wrt time
 			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
 			if (newTime > nodes.get(i).getUpperTimeWindow()) continue;
+			
+			// if arrival time is before the earliest for that node, wait
+			if (newTime < nodes.get(i).getLowerTimeWindow()) newTime = nodes.get(i).getLowerTimeWindow();
+			
 			// check if new label is feasible wrt demand
 			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
 			if (newDemand > ModelConstants.VEHICLE_CAPACITY) continue;
 		
 			int newCosts = (int)(currentLabel.getCosts() + reducedCostsMatrix.getEntry(currentLabel.getNode()+1, i+1));
-			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel);
+			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel, 1);
 			
 
 			// check if new label is dominated or dominates a label
@@ -184,27 +210,106 @@ public class SPPTWCC {
 					}
 				}
 			}*/
-			boolean dominated = false;
-			for (int j = 0; j < labels.size(); j++) {
-				Label lab = labels.get(j);				
-				// check if existing labels are dominated
-				if (dominates(l, lab)) {
-					// remove both from nps and the labels map if dominated
-					labels.remove(j);
-					if (nps.contains(lab)) nps.remove(lab);
-				}
-				// check if existing labels dominate the new one
-				if (dominates(lab,l)) {
-					dominated = true;
-					break;
-				}
-			}
-			// add only if non-dominated
-			if (!dominated) {
-				if (l.getNode() != distanceMatrix.getDimension()-1 || l.getCosts() < 0) labels.add(l);
-				if (l.getNode() != distanceMatrix.getDimension()-1) nps.add(l);
+			
+			if (i == distanceMatrix.getDimension()-1 && l.getCosts() < 0) {
 				labelCount++;
+				labels.add(l);
 			}
+			
+			// check dominance
+			else if (i != distanceMatrix.getDimension()-1) {
+				boolean dominated = false;
+				for (int j = 0; j < labels.size(); j++) {
+					Label lab = labels.get(j);
+					if (dominates(lab, l)) {
+						// case 1
+						if (lab.getType() != 1) {
+							dominated = true;
+							break;
+						}
+						// case 2
+						else if (l.getPredecessor().getNode() == lab.getPredecessor().getNode()) {
+							dominated = true;
+							break;
+						}
+						// case 3
+						boolean dominatedByTwo = false;
+						for (int k = 0; k < labels.size(); k++) {
+							if (j == k) continue;
+							Label lab1 = labels.get(k);
+							if (dominates(lab1, l) && lab1.getPredecessor().getNode() != lab.getPredecessor().getNode()) {
+								dominatedByTwo = true;
+								break;
+							}
+						}
+						if (dominatedByTwo) {
+							dominated = true;
+							break;
+						}
+						// case 4
+						if (((l.getDemand() + nodes.get(l.getNode()).getDemand()) > ModelConstants.VEHICLE_CAPACITY) ||
+								(l.getTime() + distanceMatrix.getEntry(l.getNode()+1, lab.getPredecessor().getNode()+1) >
+								nodes.get(lab.getPredecessor().getNode()).getUpperTimeWindow())) {
+							dominated = true;
+							break;
+						}
+						
+						// set weakly dominant and add dominating label
+						l.setType(2);
+						l.setDominatingLabel(lab);
+					}
+				}
+				// check if strongly dominant
+				if (!dominated) {
+					if (nodes.get(l.getPredecessor().getNode()).getDemand() + l.getDemand() > ModelConstants.VEHICLE_CAPACITY ||
+							l.getTime() + distanceMatrix.getEntry(l.getNode()+1, l.getPredecessor().getNode()+1) >
+					nodes.get(l.getPredecessor().getNode()).getUpperTimeWindow()) l.setType(0);
+				}
+				
+				// check if existing labels are dominated
+				for (int j = 0; j < labels.size(); j++) {
+					Label lab = labels.get(j);
+					// case 1
+					if (dominates(l, lab)) {
+						if (l.getType() != 1) {
+							labels.remove(j);
+							if (nps.contains(lab)) nps.remove(lab);
+						}
+						// case 2
+						else if (l.getPredecessor().getNode() == lab.getPredecessor().getNode()) {
+							labels.remove(j);
+							if (nps.contains(lab)) nps.remove(lab);
+						}
+						// case 3
+						else {
+							boolean dominatedByTwo = false;
+							for (int k = 0; k < labels.size(); k++) {
+								if (j == k) continue;
+								Label lab1 = labels.get(k);
+								if (dominates(lab1, lab) && l.getPredecessor().getNode() != lab1.getPredecessor().getNode()) {
+									dominatedByTwo = true;
+									break;
+								}
+							}
+							if (dominatedByTwo) {
+								labels.remove(j);
+								if (nps.contains(lab)) nps.remove(lab);
+							}
+						}
+						
+						// case 4 can be skipped
+					}
+					
+				}
+				
+				// add only if non-dominated
+				if (!dominated) {
+					labelCount++;
+					labels.add(l);
+					nps.add(l);
+				}
+			}
+			if (currentLabel.getType() == 2) break;
 		}
 	}
 	
@@ -224,12 +329,6 @@ public class SPPTWCC {
 		getShortestPath(currentLabel.getPredecessor());	
 	}
 	
-	private boolean checkNodeRepetition(Label currentLabel, int next) {
-		if (currentLabel.getPredecessor() == null) return false;
-		else if (currentLabel.getPredecessor().getNode() == next) return true;
-		else return checkNodeRepetition(currentLabel.getPredecessor(), next);
-	}
-	
 	private double getPathCosts(ArrayList<Integer> path) {	
 		double costs = 0;
 		for (int i = 0; i < path.size() - 1; i++) {
@@ -240,9 +339,10 @@ public class SPPTWCC {
 	
 	private class Node {
 		private int upperTimeWindow;
+		private int lowerTimeWindow;
 		private int demand;
 		
-		public Node(int upperTimeWindow, int demand) {
+		public Node(int lowerTimeWindow, int upperTimeWindow, int demand) {
 			this.upperTimeWindow = upperTimeWindow;
 			this.demand = demand;
 		}
@@ -258,29 +358,15 @@ public class SPPTWCC {
 		}
 		public void setDemand(int demand) {
 			this.demand = demand;
+		}
+
+		public int getLowerTimeWindow() {
+			return lowerTimeWindow;
+		}
+
+		public void setLowerTimeWindow(int lowerTimeWindow) {
+			this.lowerTimeWindow = lowerTimeWindow;
 		}	
-	}
-	
-	private Path getNextBestPath(ArrayList<Label> labels) {
-		double minimalCosts = Double.MAX_VALUE;
-		int index = -1;
-		for (int i = 0; i < labels.size(); i++) {
-			if (labels.get(i).getCosts() < minimalCosts) {
-				minimalCosts = labels.get(i).getCosts();
-				index = i;
-			}
-		}
-		double reducedCosts = labels.get(index).getCosts();
-		shortestPath = new ArrayList<Integer>();
-		getShortestPath(labels.get(index));
-		ArrayList<Integer> path = new ArrayList<Integer>();		
-		for (int i = shortestPath.size() - 1; i >= 0; i--) {
-			path.add(shortestPath.get(i));
-		}
-		labels.remove(index);
-		double costs = ModelHelperMethods.getRouteCostsIndexed0(distanceMatrix, path);
-		Path result = new Path(path, costs, reducedCosts, distanceMatrix.getDimension());
-		return result;
 	}
 	
 	private class Label {
@@ -289,6 +375,8 @@ public class SPPTWCC {
 		private int time;
 		private int node;
 		private Label predecessor;
+		private Label dominatingLabel; // only filled if current label type is 2
+		private int type; // 0 = strongly dominant, 1 = semi-strongly dominant, 2 = weakly dominant
 		
 		public Label(double costs, int demand, int time, int node) {
 			this.setCosts(costs);
@@ -297,12 +385,23 @@ public class SPPTWCC {
 			this.setNode(node);
 		}
 		
-		public Label(double costs, int demand, int time, int node, Label predecessor) {
+		public Label(double costs, int demand, int time, int node, Label predecessor, int type) {
 			this.setCosts(costs);
 			this.setDemand(demand);
 			this.setTime(time);
 			this.setNode(node);
 			this.predecessor = predecessor;
+			this.type = type;
+		}
+		
+		public Label(double costs, int demand, int time, int node, Label predecessor, int type, Label dominatingLabel) {
+			this.setCosts(costs);
+			this.setDemand(demand);
+			this.setTime(time);
+			this.setNode(node);
+			this.predecessor = predecessor;
+			this.type = type;
+			this.setDominatingLabel(dominatingLabel);
 		}
 
 		public double getCosts() {
@@ -343,6 +442,22 @@ public class SPPTWCC {
 
 		public void setPredecessor(Label predecessor) {
 			this.predecessor = predecessor;
+		}
+
+		public int getType() {
+			return type;
+		}
+
+		public void setType(int type) {
+			this.type = type;
+		}
+
+		public Label getDominatingLabel() {
+			return dominatingLabel;
+		}
+
+		public void setDominatingLabel(Label dominatingLabel) {
+			this.dominatingLabel = dominatingLabel;
 		}
 
 		

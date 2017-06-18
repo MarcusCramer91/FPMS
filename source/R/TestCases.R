@@ -24,21 +24,23 @@ ggmap(mapImageData, extend = "device") + geom_point(aes(x=lon, y=lat), data=test
         legend.text = element_text(size = 30), legend.position = "none")
 dev.off()
 
+testData_lonlats = read.csv("data/testcases/Lonlats.csv")
+
 #####################################################
 # generate test cases
 # 20 customers test case
 set.seed(0)
-for (i in c(20,30,40,50)) {
+for (i in c(20,30,40,50,60,70,80,90)) {
   for (j in 1:10) {
   # sample lonlats
   lonlats = testData_lonlats[(sample(1:100, i)+1),]
   lonlats = rbind(testData_lonlats[1,],lonlats)
-  write.table(lonlats, paste("data/testcases/Lonlats_", i, "_", j, ".csv", sep = ""), row.names = FALSE, sep = ",")
+  write.table(lonlats, paste("data/testcases/Lonlats_", i, "_", j, ".csv", sep = ""), row.names = FALSE, sep = ";")
   # generate orders
   orders = data.frame(id = seq(1:i), weight = round(runif(i,1,15)), time = round(runif(i,1,30)), location_id = 2:(i+1))
-  write.table(orders, paste("data/testcases/Orders_", i, "_", j, ".csv", sep = ""), row.names = FALSE, sep = ",")
+  write.table(orders, paste("data/testcases/Orders_", i, "_", j, ".csv", sep = ""), row.names = FALSE, sep = ";")
   # generate distance matrix (work with air distances due to google maps api restrictions)
   travelTimesMat = round(calculateAirDistanceMatrix(lonlats)*20000)+30 # factor 20000 to approximate real travel times, + 30 to make them more realistic
-  write.table(travelTimesMat, paste("data/testcases/TravelTimes_", i, "_", j, ".csv", sep = ""), col.names = FALSE, row.names = FALSE, sep = ",")
+  write.table(travelTimesMat, paste("data/testcases/TravelTimes_", i, "_", j, ".csv", sep = ""), col.names = FALSE, row.names = FALSE, sep = ";")
   }
 }

@@ -1,4 +1,4 @@
-package optimization;
+package solomon;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,10 +13,12 @@ import ilog.cplex.IloCplex;
 import model.DistanceMatrix;
 import model.ModelConstants;
 import model.Order;
+import optimization.ColGenTester;
+import optimization.ModelHelperMethods;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 
-public class ColGenTester {
+public class SolomonTesterColgen {
 	
 	private DistanceMatrix distmat;
 	private ArrayList<Order> orders;
@@ -27,93 +29,49 @@ public class ColGenTester {
 	private String id;
 	private int nPaths = 1;
 
-	public static void main2(String[] args) throws Exception {
-		//String[] approaches = {"espptwcc_heur", "espptwcc_heur_fp", "espptwcc_heur_fp_recomp", "spptwcc",
-		//		"spptwcc2", "spptwcc_heur", "spptwcc2_heur"};
-		//String[] approaches = {"espptwcc_heur", "espptwcc_heur_fp_recomp", "spptwcc",
-		//		"spptwcc2", "spptwcc_heur", "spptwcc2_heur"};
-		int currentTime = 30*60;
-		int compTimeLimit = 180;
-		for (int i = 20; i <= 50; i += 10) {
-			for (int j = 1; j <= 10; j++) {
-				String[] approaches = {"espptwcc_heur_fp"};
-				ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_"+i+"_"+j+".csv");
-				DistanceMatrix distmat = new DistanceMatrix(
-						 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
-				DistanceMatrix distmatair = new DistanceMatrix(
-						 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
-				for (String approach : approaches) {
-					String id = "_" + approach + "_50paths_" + i + "_" + j;
-					System.out.println("Current problem: " + id);
-					ColGenTester tester = new ColGenTester(distmat, orders, currentTime, id);
-					
-					if (approach.equals("espptwcc_heur_fp") || approach.equals("espptwcc_heur_fp_recomp") ||
-							approach.equals("espptwcc_fp")) {
-						ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
-						ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
-						for (int k = 0; k < initialPathsOrders.size(); k++) {
-							Order[] current = initialPathsOrders.get(k);
-							ArrayList<Integer> currentList = new ArrayList<Integer>();
-							currentList.add(0);
-							for (Order o : current) {
-								currentList.add(o.getDistanceMatrixLink()-1);
-							}
-							currentList.add(distmat.getDimension());
-							initialPathsNodes.add(currentList);
-						}
-						tester.getRoutesWithFPInitial(compTimeLimit, initialPathsNodes, approach, true, false);			
-					}
-					else {
-						tester.getRoutes(compTimeLimit, approach, true);
-					}
-				}
-			}
-		}
-	}
-	
-	// compare box method
 	public static void main(String[] args) throws Exception {
+		/**String[] approaches = {"espptwcc_heur", "spptwcc",
+				"spptwcc2", "spptwcc_heur", "spptwcc2_heur"};*/
+		
+		/**String[] solomonProblems = {"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c101.txt", 
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c102.txt", 
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c103.txt", 
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c104.txt", 
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c105.txt",
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c106.txt",
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c107.txt",
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c108.txt",
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c109.txt"};*/
+		String[] solomonProblems = {"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r101.txt", 
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r102.txt", 
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r103.txt", 
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r104.txt", 
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r105.txt",
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r106.txt",
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r107.txt",
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r108.txt",
+		"C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\r109.txt"};
 		int currentTime = 30*60;
 		int compTimeLimit = 180;
 		for (int i = 20; i <= 50; i += 10) {
-			for (int j = 1; j <= 10; j++) {
-				String[] approaches = {"espptwcc_heur_fp"};
-				ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_"+i+"_"+j+".csv");
-				DistanceMatrix distmat = new DistanceMatrix(
-						 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
-				DistanceMatrix distmatair = new DistanceMatrix(
-						 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
+			for (int j = 0; j < solomonProblems.length; j++) {
+				String solomonPath = solomonProblems[j];
+				String[] approaches = {"espptwcc_heur"};
 				for (String approach : approaches) {
-					String id = "_" + approach + "_50paths_box_" + i + "_" + j;
+					String id = "_" + approach + "_" + i + "_" + (j+1);
 					System.out.println("Current problem: " + id);
-					ColGenTester tester = new ColGenTester(distmat, orders, currentTime, id);
-					
-					if (approach.equals("espptwcc_heur_fp") || approach.equals("espptwcc_heur_fp_recomp") ||
-							approach.equals("espptwcc_fp")) {
-						ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
-						ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
-						for (int k = 0; k < initialPathsOrders.size(); k++) {
-							Order[] current = initialPathsOrders.get(k);
-							ArrayList<Integer> currentList = new ArrayList<Integer>();
-							currentList.add(0);
-							for (Order o : current) {
-								currentList.add(o.getDistanceMatrixLink()-1);
-							}
-							currentList.add(distmat.getDimension());
-							initialPathsNodes.add(currentList);
-						}
-						tester.getRoutesWithFPInitial(compTimeLimit, initialPathsNodes, approach, true, true);			
-					}
-					else {
-						tester.getRoutes(compTimeLimit, approach, true);
-					}
+					ArrayList<Object> solomon = SolomonImporter.importCSV(solomonPath, i);
+					@SuppressWarnings("unchecked")
+					ArrayList<Order> orders = (ArrayList<Order>)solomon.get(0);
+					DistanceMatrix distanceMatrix = (DistanceMatrix)solomon.get(1);
+					SolomonTesterColgen tester = new SolomonTesterColgen(distanceMatrix, orders, currentTime, id);
+					tester.getRoutes(compTimeLimit, approach, true);
 				}
 			}
 		}
-	}
+	}	
 	
-	
-	public ColGenTester(DistanceMatrix distmat, ArrayList<Order> orders, 
+	public SolomonTesterColgen(DistanceMatrix distmat, ArrayList<Order> orders, 
 			   int currentTime, String id) {
 		this.distmat = distmat;
 		this.orders = orders;
@@ -122,28 +80,7 @@ public class ColGenTester {
 		this.id = id;
 	}
 	
-	public void getRoutesWithFPInitial(int compTimeLimit, ArrayList<ArrayList<Integer>> initialPaths, 
-			String sppAlgorithm, boolean generateOutput, boolean boxStep) throws IloException, IOException {
-		 distmat = distmat.insertDummyDepotAsFinalNode();
-		 distmat = distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
-		 distmat = distmat.addCustomerServiceTimes(ModelConstants.REALISTIC_CUSTOMER_LOADING_TIME);
-		 
-		 int nLocations = distmat.getDimension();
-		 for (int i = 0; i < initialPaths.size(); i++) {
-			 Path p = new Path(initialPaths.get(i), ModelHelperMethods.getRouteCostsIndexed0(distmat, initialPaths.get(i)), 0, 
-					 nLocations);
-			 paths.add(p);
-		 }
-		 if (!boxStep) getRoutesInternal(compTimeLimit, sppAlgorithm, generateOutput);
-		 else getRoutesInternalBox(compTimeLimit, sppAlgorithm, generateOutput);
-	}
-	
-	public void getRoutes(int compTimeLimit, String sppAlgorithm, boolean generateOutput) throws IloException, IOException {
-		
-		 distmat = distmat.insertDummyDepotAsFinalNode();
-		 distmat = distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
-		 distmat = distmat.addCustomerServiceTimes(ModelConstants.REALISTIC_CUSTOMER_LOADING_TIME);
-		 
+	public void getRoutes(int compTimeLimit, String sppAlgorithm, boolean generateOutput) throws IloException, IOException {		 
 		 int nLocations = distmat.getDimension();
 		 int nCustomers = nLocations - 2;
 		// initialize with trivial paths
@@ -162,6 +99,7 @@ public class ColGenTester {
 	private void getRoutesInternal(int compTimeLimit, String sppAlgorithm, boolean generateOutput) throws IloException, IOException {
 		 long time = System.currentTimeMillis();
 		 int iterationCount = 0;
+		 ArrayList<Integer> previousBestPath = null;
 		 
 		 // column generation 
 		 while((System.currentTimeMillis() - time) < compTimeLimit*1000) {
@@ -179,7 +117,7 @@ public class ColGenTester {
 			     ArrayList<ArrayList<Integer>> routes = computeSolution(decision);
 			     
 			     solveRelaxation();
-				 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\" + id + ".csv", true);
+				 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\solomon\\" + id + ".csv", true);
 				 writer.write((Math.floor(System.currentTimeMillis() - time) / 1000)+  "," + currentMIPCosts + "," + currentRelaxedCosts + "\n");
 			     writer.close();
 			     
@@ -210,25 +148,14 @@ public class ColGenTester {
 			 //Path newPath = espptwcc.labelNodes();
 			 Path newPath = null;
 			 ArrayList<Path> newPaths = null;
-			 if (sppAlgorithm.equals("espptwcc_heur") || sppAlgorithm.equals("espptwcc_heur_fp")) {
-				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, true);
+			 if (sppAlgorithm.equals("espptwcc_heur")) {
+				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50);
 				 newPaths = espptwcc_heuristic.labelNodes();			 
-			 }
-			 
-			 else if (sppAlgorithm.equals("espptwcc_heur_fp_recomp")) {
-				 ESPPTWCC_Heuristic_Recomputation espptwcc_heuristic_recomp = 
-						 new ESPPTWCC_Heuristic_Recomputation(distmat, reducedCostsMatrix, orders, currentTime, true);
-				 newPaths = espptwcc_heuristic_recomp.labelNodes();			 
-			 }
-			 
-			 else if (sppAlgorithm.equals("espptwcc_fp")) {
-				 ESPPTWCC espptwcc = new ESPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
-				 newPath = espptwcc.labelNodes();
 			 }
 		     
 			 else if (sppAlgorithm.equals("spptwcc")) {
-				 SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime, true);
-				 newPath = spptwcc.labelNodes().get(0);			 
+				 SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
+				 newPath = spptwcc.labelNodes();			 
 			 }
 			 
 			 // 2-cycle elimination
@@ -252,13 +179,19 @@ public class ColGenTester {
 			 }
 			 else return;
 			 
-			 // heuristic for espptwcc
-			 //ESPPTWCC_Heuristic spptwcc_heu = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime);
-			 //Path newPath = spptwcc_heu.labelNodes();
-		     
 			 // check if new path has negative costs/exists
-			 if (!sppAlgorithm.equals("espptwcc_heur") && !sppAlgorithm.equals("espptwcc_heur_fp") && 
-					 !sppAlgorithm.equals("espptwcc_heur_fp_recomp")) {
+			 if (!sppAlgorithm.equals("espptwcc_heur")) {
+				 if (newPath == null) break;
+				 if (previousBestPath == null || !ModelHelperMethods.samePath(previousBestPath, newPath.getNodes())) {
+					 previousBestPath = newPath.getNodes();
+				 }
+				 else break;
+				 // print the best found new path
+				 /**for (int i = 0; i < newPath.getNodes().size(); i++) {
+					 System.out.print(newPath.getNodes().get(i) + "->");
+				 }
+				 System.out.println();
+				 System.out.println("Costs for new path: " + newPath.getCosts());*/
 				 // check if path has negative reduced costs, if not exist loop
 				 if (newPath.getReducedCosts() >= 0) break;
 				 if (checkConvergence(newPath.getNodes())) break;
@@ -266,6 +199,16 @@ public class ColGenTester {
 			 }
 			 else {
 				 if (newPaths == null)  break;
+				 if (previousBestPath == null || !ModelHelperMethods.samePath(previousBestPath, newPaths.get(0).getNodes())) {
+					 previousBestPath = newPaths.get(0).getNodes();
+				 }
+				 else break;
+				 // print the best found new path
+				 /**for (int i = 0; i < newPaths.get(0).getNodes().size(); i++) {
+					 System.out.print(newPaths.get(0).getNodes().get(i) + "->");
+				 }
+				 System.out.println();
+				 System.out.println("Costs for new path: " + newPaths.get(0).getCosts());*/
 				 if (checkConvergence(newPaths.get(0).getNodes())) break;
 				 paths.addAll(newPaths);
 			 }
@@ -282,7 +225,7 @@ public class ColGenTester {
 	     ArrayList<ArrayList<Integer>> routes = computeSolution(decision);
 	    		 
 		 if (generateOutput) {
-			 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\" + id + ".csv", true);
+			 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\solomon\\" + id + ".csv", true);
 			 writer.write((Math.floor(System.currentTimeMillis() - time) / 1000)+  "," + currentMIPCosts + "," + currentRelaxedCosts + "\n");
 		     writer.close(); 
 		 }
@@ -290,188 +233,6 @@ public class ColGenTester {
 	     //System.out.println("Paths used with overlapping: " );
 	}
 	
-	/**
-	 * Allows to change the duals by a maximum of 100
-	 * @param compTimeLimit
-	 * @param sppAlgorithm
-	 * @param generateOutput
-	 * @throws IloException
-	 * @throws IOException
-	 */
-	@SuppressWarnings("unused")
-	private void getRoutesInternalBox(int compTimeLimit, String sppAlgorithm, boolean generateOutput) throws IloException, IOException {
-		 long time = System.currentTimeMillis();
-		 int iterationCount = 0;
-		 ArrayList<Integer> previousBestPath = null;
-		 
-		 // column generation 
-		 while((System.currentTimeMillis() - time) < compTimeLimit*1000) {
-			 iterationCount++;
-		     // get duals
-		     double[] duals = solveDual();
-		     
-		     // determine box for the duals
-		     // the lower limit must be the customer loading time + the shortest distance + the depot loading time divided
-		     // by the maximum tour length
-    		 double lowerLimit = ModelConstants.CUSTOMER_LOADING_TIME + (distmat.getShortestDistance() + 
-    				 ModelConstants.DEPOT_LOADING_TIME) / ModelHelperMethods.getMaximumNumberOfCustomers(distmat, orders);
-    		 
-    		 // the upper limit strictly is defined by a simple path from the depot just to that customer
-    		 // however, this is not a realistic result
-    		 // Therefore, assume that a vehicle services at least 5 customers at all times
-    		 // then the upper limit can be computed as follows
-    		 double upperLimit = ((distmat.getLongestTripFromDepot()) * 6 + ModelConstants.DEPOT_LOADING_TIME) / 5 + 
-    				 ModelConstants.CUSTOMER_LOADING_TIME;
-    		 
-	    	 for (int i = 0; i < duals.length; i++) {
-	    		 if (duals[i] > upperLimit) duals[i] = upperLimit;
-	    		 else if (duals[i] < lowerLimit) duals[i] = lowerLimit;
-	    	 }
-		     
-		     // log information
-			 if (generateOutput) {
-			     int decision[] = solveMIP();
-			     /**for (int i = 0; i < decision.length; i++) {
-			    	 if (decision[i] == 1) System.out.println("Route: " + i);
-			     }*/
-			     ArrayList<ArrayList<Integer>> routes = computeSolution(decision);
-			     
-			     solveRelaxation();
-				 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\" + id + ".csv", true);
-				 writer.write((Math.floor(System.currentTimeMillis() - time) / 1000)+  "," + currentMIPCosts + "," + currentRelaxedCosts + "\n");
-			     writer.close();
-			     
-			     ArrayList<Integer> customersContained = new ArrayList<Integer>();
-			     for (int i = 1; i < 30 + 1; i++) {
-			    	 for (int p = 0; p < routes.size(); p++) {
-			    		 if (routes.get(p).contains(i)) {
-			    			 if (!customersContained.contains(i)) customersContained.add(i);
-			    		 }
-			    	 }
-			     }
-			 }
-		     
-		     
-		     if ((System.currentTimeMillis() - time) > compTimeLimit*1000) break;
-		     
-		     // compute reduced costs for arcs
-		     double[] reducedCosts = new double[distmat.getAllEntries().length];
-			 for (int i = 0; i < reducedCosts.length; i++) {
-				 reducedCosts[i] = distmat.getAllEntries()[i];
-			 }
-			 DistanceMatrix reducedCostsMatrix = new DistanceMatrix(reducedCosts);
-			 reducedCostsMatrix.subtractDuals(duals);
-			 
-			 // solve pricing problem
-			 // use espptwcc only for problems with tight bounds
-			 //ESPPTWCC espptwcc = new ESPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
-			 //Path newPath = espptwcc.labelNodes();
-			 Path newPath = null;
-			 ArrayList<Path> newPaths = null;
-			 if (sppAlgorithm.equals("espptwcc_heur") || sppAlgorithm.equals("espptwcc_heur_fp")) {
-				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, true);
-				 newPaths = espptwcc_heuristic.labelNodes();			 
-			 }
-			 
-			 else if (sppAlgorithm.equals("espptwcc_heur_fp_recomp")) {
-				 ESPPTWCC_Heuristic_Recomputation espptwcc_heuristic_recomp = 
-						 new ESPPTWCC_Heuristic_Recomputation(distmat, reducedCostsMatrix, orders, currentTime, true);
-				 newPaths = espptwcc_heuristic_recomp.labelNodes();			 
-			 }
-			 
-			 else if (sppAlgorithm.equals("espptwcc_fp")) {
-				 ESPPTWCC espptwcc = new ESPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
-				 newPath = espptwcc.labelNodes();
-			 }
-		     
-			 else if (sppAlgorithm.equals("spptwcc")) {
-				 SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime, true);
-				 newPath = spptwcc.labelNodes().get(0);			 
-			 }
-			 
-			 // 2-cycle elimination
-			 else if (sppAlgorithm.equals("spptwcc2")) {
-				 SPPTWCC2 spptwcc2 = new SPPTWCC2(distmat, reducedCostsMatrix, orders, currentTime);
-				 newPath = spptwcc2.labelNodes();			 
-			 }
-			 
-			 // 2-cycle elimination with nogo routes
-			 else if (sppAlgorithm.equals("spptwcc2_heur")) {
-				 double factor = 1.4;
-				 SPPTWCC2_Experimental spptwcc2_experimental = new SPPTWCC2_Experimental(distmat, reducedCostsMatrix, orders, currentTime, factor);
-				 newPath = spptwcc2_experimental.labelNodes();	 
-			 }
-
-			 // spptwcc nogo routes
-			 else if (sppAlgorithm.equals("spptwcc_heur")) {
-				 double factor = 1.4;
-				 SPPTWCC_Experimental spptwcc_experimental = new SPPTWCC_Experimental(distmat, reducedCostsMatrix, orders, currentTime, factor);
-				 newPath = spptwcc_experimental.labelNodes();	 
-			 }
-			 else return;
-			 
-
-			 /**for (int i = 0; i < newPaths.get(0).getNodes().size(); i++) {
-				 System.out.print(newPaths.get(0).getNodes().get(i) + "->");
-			 }
-			 System.out.println();
-			 System.out.println("Costs for new path: " + newPaths.get(0).getCosts());*/
-		    
-			 // check if new path has negative costs/exists
-			 if (!sppAlgorithm.equals("espptwcc_heur") && !sppAlgorithm.equals("espptwcc_heur_fp") && 
-					 !sppAlgorithm.equals("espptwcc_heur_fp_recomp")) {
-				 //else break;		 
-			 }
-			 else {
-				 if (newPaths == null) break;			 
-				 if (previousBestPath == null || !ModelHelperMethods.samePath(previousBestPath, newPaths.get(0).getNodes())) {
-					 previousBestPath = newPaths.get(0).getNodes();
-				 }
-				 else break;
-				 paths.addAll(newPaths);
-			 }
-			 
-			 
-		 }
-		 
-		 /**double[] relaxedValues = solveRelaxation();
-		 for (int i = 0; i < relaxedValues.length; i++) {
-			 System.out.println(i + " = " + relaxedValues[i]);
-		 }*/
-		 
-		 // now optimize via branch and bound
-		 int[] decision = solveMIP();
-
-	     ArrayList<ArrayList<Integer>> routes = computeSolution(decision);
-	    		 
-		 if (generateOutput) {
-			 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\" + id + ".csv", true);
-			 writer.write((Math.floor(System.currentTimeMillis() - time) / 1000)+  "," + currentMIPCosts + "," + currentRelaxedCosts + "\n");
-		     writer.close(); 
-		 }
-		 
-	     //System.out.println("Paths used with overlapping: " );
-
-	     
-	     if (generateOutput) {
-		     try {
-				ModelHelperMethods.generateOutput(routes, compTimeLimit);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-	     }
-	     
-	     // restart with current best solution
-	     /**
-	     paths = new ArrayList<Path>();
-	     for (ArrayList<Integer> route : routes) {
-	    	 double c = ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
-	    	 Path p = new Path(route, c, 0, distmat.getDimension());
-	    	 paths.add(p);
-	     }
-	     
-	     getRoutesInternal(compTimeLimit, sppAlgorithm, generateOutput);*/
-	}
 	
 	private double[] solveDual() throws IloException {
 		 int nLocations = distmat.getDimension();

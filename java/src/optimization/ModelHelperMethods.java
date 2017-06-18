@@ -24,6 +24,7 @@ public class ModelHelperMethods {
 		int timeConsumed = ModelConstants.DEPOT_LOADING_TIME;
 		// then add the duration from the depot to the first customer
 		timeConsumed += Math.round(distanceMatrix.getEntry(1, route[0].getDistanceMatrixLink()));
+		double weight = route[0].getWeight();
 		// check for the first customer
 		if (timeConsumed + route[0].getMET(currentTime) > ModelConstants.TIME_WINDOW) return false;		
 		// then add all travel times and service times up to the last order
@@ -32,7 +33,9 @@ public class ModelHelperMethods {
 			timeConsumed += ModelConstants.CUSTOMER_LOADING_TIME;
 			long travelTime = Math.round(distanceMatrix.getEntry(route[i-1].getDistanceMatrixLink(), route[i].getDistanceMatrixLink()));
 			timeConsumed += travelTime;
+			weight += route[i].getWeight();
 			if (timeConsumed + route[i].getMET(currentTime) > ModelConstants.TIME_WINDOW) return false;
+			if (weight > ModelConstants.VEHICLE_CAPACITY) return false;
 		}
 		return true;
 	}
@@ -49,13 +52,16 @@ public class ModelHelperMethods {
 		int timeConsumed = ModelConstants.DEPOT_LOADING_TIME;
 		// then add the duration from the depot to the first customer
 		timeConsumed += distanceMatrix.getEntry(1, route[0].getDistanceMatrixLink());
+		double weight = route[0].getWeight();
 		// then add all travel times and service times up to the last order
 		for (int i = 1; i < route.length; i++) {
 			// add service time of previous customer
 			timeConsumed += ModelConstants.CUSTOMER_LOADING_TIME;
 			long travelTime = Math.round(distanceMatrix.getEntry(route[i-1].getDistanceMatrixLink(), route[i].getDistanceMatrixLink()));
 			timeConsumed += travelTime;
+			weight += route[i].getWeight();
 			if (timeConsumed > ModelConstants.TIME_WINDOW) return false;
+			if (weight > ModelConstants.VEHICLE_CAPACITY) return false;
 		}
 		return true;
 	}
@@ -82,6 +88,21 @@ public class ModelHelperMethods {
 		for (int i = 0; i < tspSequence.length-2; i++) {
 			//System.out.println(i);
 			result[i] = sortedOrders[tspSequence[i+1]-2];
+		}
+		return result;
+	}
+	
+	public static ArrayList<Integer> parseTSPOutput2(int[] tspSequence, ArrayList<Integer> nodes) {
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		int[] sortedNodes = new int[nodes.size()];
+		for (int i = 0; i < nodes.size(); i++) {
+			sortedNodes[i] = nodes.get(i);
+		}
+		Arrays.sort(sortedNodes);
+		
+		for (int i = 0; i < tspSequence.length; i++) {
+			//System.out.println(i);
+			result.add(sortedNodes[tspSequence[i]-1]);
 		}
 		return result;
 	}

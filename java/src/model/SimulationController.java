@@ -9,9 +9,9 @@ import java.util.Map;
 import optimization.CPlexConnector;
 import optimization.FPOptimize;
 import optimization.ModelHelperMethods;
+import solomon.SolomonImporter;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
-import util.SolomonImporter;
 import util.VehiclesImporter;
 
 public class SimulationController {
@@ -64,7 +64,7 @@ public class SimulationController {
 
 	public static void main(String[] args) throws Exception {
 		int startTime = 0;
-		int currentTime = 40*60;
+		int currentTime = 30*60;
 		int lastOrderTime = 720; // simulated from 9 a.m. to 9 p.m. every minute
 		SimulationController controller = new SimulationController(SimulationController.distanceMatrixFile, SimulationController.airDistanceMatrixFile,
 				SimulationController.ordersFile, SimulationController.vehiclesFile, currentTime);

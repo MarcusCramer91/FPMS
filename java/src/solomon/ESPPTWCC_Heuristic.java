@@ -1,4 +1,4 @@
-package optimization;
+package solomon;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -14,6 +14,7 @@ import model.ModelConstants;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 import model.Order;
+import optimization.ModelHelperMethods;
 
 /**
  * Solves an SPPTWCC via dynamic programming labeling approach
@@ -31,7 +32,6 @@ public class ESPPTWCC_Heuristic {
 	private int currentTime;
 	private ArrayList<ArrayList<Integer>> noGoRoutes;
 	private int nBestRounds;
-	private boolean returnNegativeOnly;
 	
 	private int labelCount;
 	
@@ -68,13 +68,12 @@ public class ESPPTWCC_Heuristic {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 ESPPTWCC_Heuristic spptwcc = new ESPPTWCC_Heuristic(distmat, reducedCostsMat, orders, 40*60, 50, true);
+		 ESPPTWCC_Heuristic spptwcc = new ESPPTWCC_Heuristic(distmat, reducedCostsMat, orders, 40*60, 1);
 		 spptwcc.labelNodes();
 	}
 	
 	public ESPPTWCC_Heuristic(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
-			int nBestRounds, boolean returnNegativeOnly) {
-		this.returnNegativeOnly = returnNegativeOnly;
+			int nBestRounds) {
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
@@ -85,13 +84,13 @@ public class ESPPTWCC_Heuristic {
 		this.nBestRounds = nBestRounds;
 		// initialize nodes
 		// add dummy node for the depots
-		nodes.add(new Node(0,0));
+		nodes.add(new Node(0,0,0));
 		for (Order o : orders) {
 			int met = o.getMET(currentTime);
-			Node n = new Node(ModelConstants.TIME_WINDOW - o.getMET(currentTime), (int)o.getWeight());
+			Node n = new Node(o.getEarliest(), o.getLatest(), (int)o.getWeight());
 			nodes.add(n);
 		}
-		nodes.add(new Node(Integer.MAX_VALUE,0));
+		nodes.add(new Node(0, Integer.MAX_VALUE,0));
 		
 		// initialize labels
 		for (Node n : nodes) {
@@ -131,16 +130,8 @@ public class ESPPTWCC_Heuristic {
 		
 		// compute the shortest path
 		ArrayList<Label> allFinalLabels = labelList.get(distanceMatrix.getDimension()-1);
-		if (allFinalLabels.size() == 0 && returnNegativeOnly) return null;
+		if (allFinalLabels.size() == 0) return null;
 		ArrayList<Path> paths = new ArrayList<Path>();
-		if (allFinalLabels.size() == 0 && !returnNegativeOnly) {
-			paths = new ArrayList<Path>();
-			ArrayList<Integer> nodes = new ArrayList<Integer>();
-			nodes.add(0);
-			nodes.add(distanceMatrix.getDimension()-1);
-			Path p = new Path(nodes, 0, 0, distanceMatrix.getDimension());
-			paths.add(p);
-		}
 		
 		// get n best routes
 		for (int i = 0; i < nBestRounds; i++) {
@@ -166,6 +157,10 @@ public class ESPPTWCC_Heuristic {
 			// check if new label is feasible wrt time
 			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
 			if (newTime > nodes.get(i).getUpperTimeWindow()) continue;
+
+			// if arrival time is before the earliest for that node, wait
+			if (newTime < nodes.get(i).getLowerTimeWindow()) newTime = nodes.get(i).getLowerTimeWindow();
+			
 			// check if new label is feasible wrt demand
 			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
 			if (newDemand > ModelConstants.VEHICLE_CAPACITY) continue;
@@ -177,29 +172,8 @@ public class ESPPTWCC_Heuristic {
 			// different dominance criterion for the final node
 			// only depends on the costs
 			if (i == distanceMatrix.getDimension()-1) {
-				if (l.getCosts() < 0) {
-					boolean dominated = false;
-					for (int j = 0; j < labels.size(); j++) {
-						Label lab = labels.get(j);				
-						// check if existing labels are dominated
-						if (dominates(l, lab)) {
-							// remove both from nps and the labels map if dominated
-							labels.remove(j);
-							if (nps.contains(lab)) nps.remove(lab);
-						}
-						// check if existing labels dominate the new one
-						if (dominates(lab,l)) {
-							dominated = true;
-							break;
-						}
-					}
-					// add only if non-dominated
-					if (!dominated) {
-						//System.out.println("Created label: (" + l.getNode() + "," + l.getTime() + "," + l.getDemand() + ") = " + l.getCosts());
-						labels.add(l);
-						labelCount++;
-					}
-				}
+				if (l.getCosts() < 0) labels.add(l);
+				labelCount++;
 			}
 			else {
 				boolean dominated = false;
@@ -315,9 +289,10 @@ public class ESPPTWCC_Heuristic {
 	
 	private class Node {
 		private int upperTimeWindow;
+		private int lowerTimeWindow;
 		private int demand;
 		
-		public Node(int upperTimeWindow, int demand) {
+		public Node(int lowerTimeWindow, int upperTimeWindow, int demand) {
 			this.upperTimeWindow = upperTimeWindow;
 			this.demand = demand;
 		}
@@ -333,6 +308,14 @@ public class ESPPTWCC_Heuristic {
 		}
 		public void setDemand(int demand) {
 			this.demand = demand;
+		}
+
+		public int getLowerTimeWindow() {
+			return lowerTimeWindow;
+		}
+
+		public void setLowerTimeWindow(int lowerTimeWindow) {
+			this.lowerTimeWindow = lowerTimeWindow;
 		}	
 	}
 	

@@ -20,7 +20,7 @@ import model.Order;
  * @author Marcus
  *
  */
-public class ESPPTWCC_Heuristic {
+public class ESPPTWCC_Heuristic_backup {
 	
 	private ArrayList<Node> nodes;
 	private ArrayList<ArrayList<Label>> labelList;
@@ -68,11 +68,11 @@ public class ESPPTWCC_Heuristic {
 		 }*/
 		 
 		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 ESPPTWCC_Heuristic spptwcc = new ESPPTWCC_Heuristic(distmat, reducedCostsMat, orders, 40*60, 50, true);
+		 ESPPTWCC_Heuristic_backup spptwcc = new ESPPTWCC_Heuristic_backup(distmat, reducedCostsMat, orders, 40*60, 1, true);
 		 spptwcc.labelNodes();
 	}
 	
-	public ESPPTWCC_Heuristic(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
+	public ESPPTWCC_Heuristic_backup(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
 			int nBestRounds, boolean returnNegativeOnly) {
 		this.returnNegativeOnly = returnNegativeOnly;
 		this.nodes = new ArrayList<Node>();
@@ -177,29 +177,8 @@ public class ESPPTWCC_Heuristic {
 			// different dominance criterion for the final node
 			// only depends on the costs
 			if (i == distanceMatrix.getDimension()-1) {
-				if (l.getCosts() < 0) {
-					boolean dominated = false;
-					for (int j = 0; j < labels.size(); j++) {
-						Label lab = labels.get(j);				
-						// check if existing labels are dominated
-						if (dominates(l, lab)) {
-							// remove both from nps and the labels map if dominated
-							labels.remove(j);
-							if (nps.contains(lab)) nps.remove(lab);
-						}
-						// check if existing labels dominate the new one
-						if (dominates(lab,l)) {
-							dominated = true;
-							break;
-						}
-					}
-					// add only if non-dominated
-					if (!dominated) {
-						//System.out.println("Created label: (" + l.getNode() + "," + l.getTime() + "," + l.getDemand() + ") = " + l.getCosts());
-						labels.add(l);
-						labelCount++;
-					}
-				}
+				if (l.getCosts() < 0) labels.add(l);
+				labelCount++;
 			}
 			else {
 				boolean dominated = false;

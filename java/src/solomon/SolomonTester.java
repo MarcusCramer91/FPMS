@@ -1,12 +1,14 @@
-package model;
+package solomon;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import model.DistanceMatrix;
+import model.Order;
+import model.Vehicle;
 import optimization.CPlexConnector;
 import optimization.ModelHelperMethods;
-import util.SolomonImporter;
 
 public class SolomonTester {
 

@@ -80,6 +80,6 @@ public class Order {
 	}
 	
 	public int getLatest() {
-		return ModelConstants.TIME_WINDOW - time;
+		return latest;
 	}
 }

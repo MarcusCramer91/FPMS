@@ -1,4 +1,4 @@
-package util;
+package solomon;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

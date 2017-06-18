@@ -7,13 +7,6 @@ import util.DistanceMatrixImporter;
 
 public class CPlexTSP {
    
-   static int nCustomers = 14;
-   
-   static void displayResults(IloCplex cplex,
-                              IloNumVar[] inside,
-                              IloNumVar[] outside) throws IloException {
-      System.out.println("cost: " + cplex.getObjValue());
-   }
    
    public static void main( String[] args ) {
 	  try {
@@ -174,7 +167,7 @@ public class CPlexTSP {
 	       for (int i = 0; i < n; i++) {
 	      	 for (int j = 0; j < n; j++) {
 	      		 if (i == j) continue;
-	      		 if (cplex.getValue(x[i][j]) > 0) {
+	      		 if (Math.round(cplex.getValue(x[i][j])) == 1) {
 	      			 edges[0][counter] = i+1;
 	      			 edges[1][counter] = j+1;
 	      			 counter++;

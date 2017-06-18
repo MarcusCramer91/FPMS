@@ -780,3 +780,735 @@ ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, col
   xlab("Computation time in s") +
   ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
 dev.off()
+
+
+#########################
+# plot test cases dependent on problem size
+#########################
+# plot initial spp algorithms comparison
+# 20 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_20[,seq(2, ncol(spptwcc_20), by = 2)], 1, mean),
+                                             apply(spptwcc2_20[,seq(2, ncol(spptwcc2_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_20[,seq(2, ncol(espptwcc_heur_20), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_20[,seq(2, ncol(spptwcc_heur_20), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_20[,seq(2, ncol(spptwcc2_heur_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(spptwcc_20)),
+                                          rep(2, nrow(spptwcc2_20)),
+                                          rep(3, nrow(espptwcc_heur_20)),
+                                          rep(4, nrow(spptwcc_heur_20)),
+                                          rep(5, nrow(spptwcc2_heur_20))))
+
+pdf("images/sppComparison1_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_20[,seq(3, ncol(spptwcc_20), by = 2)], 1, mean),
+                                             apply(spptwcc2_20[,seq(3, ncol(spptwcc2_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_20[,seq(3, ncol(espptwcc_heur_20), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_20[,seq(3, ncol(spptwcc_heur_20), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_20[,seq(3, ncol(spptwcc2_heur_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(spptwcc_20)),
+                                          rep(2, nrow(spptwcc2_20)),
+                                          rep(3, nrow(espptwcc_heur_20)),
+                                          rep(4, nrow(spptwcc_heur_20)),
+                                          rep(5, nrow(spptwcc2_heur_20))))
+
+pdf("images/sppComparisonRelaxed1_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 30 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_30[,seq(2, ncol(spptwcc_30), by = 2)], 1, mean),
+                                             apply(spptwcc2_30[,seq(2, ncol(spptwcc2_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_30[,seq(2, ncol(espptwcc_heur_30), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_30[,seq(2, ncol(spptwcc_heur_30), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_30[,seq(2, ncol(spptwcc2_heur_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(spptwcc_30)),
+                                          rep(2, nrow(spptwcc2_30)),
+                                          rep(3, nrow(espptwcc_heur_30)),
+                                          rep(4, nrow(spptwcc_heur_30)),
+                                          rep(5, nrow(spptwcc2_heur_30))))
+
+pdf("images/sppComparison1_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_30[,seq(3, ncol(spptwcc_30), by = 2)], 1, mean),
+                                             apply(spptwcc2_30[,seq(3, ncol(spptwcc2_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_30[,seq(3, ncol(espptwcc_heur_30), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_30[,seq(3, ncol(spptwcc_heur_30), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_30[,seq(3, ncol(spptwcc2_heur_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(spptwcc_30)),
+                                          rep(2, nrow(spptwcc2_30)),
+                                          rep(3, nrow(espptwcc_heur_30)),
+                                          rep(4, nrow(spptwcc_heur_30)),
+                                          rep(5, nrow(spptwcc2_heur_30))))
+
+pdf("images/sppComparisonRelaxed1_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 40 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_40[,seq(2, ncol(spptwcc_40), by = 2)], 1, mean),
+                                             apply(spptwcc2_40[,seq(2, ncol(spptwcc2_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_40[,seq(2, ncol(espptwcc_heur_40), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_40[,seq(2, ncol(spptwcc_heur_40), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_40[,seq(2, ncol(spptwcc2_heur_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(spptwcc_40)),
+                                          rep(2, nrow(spptwcc2_40)),
+                                          rep(3, nrow(espptwcc_heur_40)),
+                                          rep(4, nrow(spptwcc_heur_40)),
+                                          rep(5, nrow(spptwcc2_heur_40))))
+
+pdf("images/sppComparison1_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_40[,seq(3, ncol(spptwcc_40), by = 2)], 1, mean),
+                                             apply(spptwcc2_40[,seq(3, ncol(spptwcc2_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_40[,seq(3, ncol(espptwcc_heur_40), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_40[,seq(3, ncol(spptwcc_heur_40), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_40[,seq(3, ncol(spptwcc2_heur_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(spptwcc_40)),
+                                          rep(2, nrow(spptwcc2_40)),
+                                          rep(3, nrow(espptwcc_heur_40)),
+                                          rep(4, nrow(spptwcc_heur_40)),
+                                          rep(5, nrow(spptwcc2_heur_40))))
+
+pdf("images/sppComparisonRelaxed1_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 50 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_50[,seq(2, ncol(spptwcc_50), by = 2)], 1, mean),
+                                             apply(spptwcc2_50[,seq(2, ncol(spptwcc2_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_50[,seq(2, ncol(espptwcc_heur_50), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_50[,seq(2, ncol(spptwcc_heur_50), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_50[,seq(2, ncol(spptwcc2_heur_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(spptwcc_50)),
+                                          rep(2, nrow(spptwcc2_50)),
+                                          rep(3, nrow(espptwcc_heur_50)),
+                                          rep(4, nrow(spptwcc_heur_50)),
+                                          rep(5, nrow(spptwcc2_heur_50))))
+
+pdf("images/sppComparison1_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_all[,1], 5),
+                                distance = c(apply(spptwcc_50[,seq(3, ncol(spptwcc_50), by = 2)], 1, mean),
+                                             apply(spptwcc2_50[,seq(3, ncol(spptwcc2_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_50[,seq(3, ncol(espptwcc_heur_50), by = 2)], 1, mean),
+                                             apply(spptwcc_heur_50[,seq(3, ncol(spptwcc_heur_50), by = 2)], 1, mean),
+                                             apply(spptwcc2_heur_50[,seq(3, ncol(spptwcc2_heur_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(spptwcc_50)),
+                                          rep(2, nrow(spptwcc2_50)),
+                                          rep(3, nrow(espptwcc_heur_50)),
+                                          rep(4, nrow(spptwcc_heur_50)),
+                                          rep(5, nrow(spptwcc2_heur_50))))
+
+pdf("images/sppComparisonRelaxed1_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("SPPTWCC", "SPPTWCC2", "ESPPTWCC_HEUR", "SPPTWCC_HEUR", "SPPTWCC2_HEUR")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# plot with and without FP initial solution
+# 20 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 2),
+                                distance = c(apply(espptwcc_heur_20[,seq(2, ncol(espptwcc_heur_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20[,seq(2, ncol(espptwcc_heur_fp_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_20)),
+                                          rep(2, nrow(espptwcc_heur_fp_20))))
+
+pdf("images/sppComparison2_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 2),
+                                distance = c(apply(espptwcc_heur_20[,seq(3, ncol(espptwcc_heur_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20[,seq(3, ncol(espptwcc_heur_fp_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_20)),
+                                          rep(2, nrow(espptwcc_heur_fp_20))))
+
+pdf("images/sppComparisonRelaxed2_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+#30 customers 
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_30[,1], 2),
+                                distance = c(apply(espptwcc_heur_30[,seq(2, ncol(espptwcc_heur_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_30[,seq(2, ncol(espptwcc_heur_fp_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_30)),
+                                          rep(2, nrow(espptwcc_heur_fp_30))))
+
+pdf("images/sppComparison2_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_30[,1], 2),
+                                distance = c(apply(espptwcc_heur_30[,seq(3, ncol(espptwcc_heur_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_30[,seq(3, ncol(espptwcc_heur_fp_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_30)),
+                                          rep(2, nrow(espptwcc_heur_fp_30))))
+
+pdf("images/sppComparisonRelaxed2_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+# 40 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_40[,1], 2),
+                                distance = c(apply(espptwcc_heur_40[,seq(2, ncol(espptwcc_heur_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_40[,seq(2, ncol(espptwcc_heur_fp_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_40)),
+                                          rep(2, nrow(espptwcc_heur_fp_40))))
+
+pdf("images/sppComparison2_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_40[,1], 2),
+                                distance = c(apply(espptwcc_heur_40[,seq(3, ncol(espptwcc_heur_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_40[,seq(3, ncol(espptwcc_heur_fp_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_40)),
+                                          rep(2, nrow(espptwcc_heur_fp_40))))
+
+pdf("images/sppComparisonRelaxed2_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+# 50 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_50[,1], 2),
+                                distance = c(apply(espptwcc_heur_50[,seq(2, ncol(espptwcc_heur_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50[,seq(2, ncol(espptwcc_heur_fp_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_50)),
+                                          rep(2, nrow(espptwcc_heur_fp_50))))
+
+pdf("images/sppComparison2_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_50[,1], 2),
+                                distance = c(apply(espptwcc_heur_50[,seq(3, ncol(espptwcc_heur_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50[,seq(3, ncol(espptwcc_heur_fp_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_50)),
+                                          rep(2, nrow(espptwcc_heur_fp_50))))
+
+pdf("images/sppComparisonRelaxed2_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("Without FP solution", "With FP solution")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+
+# plot different paths returned
+# 20 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_20[,seq(2, ncol(espptwcc_heur_fp_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_20[,seq(2, ncol(espptwcc_heur_fp_5paths_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_20[,seq(2, ncol(espptwcc_heur_fp_10paths_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_20[,seq(2, ncol(espptwcc_heur_fp_20paths_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_20[,seq(2, ncol(espptwcc_heur_fp_50paths_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_20)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_20)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_20)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_20))))
+
+pdf("images/sppComparison3_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_20[,seq(3, ncol(espptwcc_heur_fp_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_20[,seq(3, ncol(espptwcc_heur_fp_5paths_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_20[,seq(3, ncol(espptwcc_heur_fp_10paths_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_20[,seq(3, ncol(espptwcc_heur_fp_20paths_20), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_20[,seq(3, ncol(espptwcc_heur_fp_50paths_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_20)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_20)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_20)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_20))))
+
+pdf("images/sppComparisonRelaxed3_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+# 30 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_30[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_30[,seq(2, ncol(espptwcc_heur_fp_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_30[,seq(2, ncol(espptwcc_heur_fp_5paths_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_30[,seq(2, ncol(espptwcc_heur_fp_10paths_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_30[,seq(2, ncol(espptwcc_heur_fp_20paths_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_30[,seq(2, ncol(espptwcc_heur_fp_50paths_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_30)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_30)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_30)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_30)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_30))))
+
+pdf("images/sppComparison3_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_30[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_30[,seq(3, ncol(espptwcc_heur_fp_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_30[,seq(3, ncol(espptwcc_heur_fp_5paths_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_30[,seq(3, ncol(espptwcc_heur_fp_10paths_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_30[,seq(3, ncol(espptwcc_heur_fp_20paths_30), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_30[,seq(3, ncol(espptwcc_heur_fp_50paths_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_30)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_30)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_30)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_30)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_30))))
+
+pdf("images/sppComparisonRelaxed3_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+# 40 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_40[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_40[,seq(2, ncol(espptwcc_heur_fp_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_40[,seq(2, ncol(espptwcc_heur_fp_5paths_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_40[,seq(2, ncol(espptwcc_heur_fp_10paths_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_40[,seq(2, ncol(espptwcc_heur_fp_20paths_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_40[,seq(2, ncol(espptwcc_heur_fp_50paths_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_40)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_40)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_40)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_40)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_40))))
+
+pdf("images/sppComparison3_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_40[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_40[,seq(3, ncol(espptwcc_heur_fp_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_40[,seq(3, ncol(espptwcc_heur_fp_5paths_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_40[,seq(3, ncol(espptwcc_heur_fp_10paths_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_40[,seq(3, ncol(espptwcc_heur_fp_20paths_40), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_40[,seq(3, ncol(espptwcc_heur_fp_50paths_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_40)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_40)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_40)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_40)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_40))))
+
+pdf("images/sppComparisonRelaxed3_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+# 50 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_50[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_50[,seq(2, ncol(espptwcc_heur_fp_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_50[,seq(2, ncol(espptwcc_heur_fp_5paths_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_50[,seq(2, ncol(espptwcc_heur_fp_10paths_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_50[,seq(2, ncol(espptwcc_heur_fp_20paths_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_50[,seq(2, ncol(espptwcc_heur_fp_50paths_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_50)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_50)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_50)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_50))))
+
+pdf("images/sppComparison3_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_50[,1], 5),
+                                distance = c(apply(espptwcc_heur_fp_50[,seq(3, ncol(espptwcc_heur_fp_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_5paths_50[,seq(3, ncol(espptwcc_heur_fp_5paths_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_10paths_50[,seq(3, ncol(espptwcc_heur_fp_10paths_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_20paths_50[,seq(3, ncol(espptwcc_heur_fp_20paths_50), by = 2)], 1, mean),
+                                             apply(espptwcc_heur_fp_50paths_50[,seq(3, ncol(espptwcc_heur_fp_50paths_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50)),
+                                          rep(2, nrow(espptwcc_heur_fp_5paths_50)),
+                                          rep(3, nrow(espptwcc_heur_fp_10paths_50)),
+                                          rep(4, nrow(espptwcc_heur_fp_20paths_50)),
+                                          rep(5, nrow(espptwcc_heur_fp_50paths_50))))
+
+pdf("images/sppComparisonRelaxed3_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("1 path", "5 paths", "10 paths", "20 paths", "50 paths")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")
+dev.off()
+
+# plot recomputation
+# plot 20 paths returned vs. recomputation
+# 20 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_20[,seq(2, ncol(espptwcc_heur_fp_50paths_20), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_20[,seq(2, ncol(espptwcc_heur_fp_recomp_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_20)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_20))))
+
+pdf("images/sppComparison4_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_20[,seq(3, ncol(espptwcc_heur_fp_50paths_20), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_20[,seq(3, ncol(espptwcc_heur_fp_recomp_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_20)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_20))))
+
+pdf("images/sppComparisonRelaxed4_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 30 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_30[,seq(2, ncol(espptwcc_heur_fp_50paths_30), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_30[,seq(2, ncol(espptwcc_heur_fp_recomp_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_30)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_30))))
+
+pdf("images/sppComparison4_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_30[,seq(3, ncol(espptwcc_heur_fp_50paths_30), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_30[,seq(3, ncol(espptwcc_heur_fp_recomp_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_30)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_30))))
+
+pdf("images/sppComparisonRelaxed4_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 40 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_fp_50paths_40[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_40[,seq(2, ncol(espptwcc_heur_fp_50paths_40), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_40[,seq(2, ncol(espptwcc_heur_fp_recomp_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_40)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_40))))
+
+pdf("images/sppComparison4_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_40[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_40[,seq(3, ncol(espptwcc_heur_fp_50paths_40), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_40[,seq(3, ncol(espptwcc_heur_fp_recomp_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_40)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_40))))
+
+pdf("images/sppComparisonRelaxed4_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 50 customers 
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_fp_50paths_50[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_50[,seq(2, ncol(espptwcc_heur_fp_50paths_50), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_50[,seq(2, ncol(espptwcc_heur_fp_recomp_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_50)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_50))))
+
+pdf("images/sppComparison4_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_40[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_50[,seq(3, ncol(espptwcc_heur_fp_50paths_50), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_recomp_50[,seq(3, ncol(espptwcc_heur_fp_recomp_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_20paths_50)),
+                                          rep(2, nrow(espptwcc_heur_fp_recomp_50))))
+
+pdf("images/sppComparisonRelaxed4_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("50 paths", "Recomputation")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+
+# plot box method vs. non-box method
+# 20 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_20[,seq(2, ncol(espptwcc_heur_fp_50paths_20), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_20[,seq(2, ncol(espptwcc_heur_fp_50paths_box_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_20)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_20))))
+
+pdf("images/sppComparison5_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_20[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_20[,seq(3, ncol(espptwcc_heur_fp_50paths_20), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_20[,seq(3, ncol(espptwcc_heur_fp_50paths_box_20), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_20)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_20))))
+
+pdf("images/sppComparisonRelaxed5_20.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 30 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_30[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_30[,seq(2, ncol(espptwcc_heur_fp_50paths_30), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_30[,seq(2, ncol(espptwcc_heur_fp_50paths_box_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_30)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_30))))
+
+pdf("images/sppComparison5_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_30[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_30[,seq(3, ncol(espptwcc_heur_fp_50paths_30), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_30[,seq(3, ncol(espptwcc_heur_fp_50paths_box_30), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_30)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_30))))
+
+pdf("images/sppComparisonRelaxed5_30.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 40 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_40[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_40[,seq(2, ncol(espptwcc_heur_fp_50paths_40), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_40[,seq(2, ncol(espptwcc_heur_fp_50paths_box_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_40)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_40))))
+
+pdf("images/sppComparison5_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_40[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_40[,seq(3, ncol(espptwcc_heur_fp_50paths_40), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_40[,seq(3, ncol(espptwcc_heur_fp_50paths_box_40), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_40)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_40))))
+
+pdf("images/sppComparisonRelaxed5_40.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# 50 customers
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_50[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_50[,seq(2, ncol(espptwcc_heur_fp_50paths_50), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_50[,seq(2, ncol(espptwcc_heur_fp_50paths_box_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_50)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_50))))
+
+pdf("images/sppComparison5_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+aggregatedPlotData = data.frame(time = rep(espptwcc_heur_50[,1], 4),
+                                distance = c(apply(espptwcc_heur_fp_50paths_50[,seq(3, ncol(espptwcc_heur_fp_50paths_50), by = 2)], 1, mean), 
+                                             apply(espptwcc_heur_fp_50paths_box_50[,seq(3, ncol(espptwcc_heur_fp_50paths_box_50), by = 2)], 1, mean)),
+                                group = c(rep(1, nrow(espptwcc_heur_fp_50paths_50)),
+                                          rep(2, nrow(espptwcc_heur_fp_50paths_box_50))))
+
+pdf("images/sppComparisonRelaxed5_50.pdf")
+ggplot(data = aggregatedPlotData, aes(x = time, y = distance, group = group, colour = as.factor(group))) + geom_line(size = 2) + theme_bw() + 
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
+  scale_colour_discrete(name = "", label = c("No box applied", "Box applied")) + 
+  xlab("Computation time in s") +
+  ylab("Travel distance")+ guides(colour = guide_legend(nrow = 2))
+dev.off()
