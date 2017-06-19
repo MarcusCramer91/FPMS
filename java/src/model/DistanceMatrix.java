@@ -162,6 +162,13 @@ public class DistanceMatrix {
 		return new DistanceMatrix(entries);
 	}
 	
+	public DistanceMatrix addDepotLoadingTime2(int loadingTime) {
+		for (int i = 0; i < dimension*dimension; i += dimension) {
+			entries[i] = entries[i] + loadingTime - ModelConstants.CUSTOMER_LOADING_TIME;
+		}
+		return new DistanceMatrix(entries);
+	}
+	
 	public DistanceMatrix addCustomerServiceTimes (int serviceTime) {
 		for (int i = dimension; i < dimension * dimension; i++) {
 			entries[i] = entries[i] + serviceTime;

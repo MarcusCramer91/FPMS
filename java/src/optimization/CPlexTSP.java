@@ -82,8 +82,9 @@ public class CPlexTSP {
    
    public static int[] getRoute(DistanceMatrix distmat) {
 		  try {
-		 distmat = distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
-		 distmat = distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
+		 //distmat = distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
+		 //distmat = distmat.addDepotLoadingTime2(ModelConstants.DEPOT_LOADING_TIME);
+		 //distmat = distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
 		 double[][] distances = distmat.getTwoDimensionalArray();
 		 int n = distmat.getDimension();
          IloCplex cplex = new IloCplex();
@@ -167,7 +168,7 @@ public class CPlexTSP {
 	       for (int i = 0; i < n; i++) {
 	      	 for (int j = 0; j < n; j++) {
 	      		 if (i == j) continue;
-	      		 if (Math.round(cplex.getValue(x[i][j])) == 1) {
+	      		 if (Math.round(cplex.getValue(x[i][j])) > 0) {
 	      			 edges[0][counter] = i+1;
 	      			 edges[1][counter] = j+1;
 	      			 counter++;

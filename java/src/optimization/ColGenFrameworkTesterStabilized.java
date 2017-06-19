@@ -50,7 +50,7 @@ public class ColGenFrameworkTesterStabilized {
 		int compTimeLimit = 600;
 		int branchTimeLimit = 600;
 		for (int i = 20; i <= 50; i += 10) {
-			for (int j = 3; j <= 10; j++) {
+			for (int j = 1; j <= 10; j++) {
 				String searchMethod = "depth first";
 				ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_"+i+"_"+j+".csv");
 				DistanceMatrix distmat = new DistanceMatrix(
