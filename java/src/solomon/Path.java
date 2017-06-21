@@ -8,8 +8,11 @@ public class Path {
 	private double costs;
 	private double reducedCosts;
 	private ArrayList<Integer> nodes;
+	private int[] a;
+	private double[] sValue;
 	
 	public Path(ArrayList<Integer> nodes, double costs, double reducedCosts, int dimension) {
+		a = new int[dimension];
 		this.setCosts(costs);
 		this.arcsUsed = new int[dimension][dimension];
 		this.reducedCosts = reducedCosts;
@@ -17,7 +20,22 @@ public class Path {
 		for (int i = 0; i < nodes.size()-1; i++) {
 			arcsUsed[nodes.get(i)][nodes.get(i+1)] = 1;
 		}
+		for (int i = 0; i < nodes.size(); i++) {
+			a[nodes.get(i)] = 1;
+		}
 		this.setNodes(nodes);
+	}
+
+	public void setSValue(double[] sValue) {
+		this.sValue = sValue;
+	}
+	
+	public double[] getSValue() {
+		return sValue;
+	}
+	
+	public int[] getA() {
+		return a;
 	}
 
 	public double getCosts() {

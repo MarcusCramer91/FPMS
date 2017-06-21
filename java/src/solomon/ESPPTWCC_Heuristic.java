@@ -32,48 +32,13 @@ public class ESPPTWCC_Heuristic {
 	private int currentTime;
 	private ArrayList<ArrayList<Integer>> noGoRoutes;
 	private int nBestRounds;
-	
+	private boolean returnNegativeOnly;
 	private int labelCount;
 	
-	public static void main(String[] args) throws IOException {
-		
-		// initialize graph structure
-		 DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30TravelTimes.csv"));
-		 double[] reducedCosts = new double[distmat.getAllEntries().length];
-		 for (int i = 0; i < reducedCosts.length; i++) {
-			 reducedCosts[i] = distmat.getAllEntries()[i];
-		 }
-		 double[] duals = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6140.0, 
-				 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7228.0, 0.0, 0.0, 0.0, 0.0, 4870.0, 0.0, 0.0, 6504.0};
-		 distmat = distmat.insertDummyDepotAsFinalNode();
-		 distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
-		 distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
-		 // copy distmat
-		 double[] entries = distmat.getAllEntries();
-		 double[] newEntries = new double[entries.length];
-		 for (int i = 0; i < entries.length; i++) {
-			 newEntries[i] = entries[i];
-		 }
-		 DistanceMatrix reducedCostsMat = new DistanceMatrix(newEntries);
-		 reducedCostsMat = reducedCostsMat.subtractDuals(duals);
-		 
-		 // set entry from depot to depot to infinity
-		 reducedCostsMat.setEntry(Double.MAX_VALUE, 1, reducedCostsMat.getDimension());
-		 /**
-		 for (int i = 0; i < reducedCostsMat.getDimension(); i++) {
-			 for (int j = 0; j < reducedCostsMat.getDimension(); j++) {
-				 System.out.println("i " + i + " j " + j + " value "  + reducedCostsMat.getEntry(i+1, j+1));
-			 }
-		 }*/
-		 
-		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 ESPPTWCC_Heuristic spptwcc = new ESPPTWCC_Heuristic(distmat, reducedCostsMat, orders, 40*60, 1);
-		 spptwcc.labelNodes();
-	}
 	
 	public ESPPTWCC_Heuristic(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
-			int nBestRounds) {
+			int nBestRounds, boolean returnNegativeOnly) {
+		this.returnNegativeOnly = returnNegativeOnly;
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
 		this.nps = new ArrayList<Label>();
@@ -118,6 +83,7 @@ public class ESPPTWCC_Heuristic {
 					lowestCostsIndex = i;
 				}
 			}
+			if (lowestCostsIndex == -1) break;
 			Label nextLabel = nps.get(lowestCostsIndex);
 			nps.remove(lowestCostsIndex);
 			labelNext(nextLabel);
@@ -130,15 +96,38 @@ public class ESPPTWCC_Heuristic {
 		
 		// compute the shortest path
 		ArrayList<Label> allFinalLabels = labelList.get(distanceMatrix.getDimension()-1);
-		if (allFinalLabels.size() == 0) return null;
+		if (allFinalLabels.size() == 0 && returnNegativeOnly) return null;
 		ArrayList<Path> paths = new ArrayList<Path>();
+		if (allFinalLabels.size() == 0 && !returnNegativeOnly) {		
+			paths = new ArrayList<Path>();		
+			ArrayList<Integer> nodes = new ArrayList<Integer>();		
+			nodes.add(0);		
+			nodes.add(distanceMatrix.getDimension()-1);		
+			Path p = new Path(nodes, 0, 0, distanceMatrix.getDimension());		
+			paths.add(p);
+			return paths;
+		}
+		
+		/*PrintWriter writer = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\firstreducedcostsmat.csv"));
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < distanceMatrix.getDimension(); i++) {
+			for (int j = 0; j < distanceMatrix.getDimension(); j++) {
+				sb.append(reducedCostsMatrix.getEntry(i+1, j+1));
+				sb.append(",");
+			}
+			sb.append("\n");
+		}
+		writer.write(sb.toString());
+		writer.close();*/
 		
 		// get n best routes
 		for (int i = 0; i < nBestRounds; i++) {
 			if (allFinalLabels.size() == 0) break;
 			paths.add(getNextBestPath(allFinalLabels));
 		}
-		//System.out.println(paths.get(0).getReducedCosts());
+		//System.out.println(labelCount + " labels created");
+		//for (int i : paths.get(0).getNodes()) System.out.print(i + " ");
+		//System.out.println();
 		return paths;
 	}
 
@@ -163,7 +152,7 @@ public class ESPPTWCC_Heuristic {
 			
 			// check if new label is feasible wrt demand
 			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
-			if (newDemand > ModelConstants.VEHICLE_CAPACITY) continue;
+			if (newDemand > ModelConstants.SOLOMON_VEHICLE_CAPACITY) continue;
 			int newCosts = (int)(currentLabel.getCosts() + reducedCostsMatrix.getEntry(currentLabel.getNode()+1, i+1));
 			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel);
 
@@ -171,9 +160,30 @@ public class ESPPTWCC_Heuristic {
 			ArrayList<Label> labels = labelList.get(i);
 			// different dominance criterion for the final node
 			// only depends on the costs
-			if (i == distanceMatrix.getDimension()-1) {
-				if (l.getCosts() < 0) labels.add(l);
-				labelCount++;
+			if (i == distanceMatrix.getDimension()-1) {					
+				if (l.getCosts() < 0) {
+					boolean dominated = false;
+					for (int j = 0; j < labels.size(); j++) {		
+						Label lab = labels.get(j);						
+						// check if existing labels are dominated		
+						if (dominates(l, lab)) {		
+							// remove both from nps and the labels map if dominated		
+							labels.remove(j);		
+							if (nps.contains(lab)) nps.remove(lab);		
+						}		
+						// check if existing labels dominate the new one		
+						if (dominates(lab,l)) {		
+							dominated = true;		
+							break;		
+						}		
+					}		
+					// add only if non-dominated		
+					if (!dominated) {		
+						//System.out.println("Created label: (" + l.getNode() + "," + l.getTime() + "," + l.getDemand() + ") = " + l.getCosts());		
+						labels.add(l);		
+						labelCount++;		
+					}		
+				}
 			}
 			else {
 				boolean dominated = false;
@@ -199,8 +209,7 @@ public class ESPPTWCC_Heuristic {
 					labelCount++;
 				}
 			}
-			
-		}
+		}	
 	}
 	
 	private boolean dominates(Label l1, Label l2) {
@@ -294,6 +303,7 @@ public class ESPPTWCC_Heuristic {
 		
 		public Node(int lowerTimeWindow, int upperTimeWindow, int demand) {
 			this.upperTimeWindow = upperTimeWindow;
+			this.lowerTimeWindow = lowerTimeWindow;
 			this.demand = demand;
 		}
 		

@@ -25,6 +25,8 @@ public class SolomonImporter {
 		ArrayList<Integer> due = new ArrayList<Integer>();
 		ArrayList<Object> result = new ArrayList<Object>();
 		int serviceTime = 0;
+		int allDemand = 0;
+		int allTimeWindowsSize = 0;
 		try {
 			reader = new BufferedReader(new FileReader(filename));
 			String line = "";
@@ -34,6 +36,8 @@ public class SolomonImporter {
 				reader.readLine();
 			}
 			int counter = 0;
+			//PrintWriter locationWriter = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\rc101Locations.csv"));
+			
 			while ((line = reader.readLine()) != null) {
 				String[] currentLine = line.split(" ");
 				ArrayList<Integer> lineElements = new ArrayList<Integer>();
@@ -45,14 +49,21 @@ public class SolomonImporter {
 				}
 				locationX.add(lineElements.get(1));
 				locationY.add(lineElements.get(2));
+				//locationWriter.write(lineElements.get(1) + "," + lineElements.get(2) + "\n");
+				
 				demand.add(lineElements.get(3));
+				allDemand += lineElements.get(3);
 				ready.add(lineElements.get(4));
 				due.add(lineElements.get(5));
+				allTimeWindowsSize += lineElements.get(5)-lineElements.get(4);
 				serviceTime = lineElements.get(6);
 				counter++;
 				if (counter > numberOfCustomers) break;
 			}
+			System.out.println("Average time window size: " + allTimeWindowsSize / numberOfCustomers);
+			System.out.println("Average demand: " + allDemand / numberOfCustomers);
 			
+			//locationWriter.close();
 			// compute orders
 			ArrayList<Order> orders = new ArrayList<Order>();
 			for (int i = 1; i < locationX.size(); i++) {
@@ -71,8 +82,8 @@ public class SolomonImporter {
 					distances[counter++] = currentDistance;
 				}
 			}
-			/**
-			PrintWriter writer = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c109Distmat.csv"));
+			
+			/**PrintWriter writer = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c101Distmat.csv"));
 			counter = 0;
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < locationX.size();i++) {
@@ -86,6 +97,7 @@ public class SolomonImporter {
 			writer.close();*/
 			DistanceMatrix distmat = new DistanceMatrix(distances);
 			result.add(distmat);
+			result.add(serviceTime);
 			return result;
 		}
 		catch(Exception e) {

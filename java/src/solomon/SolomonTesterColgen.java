@@ -149,13 +149,13 @@ public class SolomonTesterColgen {
 			 Path newPath = null;
 			 ArrayList<Path> newPaths = null;
 			 if (sppAlgorithm.equals("espptwcc_heur")) {
-				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50);
+				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, true);
 				 newPaths = espptwcc_heuristic.labelNodes();			 
 			 }
 		     
 			 else if (sppAlgorithm.equals("spptwcc")) {
-				 SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime);
-				 newPath = spptwcc.labelNodes();			 
+				 SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime, true);
+				 newPath = spptwcc.labelNodes().get(0);			 
 			 }
 			 
 			 // 2-cycle elimination

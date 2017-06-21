@@ -391,29 +391,7 @@ public class ColGenFrameworkTesterStabilizedBestFirst {
 		 for (int i = 0; i < relaxedDecision.length; i++) {
 			 relaxedDecision[i] = relaxedResult[i];
 			 relaxedNVehicles += relaxedResult[i];
-		 }
-		 
-		 // if relaxed decision has a non-integer number of vehicles, branch on this
-		 if (vehicleBranchingAllowed && (Math.round(relaxedNVehicles) != relaxedNVehicles)) {
-		     // initialize with previous best found mus
-		     mus = musPerIteration.get(musPerIteration.size()-1);
-		     /*int nLocations = distmat.getDimension();
-		     mus = new double[nLocations];
-			 for (int i = 1; i < nLocations-1; i++) {
-				 mus[i] = initialMuValues;
-			 }
-			 mus[nLocations-1] = initialMuDepotValue;*/
-			 // set to the value it is closer to first
-			 if (Math.round(relaxedNVehicles) - relaxedNVehicles > 0) {
-			     getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus,
-			    		 treeDepth, false, (int)Math.ceil(relaxedNVehicles), arcsBranchedOn);
-			 }
-			 else {
-			     getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus,
-			    		 treeDepth, false, (int)Math.floor(relaxedNVehicles), arcsBranchedOn);
-			 }
-		 }
-		 
+		 }		 
 
 		 if (arcsBranchedOn == null) arcsBranchedOn = new ArrayList<Integer[]>();
 	     int[] branchingVariable = findBranchVariable(distmat, relaxedDecision, allPaths, arcsBranchedOn);

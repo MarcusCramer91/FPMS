@@ -36,8 +36,10 @@ public class SPPTWCC2 {
 	public static void main(String[] args) throws IOException {
 		
 		// initialize graph structure
+		 String rootPath = new File("").getAbsolutePath();
+		 rootPath = rootPath.substring(0, rootPath.length() - 5);
 		 DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30TravelTimes.csv"));
+				 DistanceMatrixImporter.importCSV(rootPath + "\\data\\Dummy30TravelTimes.csv"));
 		 double[] reducedCosts = new double[distmat.getAllEntries().length];
 		 for (int i = 0; i < reducedCosts.length; i++) {
 			 reducedCosts[i] = distmat.getAllEntries()[i];

@@ -72,15 +72,7 @@ public class FPOptimize {
 				
 				croppedMatrix = croppedMatrix.getCroppedMatrix(routeIndices);
 				tspRoute = CPlexTSP.getRoute(croppedMatrix);
-				for (int k = 0; k < croppedMatrix.getDimension(); k++) {
-					for (int l = 0; l < croppedMatrix.getDimension(); l++) {
-						System.out.print(croppedMatrix.getEntry(k+1, l+1) + "\t");
-					}
-					System.out.println();
-				}
-				System.out.println("######################################");
-				for (int k : tspRoute) System.out.print(k + " ");
-				System.out.println();
+				
 				Order[] tspRouteList = ModelHelperMethods.parseTSPOutput(tspRoute, route);
 				
 				// if time window cannot be kept anymore

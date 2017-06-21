@@ -25,7 +25,7 @@ public class Path {
 		}
 		this.setNodes(nodes);
 	}
-	
+
 	public void setSValue(double[] sValue) {
 		this.sValue = sValue;
 	}

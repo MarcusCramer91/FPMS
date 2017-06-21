@@ -80,7 +80,7 @@ public class ColGenFrameworkTesterStabilizedSPPTWCC {
 				     costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
 			    }
 				tester.getRoutes(distmat, branchTimeLimit, compTimeLimit, initialPathsNodes, false, costs);	
-				
+				break;
 			}
 		}
 	}
@@ -139,7 +139,6 @@ public class ColGenFrameworkTesterStabilizedSPPTWCC {
 		ArrayList<double[]> musPerIteration = new ArrayList<double[]>();
 		 long branchingTime = System.currentTimeMillis();
 		 branchCount++;
-
 		 // initialize stabilized cutting procedure
 		 double trustRegion = 1;
 		 

@@ -142,11 +142,14 @@ public class SPPTWCC {
 		
 		
 		// get n best routes
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 1; i++) {
 			if (allFinalLabels.size() == 0) break;
 			paths.add(getNextBestPath(allFinalLabels));
 		}
-		//System.out.println(paths.get(0).getReducedCosts());
+		//System.out.println(labelCount + " labels created");
+		//System.out.println("Reduced costs: " + paths.get(0).getReducedCosts());
+		//for (int i : paths.get(0).getNodes()) System.out.print(i + " ");
+		//System.out.println();
 		return paths;
 	}
 

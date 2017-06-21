@@ -31,10 +31,11 @@ stabilized_20 = data.frame(time = seq(1, 600, by = 1))
 stabilized_30 = data.frame(time = seq(1, 600, by = 1))
 stabilized_40 = data.frame(time = seq(1, 600, by = 1))
 stabilized_50 = data.frame(time = seq(1, 600, by = 1))
-allResults = list.files("results/colgen/stabilized")
+allResults = list.files("results/colgen/stabilized100")
 for (i in 1:length(allResults)) {
   if (grepl("600depth first", allResults[i])) {
-    data = read.csv(paste("results/colgen/stabilized/", allResults[i], sep = ""), header = FALSE)
+    if (grepl("Summary", allResults[i])) next
+    data = read.csv(paste("results/colgen/stabilized100/", allResults[i], sep = ""), header = FALSE)
     data[data > 1000000] = NA
     alignedData = data.frame(relaxed = numeric(600), integer = numeric(600))
     for (j in 1:nrow(alignedData)) {

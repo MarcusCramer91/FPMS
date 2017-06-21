@@ -49,11 +49,11 @@ public class ColumnGenerationStabilized {
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
 		
 
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_30_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
 
 		/*ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
@@ -70,8 +70,8 @@ public class ColumnGenerationStabilized {
 				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+
 		problemSize+"_"+problemInstance+".csv"));*/
 		int currentTime = 30*60;
-		int compTimeLimit = 1000;
-		int branchTimeLimit = 1000;
+		int compTimeLimit = 300;
+		int branchTimeLimit = 300;
 		ColumnGenerationStabilized colgen = new ColumnGenerationStabilized(distmat, orders, currentTime);
 		
 		// initialize with flaschenpost
@@ -554,7 +554,7 @@ public class ColumnGenerationStabilized {
 		double[] result = new double[distmat.getDimension()];
 		result[0] = 1 - nVehicles;
 		//TODO ATTENTION: THIS DEVIATES FROM KALLEHAUGE ET AL
-		for (int i = 0; i < distmat.getDimension()-1; i++) {
+		for (int i = 1; i < distmat.getDimension()-1; i++) {
 			int sum = 0;
 			
 			for (int j = 1; j < distmat.getDimension()-1; j++) {

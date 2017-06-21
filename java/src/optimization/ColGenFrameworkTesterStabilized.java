@@ -1,5 +1,6 @@
 package optimization;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,23 +20,14 @@ import util.OrdersImporter;
 
 public class ColGenFrameworkTesterStabilized {
 	
-	private DistanceMatrix distmat;
 	private ArrayList<Order> orders;
 	private int currentTime;
-	private ArrayList<Path> paths;
-	private double currentRelaxedCosts;
-	private double currentMIPCosts;
 	private String id;
 	private double overallLowerBound = 0;
 	private double overallUpperBound = Double.MAX_VALUE;
-	private int branchCount = 0;
-	private ArrayList<Integer[]> arcsBranchedOn;
 	private double overallCosts = Double.MAX_VALUE;
 	private ArrayList<ArrayList<Integer>> bestSolution;
 	private long startingTime;
-	private double initialCosts;
-	private int treeDepthCovered = 0;
-	private int nVehicles;
 	private ArrayList<ArrayList<Double>> relaxedResults = new ArrayList<ArrayList<Double>>();
 	private double initialMuValues;
 	private double initialMuDepotValue;
@@ -49,14 +41,16 @@ public class ColGenFrameworkTesterStabilized {
 		int currentTime = 30*60;
 		int compTimeLimit = 600;
 		int branchTimeLimit = 600;
-		for (int i = 20; i <= 50; i += 10) {
+		for (int i = 20; i <= 90; i += 10) {
 			for (int j = 1; j <= 10; j++) {
 				String searchMethod = "depth first";
-				ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_"+i+"_"+j+".csv");
+				String rootPath = new File("").getAbsolutePath();
+				 rootPath = rootPath.substring(0, rootPath.length() - 5);
+				ArrayList<Order> orders = OrdersImporter.importCSV(rootPath + "\\data\\testcases\\Orders_"+i+"_"+j+".csv");
 				DistanceMatrix distmat = new DistanceMatrix(
-						 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
+						 DistanceMatrixImporter.importCSV(rootPath + "\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
 				DistanceMatrix distmatair = new DistanceMatrix(
-						 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
+						 DistanceMatrixImporter.importCSV(rootPath + "\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
 				
 				String id = "_whole_" + branchTimeLimit + searchMethod +  "_" + i + "_" + j;
 				System.out.println("Current problem: " + id);
@@ -83,7 +77,7 @@ public class ColGenFrameworkTesterStabilized {
 				     costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
 			    }
 				tester.getRoutes(distmat, branchTimeLimit, compTimeLimit, initialPathsNodes, false, costs);	
-				
+				System.gc();		
 			}
 		}
 	}
@@ -94,7 +88,6 @@ public class ColGenFrameworkTesterStabilized {
 		this.id = id;
 		this.orders = orders;
 		this.currentTime = currentTime;
-		this.arcsBranchedOn = new ArrayList<Integer[]>();
 		this.startingTime = System.currentTimeMillis();
 		treeLevelCoverage = new int[distmat.getDimension()];
 	}
@@ -105,7 +98,6 @@ public class ColGenFrameworkTesterStabilized {
 		// initialize data structured
 		
 		 ArrayList<Path> paths = new ArrayList<Path>();
-		 this.initialCosts = initialCosts;
 		 relaxedResults = new ArrayList<ArrayList<Double>>();
 		 int nLocations = distmat.getDimension();
 		 double fpCosts = 0;
@@ -141,7 +133,9 @@ public class ColGenFrameworkTesterStabilized {
 		 costs = 0;
 		 for (ArrayList<Integer> route : improvedBestSolution) costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
 
-		 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilized\\_Summary" + id + ".csv", true);
+			String rootPath = new File("").getAbsolutePath();
+			 rootPath = rootPath.substring(0, rootPath.length() - 5);
+		 FileWriter writer = new FileWriter(rootPath + "\\results\\colgen\\stabilized\\_Summary" + id + ".csv", true);
 		 writer.write(paths.size() + "," + improvedBestSolution.size() + "," + overallLowerBound + "," + fpCosts + "," + 
 				 (fpCosts - paths.size() * 900 - (distmat.getDimension()-2) * 300) + "," + 
 				 costs + "," + (costs - improvedBestSolution.size() * 900 - (distmat.getDimension()-2) * 300) +"\n");
@@ -158,7 +152,6 @@ public class ColGenFrameworkTesterStabilized {
 		ArrayList<double[]> dualValuesPerIteration = new ArrayList<double[]>();
 		ArrayList<double[]> musPerIteration = new ArrayList<double[]>();
 		 long branchingTime = System.currentTimeMillis();
-		 branchCount++;
 		 treeLevelCoverage[treeDepth]++;
 
 		 // initialize stabilized cutting procedure
@@ -273,7 +266,9 @@ public class ColGenFrameworkTesterStabilized {
 			    	 overallCosts = costs;
 			    	 bestSolution = routes;
 			     }
-				 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilized\\" + id + ".csv", true);
+					String rootPath = new File("").getAbsolutePath();
+					 rootPath = rootPath.substring(0, rootPath.length() - 5);
+				 FileWriter writer = new FileWriter(rootPath + "\\results\\colgen\\stabilized\\" + id + ".csv", true);
 				 writer.write((Math.floor(System.currentTimeMillis() - startingTime) / 1000)+  "," + overallLowerBound + "," + overallCosts + "\n");
 			     writer.close();
 			 }
@@ -507,7 +502,7 @@ public class ColGenFrameworkTesterStabilized {
 		double[] result = new double[distmat.getDimension()];
 		result[0] = 1 - nVehicles;
 		//TODO ATTENTION: THIS DEVIATES FROM KALLEHAUGE ET AL
-		for (int i = 0; i < distmat.getDimension()-1; i++) {
+		for (int i = 1; i < distmat.getDimension()-1; i++) {
 			int sum = 0;
 			
 			for (int j = 1; j < distmat.getDimension()-1; j++) {

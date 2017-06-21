@@ -26,7 +26,6 @@ public class ColumnGenerationStabilizedSPPTWCC {
 	private double overallLowerBound = 0;
 	private double overallUpperBound = Double.MAX_VALUE;
 	private int branchCount = 0;
-	private ArrayList<Integer[]> arcsBranchedOn;
 	private double overallCosts = Double.MAX_VALUE;
 	private ArrayList<ArrayList<Integer>> bestSolution;
 	private long startingTime;
@@ -36,7 +35,7 @@ public class ColumnGenerationStabilizedSPPTWCC {
 	private double initialMuDepotValue;
 	private double percentOfTreeExplored = 0;
 	private double dualityGap = 1;
-	private int treeDepthCovered = 0;
+	private int[] treeLevelCoverage;
 	
 	
 	private double stoppingTolerance;
@@ -50,11 +49,11 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
 		
 
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_20_1.csv");
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_30_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
 
 		/*ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
@@ -71,8 +70,8 @@ public class ColumnGenerationStabilizedSPPTWCC {
 				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+
 		problemSize+"_"+problemInstance+".csv"));*/
 		int currentTime = 30*60;
-		int compTimeLimit = 3500;
-		int branchTimeLimit = 3500;
+		int compTimeLimit = 300;
+		int branchTimeLimit = 300;
 		ColumnGenerationStabilizedSPPTWCC colgen = new ColumnGenerationStabilizedSPPTWCC(distmat, orders, currentTime);
 		
 		// initialize with flaschenpost
@@ -110,8 +109,8 @@ public class ColumnGenerationStabilizedSPPTWCC {
 			   int currentTime) {
 		this.orders = orders;
 		this.currentTime = currentTime;
-		this.arcsBranchedOn = new ArrayList<Integer[]>();
 		this.startingTime = System.currentTimeMillis();
+		treeLevelCoverage = new int[distmat.getDimension()];
 	}
 	
 	public void getRoutes(DistanceMatrix distmat, int compTimeLimit, int branchTimeLimit, 
@@ -122,7 +121,6 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		 ArrayList<Path> paths = new ArrayList<Path>();
 		 this.initialCosts = initialCosts;
 		 relaxedResults = new ArrayList<ArrayList<Double>>();
-		 
 		 int nLocations = distmat.getDimension();
 		 double costs = 0;
 		 for (int i = 0; i < initialPaths.size(); i++) {
@@ -146,7 +144,7 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		 }
 		 mus[nLocations-1] = initialMuDepotValue;
 		 
-		 getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus, 0, false, false, paths.size());
+		 getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus, 0, false, paths.size(), null);
 		 
 		 // postprocessing - optimizing the routes via TSPTW
 		 costs = 0;
@@ -156,7 +154,6 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		 System.out.println("########################################");
 		 System.out.println();
 		 System.out.println("Costs before TSPTW post-processing: " + costs);
-		 System.out.println("Overall lower bound: " + overallLowerBound);
 		 
 		 
 		 System.out.println("Post-processing...");
@@ -181,13 +178,16 @@ public class ColumnGenerationStabilizedSPPTWCC {
 	
 	private void getRoutesInternal(DistanceMatrix distmat, int compTimeLimit,
 			int branchTimeLimit, double[] mus, int treeDepth, 
-			boolean currentTreeLevelSearched, boolean vehicleBranchingAllowed, int nVehicles) throws IOException, IloException {
+			boolean vehicleBranchingAllowed, int nVehicles, ArrayList<Integer[]> arcsBranchedOn) 
+					throws IOException, IloException {
 		if (System.currentTimeMillis() - startingTime > compTimeLimit * 1000) return;
 		ArrayList<ArrayList<Path>> pathsPerIteration = new ArrayList<ArrayList<Path>>();
 		ArrayList<double[]> dualValuesPerIteration = new ArrayList<double[]>();
 		ArrayList<double[]> musPerIteration = new ArrayList<double[]>();
 		 long branchingTime = System.currentTimeMillis();
 		 branchCount++;
+		 treeLevelCoverage[treeDepth]++;
+		 nVehicles = nVehicles * 2;
 
 		 // initialize stabilized cutting procedure
 		 this.stoppingTolerance = 0.1;
@@ -214,16 +214,14 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		 }
 		 DistanceMatrix reducedCostsMatrix = new DistanceMatrix(reducedCosts);
 		 reducedCostsMatrix.subtractDuals(mus);
-	     //ESPPTWCC_Heuristic subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false);
 	     SPPTWCC subproblem = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime, false);
 		 ArrayList<Path> newPaths = subproblem.labelNodes();
 	     
 	     
-	     for (Path p : newPaths) p.setSValue(this.getSValueWithCycles(p, distmat, nVehicles));
+	     for (Path p : newPaths) p.setSValue(this.getSValue(p, distmat, nVehicles));
 	     double bestDual = solveDual(newPaths, lambdas, nVehicles);
 		 dualValuesPerIteration.add(getDualValuesPerPath(newPaths, distmat, mus, nVehicles));
 		 pathsPerIteration.add(newPaths);
-		 nVehicles--;
 		 
 	     while (System.currentTimeMillis() - branchingTime < branchTimeLimit * 1000 &&
 	    		 System.currentTimeMillis() - startingTime < compTimeLimit * 1000) {
@@ -237,12 +235,17 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		    	 System.out.println("No solution to Lagrangian dual exists");
 		    	 break;
 		     }
-		    
+
+		     FileWriter writer = new FileWriter(
+		    		 "C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilizedSolomon\\mus.csv", true);
 		     double[] newMus = new double[mus.length];
 		     for (int i = 0; i < mus.length; i++) {
 		    	 newMus[i] = result[i];
+			     writer.write(newMus[i] + ",");
 		     }		  
-		     
+		     writer.write("\n");
+			 
+		     writer.close();
 		     /*FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\mus.csv", true);
 			 writer.write(iteration + "," + s + "\n");
 		     writer.close();*/
@@ -257,9 +260,9 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		     for (ArrayList<Path> pathList : pathsPerIteration) allPaths.addAll(pathList);
 		     delta = theta - bestDual;
 		     // update lower bound
-		     System.out.println("Best dual (lower bound) " + bestDual);
-		     System.out.println("Delta " + delta);
-		     System.out.println("Theta " + theta);
+		     //System.out.println("Best dual (lower bound) " + bestDual);
+		     //System.out.println("Delta " + delta);
+		     //System.out.println("Theta " + theta);
 		     
 		     // check convergence
 		     if (delta < threshold) break;
@@ -272,7 +275,6 @@ public class ColumnGenerationStabilizedSPPTWCC {
 			 reducedCostsMatrix = new DistanceMatrix(reducedCosts);
 			 reducedCostsMatrix.subtractDuals(newMus);
 
-		     //subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false);
 		     subproblem = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime, false);
 		     newPaths = subproblem.labelNodes();
 		     
@@ -284,7 +286,7 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		     
 	    	 allPaths.addAll(addList);			
 		     // update s values per path
-		     for (Path p : addList) p.setSValue(this.getSValueWithCycles(p, distmat, nVehicles));
+		     for (Path p : addList) p.setSValue(this.getSValue(p, distmat, nVehicles));
 		     
 	    	 // calculate new dual values per path	    	 
 	    	 dualValuesPerIteration.add(getDualValuesPerPath(addList, distmat, newMus, nVehicles));
@@ -308,30 +310,57 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		     System.out.println("Trust region " + trustRegion);
 		     System.out.println();*/
 	     }
-		 if (relaxedResults.size() <= treeDepth) relaxedResults.add(new ArrayList<Double>());
-		 relaxedResults.get(treeDepth).add(bestDual);
+	     
 
-		 if (bestDual > overallUpperBound) {
+	     // calculate results for this node
+	     ArrayList<Path> allPaths = new ArrayList<Path>();
+	     for (ArrayList<Path> pathList : pathsPerIteration) allPaths.addAll(pathList);
+	     
+	     
+	     FileWriter writer = new FileWriter(
+	    		 "C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilizedSolomon\\nodes.csv", true);
+		 
+	     for (Path p : allPaths) for (int i : p.getNodes()) writer.write(i + "\n");
+	     writer.close();
+	     
+		 double[] relaxedResult = solveRelaxation(distmat, allPaths);
+		 
+		 if (relaxedResult == null) {
 	    	 // if relaxed result in this branch is higher than the best solution so far with eliminated duplicates
 		     // cut off branch
 	    	 System.out.println();
 			 System.out.println("########################################");
-			 System.out.println("Branch cut-off");
-			 percentOfTreeExplored += 1/((Math.pow(2, treeDepth) * 2));
+			 System.out.println("Branch cut-off (no relaxed solution found)");
+			 percentOfTreeExplored += 1/(Math.pow(2, treeDepth));
 			 System.out.println("Percent of tree explored " + percentOfTreeExplored*100);
 			 System.out.println("########################################");
 			 System.out.println();
 	    	 return;
 		 }
-	     // calculate results for this node
-	     ArrayList<Path> allPaths = new ArrayList<Path>();
-	     for (ArrayList<Path> pathList : pathsPerIteration) allPaths.addAll(pathList);
+	     
+		 
+		 double relaxedCosts = relaxedResult[relaxedResult.length-1];
+		 
+	     if (relaxedResults.size() <= treeDepth) relaxedResults.add(new ArrayList<Double>());
+		 relaxedResults.get(treeDepth).add(relaxedCosts);
+
+		 // update lower bound if current level of the tree has been explored
+	     if (treeLevelCoverage[treeDepth] == Math.pow(2, treeDepth)) {
+	    	 // find lowest relaxed result of current tree depth
+	    	 ArrayList<Double> currentDepthValues = relaxedResults.get(treeDepth);
+	    	 double lowest = Double.MAX_VALUE;
+	    	 for (double d : currentDepthValues) {
+	    		 if (d < lowest) lowest = d;
+	    	 }
+	    	 overallLowerBound = lowest;
+	     }
 
 	     // calculate mip result
 		 double[] mipResult = solveMIP(distmat, allPaths);
 		 if (mipResult != null) {
 
 			 double mipCosts = mipResult[mipResult.length-1];
+
 			 int[] decision = new int[mipResult.length-1];
 			 for (int i = 0; i < decision.length; i++) {
 				 if (mipResult[i] == 0) decision[i] = 0;
@@ -349,44 +378,35 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		    	 overallCosts = costs;
 		    	 bestSolution = routes;
 		     }
+		     dualityGap = (overallUpperBound - overallLowerBound) / overallUpperBound;
 		     System.out.println("MIP solution in this branch: " + mipCosts);
-		 }
+		 }	 
 		 
-		 // update lower bound
-	     if (currentTreeLevelSearched) {
-	    	 // find lowest relaxed result of current tree depth
-	    	 ArrayList<Double> currentDepthValues = relaxedResults.get(treeDepth);
-	    	 double lowest = Double.MAX_VALUE;
-	    	 for (double d : currentDepthValues) {
-	    		 if (d < lowest) lowest = d;
-	    	 }
-	    	 overallLowerBound = lowest;
-	    	 currentTreeLevelSearched = false;
-	     }
-		 
-		 double[] relaxedResult = solveRelaxation(distmat, allPaths);
-		 System.out.println("Lower bound in this branch " + bestDual);
-	     //System.out.println("Dual solution in this branch: " + bestDual);
-		 
-	     if (overallLowerBound < bestDual) overallLowerBound = bestDual;
-	     dualityGap = (overallUpperBound - overallLowerBound) / overallUpperBound;
-		 
+
 		 System.out.println("Search tree branches explored: " + branchCount);
+		 System.out.println("Current tree depth: " + treeDepth);
 	     System.out.println("Current upper bound: " + overallUpperBound);
+	     System.out.println("Current lower bound: " + overallLowerBound);
 	     System.out.println("Current duality gap: " + dualityGap);
+	     
+		 if (relaxedCosts > overallUpperBound) {
+	    	 // if relaxed result in this branch is higher than the best solution so far with eliminated duplicates
+		     // cut off branch
+	    	 System.out.println();
+			 System.out.println("########################################");
+			 System.out.println("Branch cut-off");
+			 percentOfTreeExplored += 1/(Math.pow(2, treeDepth));
+			 System.out.println("Percent of tree explored " + percentOfTreeExplored*100);
+			 System.out.println("########################################");
+			 System.out.println();
+	    	 return;
+		 }
 	     
 	     
 	     // START BRANCHING
 	     System.out.println();
 		 System.out.println("########################################");
 		 System.out.println();
-
-	     // do depth first with variables set to 1
-		 if (relaxedResult == null) {
-			 System.out.println("FINAL NODE REACHED IN THIS BRANCH");
-			 percentOfTreeExplored += 1/((Math.pow(2, treeDepth)*2));
-			 return;
-		 }
 		 
 		 double[] relaxedDecision = new double[relaxedResult.length-1];
 		 double relaxedNVehicles = 0;
@@ -399,17 +419,17 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		 if (vehicleBranchingAllowed && (Math.round(relaxedNVehicles) != relaxedNVehicles)) {
 		     // initialize with previous best found mus
 		     mus = musPerIteration.get(musPerIteration.size()-1);
-		     int nLocations = distmat.getDimension();
+		     /*int nLocations = distmat.getDimension();
 		     mus = new double[nLocations];
 			 for (int i = 1; i < nLocations-1; i++) {
 				 mus[i] = initialMuValues;
 			 }
-			 mus[nLocations-1] = initialMuDepotValue;
+			 mus[nLocations-1] = initialMuDepotValue;*/
 			 // set to the value it is closer to first
 			 if (Math.round(relaxedNVehicles) - relaxedNVehicles > 0) {
 				 System.out.println("Branching on number of vehicles. Setting to " + Math.ceil(relaxedNVehicles));
 			     getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus,
-			    		 treeDepth, currentTreeLevelSearched, false, (int)Math.ceil(relaxedNVehicles));
+			    		 treeDepth, false, (int)Math.ceil(relaxedNVehicles), arcsBranchedOn);
 				 System.out.println();
 				 System.out.println("########################################");
 				 System.out.println("Branching on number of vehicles. Setting to " + Math.floor(relaxedNVehicles));
@@ -419,7 +439,7 @@ public class ColumnGenerationStabilizedSPPTWCC {
 			 else {
 				 System.out.println("Branching on number of vehicles. Setting to " + Math.ceil(relaxedNVehicles));
 			     getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus,
-			    		 treeDepth, currentTreeLevelSearched, false, (int)Math.floor(relaxedNVehicles));
+			    		 treeDepth, false, (int)Math.floor(relaxedNVehicles), arcsBranchedOn);
 				 System.out.println();
 				 System.out.println("########################################");
 				 System.out.println("Branching on number of vehicles. Setting to " + Math.floor(relaxedNVehicles));
@@ -428,50 +448,56 @@ public class ColumnGenerationStabilizedSPPTWCC {
 			 }
 		 }
 		 
-		 
-	     int[] branchingVariable = findBranchVariable(distmat, relaxedDecision, allPaths);
+
+		 if (arcsBranchedOn == null) arcsBranchedOn = new ArrayList<Integer[]>();
+	     int[] branchingVariable = findBranchVariable(distmat, relaxedDecision, allPaths, arcsBranchedOn);
 	     
 	     // if no more branching can be done return
 	     if (branchingVariable[0] == -1) {
 	    	 System.out.println("No more branching variable found");
-			 percentOfTreeExplored += 1/((Math.pow(2, treeDepth)));
+			 percentOfTreeExplored += 1/(Math.pow(2, treeDepth));
 	    	 return;
 	     }
 	     
 	     // initialize with previous best found mus
 	     mus = musPerIteration.get(musPerIteration.size()-1);
-	     /*int nLocations = distmat.getDimension();
+	     int nLocations = distmat.getDimension();
 	     mus = new double[nLocations];
 		 for (int i = 1; i < nLocations-1; i++) {
 			 mus[i] = initialMuValues;
 		 }
-		 mus[nLocations-1] = initialMuDepotValue;*/
+		 mus[nLocations-1] = initialMuDepotValue;
 		 
+		 
+		 ArrayList<Integer[]> newArcsBranchedOn = new ArrayList<Integer[]>();
+		 for (int i = 0; i < arcsBranchedOn.size(); i++) {
+			 Integer[] newArc = new Integer[2];
+			 newArc[0] = arcsBranchedOn.get(i)[0];
+			 newArc[1] = arcsBranchedOn.get(i)[1];
+			 newArcsBranchedOn.add(newArc);
+		 }
+		 Integer[] temp = new Integer[2];
+		 temp[0] = branchingVariable[0];
+		 temp[1] = branchingVariable[1];
+		 newArcsBranchedOn.add(temp);
+
 	     // branch with set to 1
-		 //percentOfTreeExplored += 1 / (Math.pow(2, distmat.getDimension()-1));
+		 percentOfTreeExplored += 1 / (Math.pow(2, distmat.getDimension()-1) * 2);
 		 System.out.println("Percent of tree explored " + (percentOfTreeExplored * 100));
 	     System.out.println("Branching... Setting arc (" + branchingVariable[0] + "," + branchingVariable[1] + ") to 1");
 	     DistanceMatrix distmat1 = penalizeArcsInDistanceMatrix(distmat, branchingVariable[0], branchingVariable[1], true);
 	     getRoutesInternal(distmat1, compTimeLimit, branchTimeLimit, mus,
-	    		 treeDepth + 1, currentTreeLevelSearched, false, nVehicles);
+	    		 treeDepth + 1, false, nVehicles, newArcsBranchedOn);
 		    
 	     System.out.println();  
 	     System.out.println("########################################");		   
 	     System.out.println();
-	     // checks whether the overallLowerBound can be updated
-	     if (this.treeDepthCovered == treeDepth) {
-	    	 this.treeDepthCovered++;
-	    	 currentTreeLevelSearched = true;
-	     }
 	     
 	     // branch with set to 0
 	     System.out.println("Branching... Setting arc (" + branchingVariable[0] + "," + branchingVariable[1] + ") to 0");
-	     if (branchingVariable[0] == 10) {
-	    	 System.out.println("");
-	     }
 	     DistanceMatrix distmat0 = penalizeArcsInDistanceMatrix(distmat, branchingVariable[0], branchingVariable[1], false);
 	     getRoutesInternal(distmat0, compTimeLimit, branchTimeLimit, mus,
-	    		 treeDepth + 1, currentTreeLevelSearched, false, nVehicles);
+	    		 treeDepth + 1, false, nVehicles, newArcsBranchedOn);
 	}
 	
 	private double[] solveLagrangianDual(DistanceMatrix distmat, 
@@ -539,32 +565,8 @@ public class ColumnGenerationStabilizedSPPTWCC {
 	
 	private double[] getSValue(Path path, DistanceMatrix distmat, int nVehicles) {
 		double[] result = new double[distmat.getDimension()];
-		result[0] = 1;
-		//TODO ATTENTION: THIS DEVIATES FROM KALLEHAUGE ET AL
-		for (int i = 0; i < distmat.getDimension()-1; i++) {
-			int sum = 0;
-			
-			for (int j = 1; j < distmat.getDimension()-1; j++) {
-				sum+= path.getArcsUsed()[i][j];
-			}
-			result[i] = 1 - nVehicles * sum;
-		}
-		result[distmat.getDimension()-1] = 1 - nVehicles;
-		return result;
-	}
-	
-	private double[] getSValueWithCycles(Path path, DistanceMatrix distmat, int nVehicles) {
-		double[] result = new double[distmat.getDimension()];
-		result[0] = 1 - nVehicles;
-		//TODO ATTENTION: THIS DEVIATES FROM KALLEHAUGE ET AL
-		for (int i = 1; i < distmat.getDimension()-1; i++) {
-			int occurrences = 0;
-			for (int j = 1; j < path.getNodes().size(); j++) {
-				if (path.getNodes().get(j) == i) occurrences++;
-			}
-			result[i] = 1 - (nVehicles * occurrences);
-		}
-		result[distmat.getDimension()-1] = 1 - nVehicles;
+		for (int i = 0; i < result.length; i++) result[i] = 1;
+		for (int i : path.getNodes()) result[i] -= nVehicles;
 		return result;
 	}
 	
@@ -802,7 +804,8 @@ public class ColumnGenerationStabilizedSPPTWCC {
 	 * @param distmat
 	 * @return
 	 */
-	private int[] findBranchVariable(DistanceMatrix distmat, double[] relaxedDecision, ArrayList<Path> paths) {
+	private int[] findBranchVariable(DistanceMatrix distmat, double[] relaxedDecision, ArrayList<Path> paths,
+			ArrayList<Integer[]> arcsBranchedOn) {
 		double maxScore = 0;
 		int maxScoreFrom = -1;
 		int maxScoreTo = -1;
@@ -814,7 +817,7 @@ public class ColumnGenerationStabilizedSPPTWCC {
 					// check if this arc has already been branched on
 					boolean branchedOn = false;
 					for (int j = 0; j < arcsBranchedOn.size(); j++) {
-						if (arcsBranchedOn.get(j)[0] == nodes.get(i) && arcsBranchedOn.get(j)[1] == nodes.get(i+1)) {
+						if (arcsBranchedOn.get(j)[0] == nodes.get(i) || arcsBranchedOn.get(j)[1] == nodes.get(i+1)) {
 							branchedOn = true;
 							break;
 						}
@@ -883,5 +886,4 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		ArrayList<Integer> tspRouteList = ModelHelperMethods.parseTSPOutput2(tspRoute, route);
 		return tspRouteList;
 	}
-	
 }

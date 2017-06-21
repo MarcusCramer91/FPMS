@@ -49,11 +49,11 @@ public class ColumnGenerationStabilizedBestFirst {
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
 		
 
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_30_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
 
 		/*ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
@@ -70,8 +70,8 @@ public class ColumnGenerationStabilizedBestFirst {
 				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+
 		problemSize+"_"+problemInstance+".csv"));*/
 		int currentTime = 30*60;
-		int compTimeLimit = 600;
-		int branchTimeLimit = 600;
+		int compTimeLimit = 300;
+		int branchTimeLimit = 300;
 		ColumnGenerationStabilizedBestFirst colgen = new ColumnGenerationStabilizedBestFirst(distmat, orders, currentTime);
 		
 		// initialize with flaschenpost
@@ -369,7 +369,7 @@ public class ColumnGenerationStabilizedBestFirst {
 	     double costs = Double.MAX_VALUE;
 		 double[] mipResult = solveMIP(distmat, allPaths);
 		 if (mipResult != null) {
-
+			 costs = 0;
 			 double mipCosts = mipResult[mipResult.length-1];
 
 			 int[] decision = new int[mipResult.length-1];
