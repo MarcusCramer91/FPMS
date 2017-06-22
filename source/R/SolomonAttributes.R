@@ -52,3 +52,18 @@ ggplot(data = rc101, aes(x = V1, y = V2, group = group, shape = as.factor(group)
   xlab("X") +
   ylab("Y") + theme(legend.position = "non", axis.text = element_text(size = 15, color = "black"), axis.title = element_text(size = 15, color = "black"))
 dev.off()
+
+
+route = c(0, 43, 41, 40, 44, 45, 48, 50, 52, 49, 47, 101)
+route = c(0, 43, 42, 41, 40, 44, 46, 45, 48, 51, 50, 52, 49, 47, 101)
+
+distmat = read.csv("Solomon test instances/firstreducedcostsmat.csv", header = FALSE)
+distmat = distmat[,-ncol(distmat)]
+cost = 0
+for (j in 1:(length(route)-1)) {
+  cost = cost + distmat[route[j]+1,route[j+1]+1]
+}
+print(cost)
+
+allnodes = read.csv("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilizedSolomon\\allnodes.csv", header = FALSE) #16, 74, 93 missing
+sort(unique(as.vector(allnodes[,1])))

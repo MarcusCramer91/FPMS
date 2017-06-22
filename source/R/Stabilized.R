@@ -32,6 +32,7 @@ cat("\\textbf{Instance} & \\textbf{FP} & \\textbf{CG} & \\textbf{FP} & \\textbf{
 cat("\\hline \n", file = "results.txt", append = TRUE)
 cat("\\toprule \n", file = "results.txt", append = TRUE)
 for (i in c(20,30,40,50,60,70,80)) {
+  cur = summaries[grepl(paste(i,"_",sep =""), summaries$instance),]
   for (j in 1:10) {
     current = summaries[grepl(paste(i,"_",j,".csv", sep =""), summaries$instance),]
     if (nrow(current) == 0) next
@@ -52,6 +53,14 @@ for (i in c(20,30,40,50,60,70,80)) {
     print(catString)
     cat(catString, file = "results.txt", append = TRUE)
   }
+  cat(paste("\\midrule \n Avg. &", mean(cur$fpPaths), "&", 
+            mean(cur$finalPaths), "&", 
+            mean(cur$fpCosts), "&", 
+            mean(cur$costs), "&", 
+            mean(cur$fpCostsDriven), "&", 
+            mean(cur$costsDriven), "&", 
+            mean(cur$improvementAll), "&", 
+            mean(cur$improvementDriven), "\\\\ \\midrule \n", sep = ""), file = "results.txt", append = TRUE)
   if (i != 80) cat("\\midrule \n", file = "results.txt", append = TRUE)
 }
 cat("\\bottomrule \n", file = "results.txt", append = TRUE)
@@ -124,3 +133,17 @@ cat("\\end{tabular} \n", file = "results_summary.txt", append = TRUE)
 cat("\\caption{Summary of initial Flaschenpost heuristic results vs. results of the stabilized cutting plane approach after 600 seconds computation time (improvement in bold)} \n", file = "results_summary.txt", append = TRUE)
 cat("\\label{tab:stabilizedVsSummary} \n", file = "results_summary.txt", append = TRUE)
 cat("\\end{table} \n", file = "results_summary.txt", append = TRUE)
+
+
+
+# test for solomon
+allResults = list.files("results/colgen/solomonESPPTWCC")
+
+results = data.frame(instance = character(0), costs = numeric(0))
+for (i in 1:length(allResults)) {
+  if (grepl("Summary", allResults[i])) {
+    data = cbind(allResults[i], read.csv(paste("results/colgen/solomonESPPTWCC/", allResults[i], sep = ""), header = FALSE)[2])
+    colnames(data) = c("instance", "costs")
+    results = rbind(results, data)
+  }
+}

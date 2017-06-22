@@ -38,62 +38,63 @@ public class SolomonTesterStabilized {
 	public static void main(String[] args) throws Exception {
 		/**String[] approaches = {"espptwcc_heur", "spptwcc",
 				"spptwcc2", "spptwcc_heur", "spptwcc2_heur"};*/
-
-		String set = "c";
-		String[] solomonProblems = new String[8];
-		String rootPath = new File("").getAbsolutePath();
-		 rootPath = rootPath.substring(0, rootPath.length() - 5);
-		if (set == "c") {
-			solomonProblems[0] = rootPath + "\\Solomon test instances\\c101.txt"; 
-			solomonProblems[1] = rootPath + "\\Solomon test instances\\c102.txt"; 
-			solomonProblems[2] = rootPath + "\\Solomon test instances\\c103.txt"; 
-			solomonProblems[3] = rootPath + "\\Solomon test instances\\c104.txt";
-			solomonProblems[4] = rootPath + "\\Solomon test instances\\c105.txt";
-			solomonProblems[5] = rootPath + "\\Solomon test instances\\c106.txt";
-			solomonProblems[6] = rootPath + "\\Solomon test instances\\c107.txt";
-			solomonProblems[7] = rootPath + "\\Solomon test instances\\c108.txt";
-		}
-		else if (set == "r") {
-			solomonProblems[0] = rootPath + "\\Solomon test instances\\r101.txt"; 
-			solomonProblems[1] = rootPath + "\\Solomon test instances\\r102.txt"; 
-			solomonProblems[2] = rootPath + "\\Solomon test instances\\r103.txt"; 
-			solomonProblems[3] = rootPath + "\\Solomon test instances\\r104.txt";
-			solomonProblems[4] = rootPath + "\\Solomon test instances\\r105.txt";
-			solomonProblems[5] = rootPath + "\\Solomon test instances\\r106.txt";
-			solomonProblems[6] = rootPath + "\\Solomon test instances\\r107.txt";
-			solomonProblems[7] = rootPath + "\\Solomon test instances\\r108.txt";
-		}
-		
-		else if (set == "rc") {
-			solomonProblems[0] = rootPath + "\\Solomon test instances\\rc101.txt"; 
-			solomonProblems[1] = rootPath + "\\Solomon test instances\\rc102.txt"; 
-			solomonProblems[2] = rootPath + "\\Solomon test instances\\rc103.txt"; 
-			solomonProblems[3] = rootPath + "\\Solomon test instances\\rc104.txt";
-			solomonProblems[4] = rootPath + "\\Solomon test instances\\rc105.txt";
-			solomonProblems[5] = rootPath + "\\Solomon test instances\\rc106.txt";
-			solomonProblems[6] = rootPath + "\\Solomon test instances\\rc107.txt";
-			solomonProblems[7] = rootPath + "\\Solomon test instances\\rc108.txt";	
-		}
-		int currentTime = 0;
-		int compTimeLimit = 60;
-		int branchTimeLimit = 60;
+		String[] allSets = new String[]{"c"};
 		int[] instanceSizes = new int[]{100};
-		for (int i : instanceSizes) {
-			for (int j = 0; j < solomonProblems.length; j++) {
-				String solomonPath = solomonProblems[j];
-				String id = "_" + set + "_" + i + "_" + (j+1);
-				System.out.println("Current problem: " + id);
-				ArrayList<Object> solomon = SolomonImporter.importCSV(solomonPath, i);
-				@SuppressWarnings("unchecked")
-				ArrayList<Order> orders = (ArrayList<Order>)solomon.get(0);
-				DistanceMatrix distanceMatrix = (DistanceMatrix)solomon.get(1);
-				distanceMatrix = distanceMatrix.insertDummyDepotAsFinalNode();
-				SolomonTesterStabilized tester = new SolomonTesterStabilized(distanceMatrix, orders, currentTime, id);
-				int serviceTime = (int)solomon.get(2);
-				tester.getRoutes(distanceMatrix, compTimeLimit, branchTimeLimit, serviceTime);
-				System.gc();
+		for (String set : allSets) {
+			String[] solomonProblems = new String[8];
+			String rootPath = new File("").getAbsolutePath();
+			 rootPath = rootPath.substring(0, rootPath.length() - 5);
+			if (set == "c") {
+				solomonProblems[0] = rootPath + "\\Solomon test instances\\c101.txt"; 
+				solomonProblems[1] = rootPath + "\\Solomon test instances\\c102.txt"; 
+				solomonProblems[2] = rootPath + "\\Solomon test instances\\c103.txt"; 
+				solomonProblems[3] = rootPath + "\\Solomon test instances\\c104.txt";
+				solomonProblems[4] = rootPath + "\\Solomon test instances\\c105.txt";
+				solomonProblems[5] = rootPath + "\\Solomon test instances\\c106.txt";
+				solomonProblems[6] = rootPath + "\\Solomon test instances\\c107.txt";
+				solomonProblems[7] = rootPath + "\\Solomon test instances\\c108.txt";
 			}
-		}
+			else if (set == "r") {
+				solomonProblems[0] = rootPath + "\\Solomon test instances\\r101.txt"; 
+				solomonProblems[1] = rootPath + "\\Solomon test instances\\r102.txt"; 
+				solomonProblems[2] = rootPath + "\\Solomon test instances\\r103.txt"; 
+				solomonProblems[3] = rootPath + "\\Solomon test instances\\r104.txt";
+				solomonProblems[4] = rootPath + "\\Solomon test instances\\r105.txt";
+				solomonProblems[5] = rootPath + "\\Solomon test instances\\r106.txt";
+				solomonProblems[6] = rootPath + "\\Solomon test instances\\r107.txt";
+				solomonProblems[7] = rootPath + "\\Solomon test instances\\r108.txt";
+			}
+			
+			else if (set == "rc") {
+				solomonProblems[0] = rootPath + "\\Solomon test instances\\rc101.txt"; 
+				solomonProblems[1] = rootPath + "\\Solomon test instances\\rc102.txt"; 
+				solomonProblems[2] = rootPath + "\\Solomon test instances\\rc103.txt"; 
+				solomonProblems[3] = rootPath + "\\Solomon test instances\\rc104.txt";
+				solomonProblems[4] = rootPath + "\\Solomon test instances\\rc105.txt";
+				solomonProblems[5] = rootPath + "\\Solomon test instances\\rc106.txt";
+				solomonProblems[6] = rootPath + "\\Solomon test instances\\rc107.txt";
+				solomonProblems[7] = rootPath + "\\Solomon test instances\\rc108.txt";	
+			}
+			int currentTime = 0;
+			int compTimeLimit = 600;
+			int branchTimeLimit = 600;
+			for (int i : instanceSizes) {
+				for (int j = 0; j < 10; j++) {
+					String solomonPath = solomonProblems[j];
+					String id = "_" + set + "_" + i + "_" + (j+1);
+					System.out.println("Current problem: " + id);
+					ArrayList<Object> solomon = SolomonImporter.importCSV(solomonPath, i);
+					@SuppressWarnings("unchecked")
+					ArrayList<Order> orders = (ArrayList<Order>)solomon.get(0);
+					DistanceMatrix distanceMatrix = (DistanceMatrix)solomon.get(1);
+					distanceMatrix = distanceMatrix.insertDummyDepotAsFinalNode();
+					SolomonTesterStabilized tester = new SolomonTesterStabilized(distanceMatrix, orders, currentTime, id);
+					int serviceTime = (int)solomon.get(2);
+					tester.getRoutes(distanceMatrix, compTimeLimit, branchTimeLimit, serviceTime);
+					System.gc();
+				}
+			}
+		}		
 	}	
 	
 	public SolomonTesterStabilized(DistanceMatrix distmat, ArrayList<Order> orders, 
@@ -127,7 +128,8 @@ public class SolomonTesterStabilized {
 			 mus[i] = initialMuValues;
 		 }
 		 mus[nLocations-1] = initialMuDepotValue;
-		 
+
+			
 		 getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus, 0, false, paths.size(), null);
 		 
 		 // postprocessing - optimizing the routes via TSPTW
@@ -135,17 +137,21 @@ public class SolomonTesterStabilized {
 		 for (ArrayList<Integer> route : bestSolution) costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
 
 		 ArrayList<ArrayList<Integer>> improvedBestSolution = new ArrayList<ArrayList<Integer>>();
-		 for (ArrayList<Integer> route : bestSolution) improvedBestSolution.add(tsptwOptimize(route, distmat, currentTime, orders));
+		 for (ArrayList<Integer> route : bestSolution) {
+			 ArrayList<Integer> newRoute = tsptwOptimize(route, distmat, currentTime, orders);
+			 if (newRoute != null) improvedBestSolution.add(newRoute);
+			 else improvedBestSolution.add(route);
+		 }
 		 costs = 0;
 		 for (ArrayList<Integer> route : improvedBestSolution) {
 			 costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
 			 for (int i : route) System.out.print(i + " ");
 			 System.out.println();
+			 System.out.println("Route costs " + costs);
 		 }
-
-		String[] solomonProblems = new String[8];
-		String rootPath = new File("").getAbsolutePath();
-		 FileWriter writer = new FileWriter(rootPath + "\\results\\colgen\\stabilizedSolomon\\_Summary" + id + ".csv", true);
+		 String rootPath = new File("").getAbsolutePath();
+		 rootPath = rootPath.substring(0, rootPath.length() - 5);
+		 FileWriter writer = new FileWriter(rootPath + "\\results\\colgen\\solomonESPPTWCC\\_Summary" + id + ".csv", true);
 		 writer.write(costs + "," + (costs - (distmat.getDimension()-2) * serviceTime) + "\n");
 	     writer.close();
 	}
@@ -282,15 +288,9 @@ public class SolomonTesterStabilized {
 	     }
 	     
 
-		 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilizedSolomon\\allnodes.csv", true);
 		 // calculate results for this node
 	     ArrayList<Path> allPaths = new ArrayList<Path>();
 	     for (ArrayList<Path> pathList : pathsPerIteration) allPaths.addAll(pathList);
-	     for (Path p : allPaths) {
-	    	 for (int i : p.getNodes()) writer.write(i + "\n");
-		     
-	     }
-	     writer.close();
 	     
 		 double[] relaxedResult = solveRelaxation(distmat, allPaths);
 		 
@@ -341,11 +341,6 @@ public class SolomonTesterStabilized {
 		    	 bestSolution = routes;
 		     }
 		 }	 
-
-		 System.out.println("Search tree branches explored: " + branchCount);
-		 System.out.println("Current tree depth: " + treeDepth);
-	     System.out.println("Current upper bound: " + overallUpperBound);
-	     System.out.println("Current lower bound: " + overallLowerBound);
 	     
 		 if (relaxedCosts > overallUpperBound) {
 	    	 // if relaxed result in this branch is higher than the best solution so far with eliminated duplicates
@@ -817,7 +812,8 @@ public class SolomonTesterStabilized {
 		}
 		croppedMatrix = croppedMatrix.getCroppedMatrix(routeIndices);
 
-		int[] tspRoute = CPlexTSPTW.getRoute(croppedMatrix, relevantOrders, currentTime);
+		int[] tspRoute = CPlexTSPTWSolomon.getRoute(croppedMatrix, relevantOrders, currentTime);
+		if (tspRoute == null) return null;
 		
 		ArrayList<Integer> tspRouteList = ModelHelperMethods.parseTSPOutput2(tspRoute, route);
 		return tspRouteList;

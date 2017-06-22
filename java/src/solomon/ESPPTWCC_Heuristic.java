@@ -132,7 +132,7 @@ public class ESPPTWCC_Heuristic {
 	}
 
 	private void labelNext(Label currentLabel) {
-		
+	
 		// for all neighbors of the current label (which are all nodes)
 		for (int i = 1; i < distanceMatrix.getDimension(); i++) {
 			if (i == currentLabel.getNode()) continue;
@@ -144,7 +144,7 @@ public class ESPPTWCC_Heuristic {
 			if (noGoRoutes != null && noGoRoutes.get(currentLabel.getNode()).contains(i)) continue;
 			
 			// check if new label is feasible wrt time
-			int newTime = (int)(currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
+			double newTime = (currentLabel.getTime() + distanceMatrix.getEntry(currentLabel.getNode()+1, i+1));
 			if (newTime > nodes.get(i).getUpperTimeWindow()) continue;
 
 			// if arrival time is before the earliest for that node, wait
@@ -154,7 +154,7 @@ public class ESPPTWCC_Heuristic {
 			int newDemand = currentLabel.getDemand() + nodes.get(i).getDemand();
 			if (newDemand > ModelConstants.SOLOMON_VEHICLE_CAPACITY) continue;
 			int newCosts = (int)(currentLabel.getCosts() + reducedCostsMatrix.getEntry(currentLabel.getNode()+1, i+1));
-			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel);
+			Label l = new Label(newCosts, newDemand, newTime, i, currentLabel, labelCount);
 
 			// check if new label is dominated or dominates a label
 			ArrayList<Label> labels = labelList.get(i);
@@ -293,6 +293,18 @@ public class ESPPTWCC_Heuristic {
 		labels.remove(index);
 		double costs = ModelHelperMethods.getRouteCostsIndexed0(distanceMatrix, path);
 		Path result = new Path(path, costs, reducedCosts, distanceMatrix.getDimension());
+		// check feasibility
+		costs = 0;
+		if (path.get(1) == 1 && path.get(2) == 3 && path.get(3) == 5 && path.get(4) == 4) {
+			System.out.println();
+		}
+		for (int i = 0; i < path.size()-1; i++) {
+			costs += distanceMatrix.getEntry(path.get(i)+1, path.get(i+1)+1);
+			if (costs > nodes.get(path.get(i+1)).getUpperTimeWindow()) {
+				System.out.println("Something is wrong here for label " + labels.get(index).getId());
+			}
+			if (costs < nodes.get(path.get(i+1)).getLowerTimeWindow()) costs = nodes.get(path.get(i+1)).getLowerTimeWindow();
+		}
 		return result;
 	}
 	
@@ -310,47 +322,44 @@ public class ESPPTWCC_Heuristic {
 		public int getUpperTimeWindow() {
 			return upperTimeWindow;
 		}
-		public void setUpperTimeWindow(int upperTimeWindow) {
-			this.upperTimeWindow = upperTimeWindow;
-		}
+		
 		public int getDemand() {
 			return demand;
-		}
-		public void setDemand(int demand) {
-			this.demand = demand;
 		}
 
 		public int getLowerTimeWindow() {
 			return lowerTimeWindow;
 		}
-
-		public void setLowerTimeWindow(int lowerTimeWindow) {
-			this.lowerTimeWindow = lowerTimeWindow;
-		}	
 	}
 	
 	private class Label {
 		private double costs;
 		private int demand;
-		private int time;
+		private double time;
 		private int node;
 		private Label predecessor;
+		private int id;
 		
-		public Label(double costs, int demand, int time, int node) {
+		public Label(double costs, int demand, double time, int node) {
 			this.setCosts(costs);
 			this.setDemand(demand);
 			this.setTime(time);
 			this.setNode(node);
 		}
 		
-		public Label(double costs, int demand, int time, int node, Label predecessor) {
+		public Label(double costs, int demand, double time, int node, Label predecessor, int id) {
 			this.setCosts(costs);
 			this.setDemand(demand);
 			this.setTime(time);
 			this.setNode(node);
 			this.predecessor = predecessor;
+			this.id = id;
 		}
 
+		public int getId() {
+			return id;
+		}
+		
 		public double getCosts() {
 			return costs;
 		}
@@ -367,11 +376,11 @@ public class ESPPTWCC_Heuristic {
 			this.demand = demand;
 		}
 
-		public int getTime() {
+		public double getTime() {
 			return time;
 		}
 
-		public void setTime(int time) {
+		public void setTime(double time) {
 			this.time = time;
 		}
 

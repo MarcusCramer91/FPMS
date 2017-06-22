@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import model.DistanceMatrix;
@@ -83,7 +85,7 @@ public class SolomonImporter {
 				}
 			}
 			
-			/**PrintWriter writer = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c101Distmat.csv"));
+			/*PrintWriter writer = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\rc101_25Distmat.csv"));
 			counter = 0;
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < locationX.size();i++) {
