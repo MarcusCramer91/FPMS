@@ -228,7 +228,8 @@ public class ColGenFrameworkTester {
 			 reducedCostsMatrix.subtractDuals(duals);
 			 
 			 // solve pricing problem
-			 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, nPaths, true);
+			 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, nPaths, true,
+					 startingTime, compTimeLimit);
 			 ArrayList<Path> newPaths = espptwcc_heuristic.labelNodes();
 			 //System.out.println("Reduced costs of the best found new path in iteration " + iterationCount +": "+ newPaths.get(0).getReducedCosts());
 			 
@@ -404,7 +405,8 @@ public class ColGenFrameworkTester {
 			 reducedCostsMatrix.subtractDuals(duals);
 			 
 			 // solve pricing problem
-			 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, nPaths, true);
+			 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, nPaths, true,
+					 startingTime, branchTimeLimit);
 			 ArrayList<Path> newPaths = espptwcc_heuristic.labelNodes();
 			 //System.out.println("Reduced costs of the best found new path in iteration " + iterationCount +": "+ newPaths.get(0).getReducedCosts());
 			 

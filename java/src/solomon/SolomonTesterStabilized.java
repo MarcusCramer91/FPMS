@@ -39,7 +39,7 @@ public class SolomonTesterStabilized {
 		/**String[] approaches = {"espptwcc_heur", "spptwcc",
 				"spptwcc2", "spptwcc_heur", "spptwcc2_heur"};*/
 		String[] allSets = new String[]{"c"};
-		int[] instanceSizes = new int[]{100};
+		int[] instanceSizes = new int[]{50};
 		for (String set : allSets) {
 			String[] solomonProblems = new String[8];
 			String rootPath = new File("").getAbsolutePath();
@@ -79,7 +79,7 @@ public class SolomonTesterStabilized {
 			int compTimeLimit = 600;
 			int branchTimeLimit = 600;
 			for (int i : instanceSizes) {
-				for (int j = 0; j < 10; j++) {
+				for (int j = 0; j < 1; j++) {
 					String solomonPath = solomonProblems[j];
 					String id = "_" + set + "_" + i + "_" + (j+1);
 					System.out.println("Current problem: " + id);
@@ -168,7 +168,7 @@ public class SolomonTesterStabilized {
 		 long branchingTime = System.currentTimeMillis();
 		 branchCount++;
 		 treeLevelCoverage[treeDepth]++;
-		 nVehicles = distmat.getDimension() / 5;
+		 nVehicles = distmat.getDimension() *50;
 
 		 // initialize stabilized cutting procedure
 		 double trustRegion = 1;
@@ -205,7 +205,6 @@ public class SolomonTesterStabilized {
 		 
 	     while (System.currentTimeMillis() - branchingTime < branchTimeLimit * 1000 &&
 	    		 System.currentTimeMillis() - startingTime < compTimeLimit * 1000) {
-	    	 if (iteration > 100) break;
 	    	 iteration++;
 	    	 //System.out.println("Iteration " + iteration);
 	    	 // solve lagrangian dual
@@ -216,14 +215,15 @@ public class SolomonTesterStabilized {
 		    	 System.out.println("No solution to Lagrangian dual exists");
 		    	 break;
 		     }
+		     FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\mus.csv", true);
 		      double[] newMus = new double[mus.length];
 		     for (int i = 0; i < mus.length; i++) {
 		    	 newMus[i] = result[i];
+				 writer.write(newMus[i] + ",");
 		     }
+			 writer.write("\n");
 		     
-		     /*FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\mus.csv", true);
-			 writer.write(iteration + "," + s + "\n");
-		     writer.close();*/
+		     writer.close();
 		     
 		     //System.out.println("Mu sum: " + muSum);
 			 musPerIteration.add(newMus);
@@ -238,6 +238,7 @@ public class SolomonTesterStabilized {
 		     //System.out.println("Best dual (lower bound) " + bestDual);
 		     //System.out.println("Delta " + delta);
 		     //System.out.println("Theta " + theta);
+		     //System.out.println("Time: " + (System.currentTimeMillis() - startingTime));
 		     
 		     // check convergence
 		     if (delta < threshold) break;
@@ -249,6 +250,7 @@ public class SolomonTesterStabilized {
 			 }
 			 reducedCostsMatrix = new DistanceMatrix(reducedCosts);
 			 reducedCostsMatrix.subtractDuals(newMus);
+			 
 
 		     subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false);
 		     newPaths = subproblem.labelNodes();

@@ -34,10 +34,12 @@ public class ESPPTWCC_Heuristic {
 	private int nBestRounds;
 	private boolean returnNegativeOnly;
 	private int labelCount;
+	private long startingTime;
 	
 	
 	public ESPPTWCC_Heuristic(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
 			int nBestRounds, boolean returnNegativeOnly) {
+		this.startingTime = System.currentTimeMillis();
 		this.returnNegativeOnly = returnNegativeOnly;
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
@@ -71,8 +73,7 @@ public class ESPPTWCC_Heuristic {
 		Label initialLabel = new Label(0,0,0,0);
 		labelList.get(0).add(initialLabel);
 		nps.add(initialLabel);
-		while (!nps.isEmpty()) {
-			
+		while (!nps.isEmpty() && (System.currentTimeMillis() - startingTime) < 200*1000) {
 			// find label with the lowest costs that is not assigned to the final node
 			double lowestCosts = Double.MAX_VALUE;
 			int lowestCostsIndex = -1;
@@ -126,8 +127,8 @@ public class ESPPTWCC_Heuristic {
 			paths.add(getNextBestPath(allFinalLabels));
 		}
 		//System.out.println(labelCount + " labels created");
-		//for (int i : paths.get(0).getNodes()) System.out.print(i + " ");
-		//System.out.println();
+		for (int i : paths.get(0).getNodes()) System.out.print(i + " ");
+		System.out.println();
 		return paths;
 	}
 

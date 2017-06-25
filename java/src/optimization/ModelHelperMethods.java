@@ -92,6 +92,28 @@ public class ModelHelperMethods {
 		return result;
 	}
 	
+	public static Order[] parseTSPOutput(ArrayList<Integer> tspSequence, ArrayList<Order> orders) {
+		Order[] result = new Order[tspSequence.size()-2];
+		if (tspSequence.size() != orders.size()) new Exception("TSP sequence and orders ArrayList must be of same length");
+		Order[] sortedOrders = sortOrders(orders.toArray(new Order[orders.size()]));
+		for (int i = 0; i < tspSequence.size()-2; i++) {
+			//System.out.println(i);
+			result[i] = sortedOrders[tspSequence.get(i+1)-2];
+		}
+		return result;
+	}
+	
+	public static Order[] parseColgenOutput(ArrayList<Integer> tspSequence, ArrayList<Order> orders) {
+		Order[] result = new Order[tspSequence.size()-2];
+		if (tspSequence.size() != orders.size()) new Exception("TSP sequence and orders ArrayList must be of same length");
+		Order[] sortedOrders = sortOrders(orders.toArray(new Order[orders.size()]));
+		for (int i = 0; i < tspSequence.size()-2; i++) {
+			//System.out.println(i);
+			result[i] = sortedOrders[tspSequence.get(i+1)-1];
+		}
+		return result;
+	}
+	
 	public static ArrayList<Integer> parseTSPOutput2(int[] tspSequence, ArrayList<Integer> nodes) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		int[] sortedNodes = new int[nodes.size()];

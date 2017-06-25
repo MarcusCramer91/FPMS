@@ -36,30 +36,26 @@ public class SimulationController {
 	boolean useEarliestArrival = true;
 	
 
-	private static String distanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30TravelTimes.csv";
-	private static String airDistanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30AirDistances.csv";
-	private static String ordersFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv";
-	private static String vehiclesFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyVehicles.csv";
+	private static String distanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv";
+	private static String airDistanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv";
+	private static String ordersFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_20_1.csv";
 	
 	private static String mode = "fp";
 	
 	
-	public SimulationController(String distanceMatrixFile, String ordersFile, String vehiclesFile, int currentTime) {
+	public SimulationController(String distanceMatrixFile, String ordersFile, int currentTime) {
 		distanceMatrix = new DistanceMatrix(DistanceMatrixImporter.importCSV(distanceMatrixFile));
 		orders = OrdersImporter.importCSV(ordersFile);
-		vehicles = VehiclesImporter.importCSV(vehiclesFile);
 		this.currentTime = currentTime;
 	}
 	
-	public SimulationController(String distanceMatrixFile, String airDistanceMatrixFile, String ordersFile, String vehiclesFile,
+	public SimulationController(String distanceMatrixFile, String airDistanceMatrixFile, String ordersFile, 
 			int currentTime) {
 		distanceMatrix = new DistanceMatrix(DistanceMatrixImporter.importCSV(distanceMatrixFile));
 		airDistanceMatrix = new DistanceMatrix(DistanceMatrixImporter.importCSV(airDistanceMatrixFile));
 		orders = OrdersImporter.importCSV(ordersFile);
-		vehicles = VehiclesImporter.importCSV(vehiclesFile);
 		this.currentTime = currentTime;
-		this.nVehicles = ModelHelperMethods.getNumberOfAvailableVehiclesInDepot(vehicles);
-		this.nVehicles += 5;
+		this.nVehicles = 20;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -67,21 +63,21 @@ public class SimulationController {
 		int currentTime = 30*60;
 		int lastOrderTime = 720; // simulated from 9 a.m. to 9 p.m. every minute
 		SimulationController controller = new SimulationController(SimulationController.distanceMatrixFile, SimulationController.airDistanceMatrixFile,
-				SimulationController.ordersFile, SimulationController.vehiclesFile, currentTime);
+				SimulationController.ordersFile, currentTime);
 
 		String optimizationMode = "fp";
 		
 		//controller.startSimulation(optimizationMode);
 
 		// TESTING
-		controller.testOneIterationFP(currentTime);
+		//controller.testOneIterationFP(currentTime);
 
 		boolean useInitial = false;
 		boolean useUpperBound = false;
 		boolean useMaxRoute = false;
 		boolean useEarliestArrival = false;
 		int computationTime = 15000;
-		//controller.testOneIterationCPlex(currentTime, computationTime, useInitial, useUpperBound, useMaxRoute, useEarliestArrival);
+		controller.testOneIterationCPlex(currentTime, computationTime, useInitial, useUpperBound, useMaxRoute, useEarliestArrival);
 		//controller.testOneIterationCPlexExperimental(currentTime, computationTime);
 	}
 
@@ -102,7 +98,7 @@ public class SimulationController {
 	}
 	
 	private ArrayList<Order[]> getRoutesFP(int currentTime) throws Exception {
-		boolean optimizationNecessary = FPOptimize.checkOptimizationNecessity(currentTime, vehicles, orders);
+		boolean optimizationNecessary = FPOptimize.checkOptimizationNecessity(currentTime, orders);
 		System.out.println("Routing step due: " + optimizationNecessary + " in iteration " + currentTime);
 		if (!optimizationNecessary) return null;
 		ArrayList<Order[]> routes = FPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, false);
@@ -230,7 +226,7 @@ public class SimulationController {
 			o.setStatus(1);
 		}
 		if (mode.equals("fp")) {
-			System.out.println("Routing step due: " + FPOptimize.checkOptimizationNecessity(currentTime, vehicles, orders));
+			System.out.println("Routing step due: " + FPOptimize.checkOptimizationNecessity(currentTime, orders));
 			ArrayList<Order[]> routes = FPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
 			for (int i = 0; i < routes.size(); i++) {
 				System.out.println("Route for vehicle " + i);

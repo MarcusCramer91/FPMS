@@ -211,7 +211,8 @@ public class ColGenTester {
 			 Path newPath = null;
 			 ArrayList<Path> newPaths = null;
 			 if (sppAlgorithm.equals("espptwcc_heur") || sppAlgorithm.equals("espptwcc_heur_fp")) {
-				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, true);
+				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, true, 
+						 time, compTimeLimit);
 				 newPaths = espptwcc_heuristic.labelNodes();			 
 			 }
 			 
@@ -369,7 +370,8 @@ public class ColGenTester {
 			 Path newPath = null;
 			 ArrayList<Path> newPaths = null;
 			 if (sppAlgorithm.equals("espptwcc_heur") || sppAlgorithm.equals("espptwcc_heur_fp")) {
-				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, true);
+				 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, true, 
+						 time, compTimeLimit);
 				 newPaths = espptwcc_heuristic.labelNodes();			 
 			 }
 			 

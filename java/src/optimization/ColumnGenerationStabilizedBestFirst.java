@@ -236,7 +236,8 @@ public class ColumnGenerationStabilizedBestFirst {
 		 }
 		 DistanceMatrix reducedCostsMatrix = new DistanceMatrix(reducedCosts);
 		 reducedCostsMatrix.subtractDuals(mus);
-	     ESPPTWCC_Heuristic subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false);
+	     ESPPTWCC_Heuristic subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false,
+	    		 startingTime, compTimeLimit);
 		 ArrayList<Path> newPaths = subproblem.labelNodes();
 	     
 	     
@@ -292,7 +293,8 @@ public class ColumnGenerationStabilizedBestFirst {
 			 reducedCostsMatrix = new DistanceMatrix(reducedCosts);
 			 reducedCostsMatrix.subtractDuals(newMus);
 
-		     subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false);
+		     subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false,
+		    		 startingTime, compTimeLimit);
 		     newPaths = subproblem.labelNodes();
 		     
 		     // check for duplicates

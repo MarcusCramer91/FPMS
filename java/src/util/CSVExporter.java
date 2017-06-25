@@ -51,6 +51,5 @@ public class CSVExporter {
         
         pw.write(sb.toString());
         pw.close();
-        System.out.println("Nodes successfully written to file");
 	}
 }

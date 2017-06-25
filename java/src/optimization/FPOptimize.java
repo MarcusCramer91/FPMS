@@ -22,17 +22,10 @@ public class FPOptimize {
 	 * @param orders
 	 * @return
 	 */
-	public static boolean checkOptimizationNecessity(int currentTime, ArrayList<Vehicle> vehicles, ArrayList<Order> orders) {
-		boolean orderDue = false;
+	public static boolean checkOptimizationNecessity(int currentTime, ArrayList<Order> orders) {
 		for (Order o : orders) {
-			if (o.getMET(currentTime) >= 30) {
-				orderDue = true;
-				break;
-			}
-		}
-		for (Vehicle v : vehicles) {
-			if (v.getLocation() == 1 && v.isAvailable()) {
-				if (orderDue) return true;
+			if (o.getMET(currentTime) >= 30 * 60) {
+				return true;
 			}
 		}
 		return false;
@@ -45,6 +38,11 @@ public class FPOptimize {
 		ordersCopy.addAll(orders);
 		ArrayList<Order[]> allRoutes = new ArrayList<Order[]>();
 		
+		// assign distance matrix link to the new cropped distance matrix
+		ordersCopy.sort(new OrdersDistanceMatrixLinkSorter());
+		for (int i = 0; i < ordersCopy.size(); i++) {
+			ordersCopy.get(i).setDistanceMatrixLink(i+2);
+		}
 		
 		for (int j = 0; j < nVehicles; j++) {
 			int[] tspRoute = null;
@@ -172,8 +170,21 @@ public class FPOptimize {
 		@Override
 		public int compare(Order o1, Order o2) {
 			double firstDistance = distanceMatrix.getEntry(firstOrder.getDistanceMatrixLink(), o1.getDistanceMatrixLink());
-			double secondDistance = distanceMatrix.getEntry(firstOrder.getDistanceMatrixLink(), o2.getDistanceMatrixLink());
+			double secondDistance = distanceMatrix.getEntry(firstOrder.getDistanceMatrixLink(), o2.getDistanceMatrixLink());			
 			if (firstDistance < secondDistance) return -1;
+			else return 1;
+		}
+	}
+
+	// compares two orders based on their air distance (or any other distance measure provided in a distance matrix)
+	private static class OrdersDistanceMatrixLinkSorter implements Comparator<Order> {
+		
+		public OrdersDistanceMatrixLinkSorter() {
+		}
+		
+		@Override
+		public int compare(Order o1, Order o2) {
+			if (o1.getDistanceMatrixLink() < o2.getDistanceMatrixLink()) return -1;
 			else return 1;
 		}
 	}

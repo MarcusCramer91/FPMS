@@ -36,6 +36,9 @@ public class ColumnGenerationStabilized {
 	private double percentOfTreeExplored = 0;
 	private double dualityGap = 1;
 	private int[] treeLevelCoverage;
+	private long timeForSubProblem;
+	private int dominanceTimeConsumption;
+	private int repititionTimeConsumption;
 	
 	
 	private double stoppingTolerance;
@@ -49,11 +52,11 @@ public class ColumnGenerationStabilized {
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
 		
 
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_30_1.csv");
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
 
 		/*ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
@@ -70,8 +73,8 @@ public class ColumnGenerationStabilized {
 				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+
 		problemSize+"_"+problemInstance+".csv"));*/
 		int currentTime = 30*60;
-		int compTimeLimit = 300;
-		int branchTimeLimit = 300;
+		int compTimeLimit = 600;
+		int branchTimeLimit = 600;
 		ColumnGenerationStabilized colgen = new ColumnGenerationStabilized(distmat, orders, currentTime);
 		
 		// initialize with flaschenpost
@@ -173,6 +176,9 @@ public class ColumnGenerationStabilized {
 		 }
 		 System.out.println("Improvement compared to initial: " + (initialCosts-costs)/initialCosts*100 + "%");
 		 System.out.println("Overall time used: " + Math.round((System.currentTimeMillis() - startingTime) / 1000) + " seconds");
+		 System.out.println("Time used for the sub-problem: " + timeForSubProblem);
+		 System.out.println("Time used for dominance assertion in the sub-problem: " + dominanceTimeConsumption);
+		 System.out.println("Time used for repititon checking in the sub-problem: " + repititionTimeConsumption);
 	}
 		 
 	
@@ -213,7 +219,8 @@ public class ColumnGenerationStabilized {
 		 }
 		 DistanceMatrix reducedCostsMatrix = new DistanceMatrix(reducedCosts);
 		 reducedCostsMatrix.subtractDuals(mus);
-	     ESPPTWCC_Heuristic subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false);
+	     ESPPTWCC_Heuristic subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false, 
+	    		 startingTime, compTimeLimit);
 		 ArrayList<Path> newPaths = subproblem.labelNodes();
 	     
 	     
@@ -226,6 +233,7 @@ public class ColumnGenerationStabilized {
 	    		 System.currentTimeMillis() - startingTime < compTimeLimit * 1000) {
 	    	 iteration++;
 	    	 //System.out.println("Iteration " + iteration);
+	    	 System.out.println("Time: " + (System.currentTimeMillis() - startingTime)/1000);
 	    	 // solve lagrangian dual
 		     double[] result = solveLagrangianDual(distmat, lambdas, trustRegion, iteration, pathsPerIteration, musPerIteration, 
 		    		 dualValuesPerIteration, nVehicles);
@@ -234,12 +242,11 @@ public class ColumnGenerationStabilized {
 		    	 System.out.println("No solution to Lagrangian dual exists");
 		    	 break;
 		     }
-		    
-		     double[] newMus = new double[mus.length];
+
+			 double[] newMus = new double[mus.length];
 		     for (int i = 0; i < mus.length; i++) {
 		    	 newMus[i] = result[i];
 		     }		  
-		     
 		     /*FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\mus.csv", true);
 			 writer.write(iteration + "," + s + "\n");
 		     writer.close();*/
@@ -254,9 +261,9 @@ public class ColumnGenerationStabilized {
 		     for (ArrayList<Path> pathList : pathsPerIteration) allPaths.addAll(pathList);
 		     delta = theta - bestDual;
 		     // update lower bound
-		     //System.out.println("Best dual (lower bound) " + bestDual);
-		     //System.out.println("Delta " + delta);
-		     //System.out.println("Theta " + theta);
+		     // System.out.println("Best dual (lower bound) " + bestDual);
+		     // System.out.println("Delta " + delta);
+		     // System.out.println("Theta " + theta);
 		     
 		     // check convergence
 		     if (delta < threshold) break;
@@ -269,8 +276,11 @@ public class ColumnGenerationStabilized {
 			 reducedCostsMatrix = new DistanceMatrix(reducedCosts);
 			 reducedCostsMatrix.subtractDuals(newMus);
 
-		     subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false);
+			 long subProbTime = System.currentTimeMillis();
+		     subproblem = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, 50, false, 
+		    		 startingTime, compTimeLimit, this);
 		     newPaths = subproblem.labelNodes();
+		     timeForSubProblem += (System.currentTimeMillis() - subProbTime);
 		     
 		     // check for duplicates
 		     ArrayList<Path> addList = new ArrayList<Path>();
@@ -305,7 +315,7 @@ public class ColumnGenerationStabilized {
 		     System.out.println();*/
 	     }
 	     
-
+	     
 	     // calculate results for this node
 	     ArrayList<Path> allPaths = new ArrayList<Path>();
 	     for (ArrayList<Path> pathList : pathsPerIteration) allPaths.addAll(pathList);
@@ -388,8 +398,7 @@ public class ColumnGenerationStabilized {
 			 System.out.println();
 	    	 return;
 		 }
-	     
-	     
+	   
 	     // START BRANCHING
 	     System.out.println();
 		 System.out.println("########################################");
@@ -400,39 +409,6 @@ public class ColumnGenerationStabilized {
 		 for (int i = 0; i < relaxedDecision.length; i++) {
 			 relaxedDecision[i] = relaxedResult[i];
 			 relaxedNVehicles += relaxedResult[i];
-		 }
-		 
-		 // if relaxed decision has a non-integer number of vehicles, branch on this
-		 if (vehicleBranchingAllowed && (Math.round(relaxedNVehicles) != relaxedNVehicles)) {
-		     // initialize with previous best found mus
-		     mus = musPerIteration.get(musPerIteration.size()-1);
-		     /*int nLocations = distmat.getDimension();
-		     mus = new double[nLocations];
-			 for (int i = 1; i < nLocations-1; i++) {
-				 mus[i] = initialMuValues;
-			 }
-			 mus[nLocations-1] = initialMuDepotValue;*/
-			 // set to the value it is closer to first
-			 if (Math.round(relaxedNVehicles) - relaxedNVehicles > 0) {
-				 System.out.println("Branching on number of vehicles. Setting to " + Math.ceil(relaxedNVehicles));
-			     getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus,
-			    		 treeDepth, false, (int)Math.ceil(relaxedNVehicles), arcsBranchedOn);
-				 System.out.println();
-				 System.out.println("########################################");
-				 System.out.println("Branching on number of vehicles. Setting to " + Math.floor(relaxedNVehicles));
-				 System.out.println("########################################");
-				 System.out.println();
-			 }
-			 else {
-				 System.out.println("Branching on number of vehicles. Setting to " + Math.ceil(relaxedNVehicles));
-			     getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus,
-			    		 treeDepth, false, (int)Math.floor(relaxedNVehicles), arcsBranchedOn);
-				 System.out.println();
-				 System.out.println("########################################");
-				 System.out.println("Branching on number of vehicles. Setting to " + Math.floor(relaxedNVehicles));
-				 System.out.println("########################################");
-				 System.out.println();
-			 }
 		 }
 		 
 
@@ -881,5 +857,13 @@ public class ColumnGenerationStabilized {
 		
 		ArrayList<Integer> tspRouteList = ModelHelperMethods.parseTSPOutput2(tspRoute, route);
 		return tspRouteList;
+	}
+	
+	public void incrementDominanceTimeConsumption(int time) {
+		dominanceTimeConsumption += time;
+	}
+	
+	public void incrementRepititionTimeConsumption(int time) {
+		repititionTimeConsumption += time;
 	}
 }

@@ -43,11 +43,11 @@ public class ColumnGeneration {
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
 
 
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_20_1.csv");
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
 		/**
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
@@ -55,8 +55,8 @@ public class ColumnGeneration {
 		DistanceMatrix distmatair = new DistanceMatrix(
 		 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));*/
 		int currentTime = 30*60;
-		int compTimeLimit = 600;
-		int branchTimeLimit = 600;
+		int compTimeLimit = 300;
+		int branchTimeLimit = 300;
 		int nPaths = 50;
 		ColumnGeneration colgen = new ColumnGeneration(distmat, orders, currentTime, nPaths);
 		
@@ -217,7 +217,7 @@ public class ColumnGeneration {
 		 int convergenceCount = 0;
 		 double[] dualResult = null;
 		 // column generation 
-		 while((System.currentTimeMillis() - time) < branchTimeLimit*1000&&
+		 while((System.currentTimeMillis() - time) < branchTimeLimit*1000 &&
 	    		 System.currentTimeMillis() - startingTime < compTimeLimit * 1000) {
 			 iterationCount++;
 		     // get duals
@@ -227,11 +227,12 @@ public class ColumnGeneration {
 			 
 			 // save current lower bound
 			 currentRelaxedResult = dualResult[dualResult.length-1];
+			 
 			 duals = new double[dualResult.length-1];
 			 for (int i = 0; i < duals.length; i++) {
 				 duals[i] = dualResult[i];
 			 }
-		     
+			 
 		     // compute reduced costs for arcs
 		     double[] reducedCosts = new double[distmat.getAllEntries().length];
 			 for (int i = 0; i < reducedCosts.length; i++) {
@@ -241,7 +242,8 @@ public class ColumnGeneration {
 			 reducedCostsMatrix.subtractDuals(duals);
 			 
 			 // solve pricing problem
-			 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, nPaths, true);
+			 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, nPaths, true,
+		    		 startingTime, compTimeLimit);
 			 ArrayList<Path> newPaths = espptwcc_heuristic.labelNodes();
 			 //System.out.println("Reduced costs of the best found new path in iteration " + iterationCount +": "+ newPaths.get(0).getReducedCosts());
 			 
@@ -338,10 +340,9 @@ public class ColumnGeneration {
 		 System.out.println();
 		 System.out.println("########################################");
 		 System.out.println();
-
+		 
 	     // do depth first with variables set to 1
 	     int[] branchingVariable = findBranchVariable(distmat, relaxedDecision, paths);
-	     
 	     // if no more branching can be done return
 	     if (branchingVariable[0] == -1) return;
 	     // branch with set to 1
@@ -364,7 +365,7 @@ public class ColumnGeneration {
 	     System.out.println("Branching... Setting arc (" + branchingVariable[0] + "," + branchingVariable[1] + ") to 0");
 	     ArrayList<Path> paths0 = removeConflictingColumns(distmat, branchingVariable[0], branchingVariable[1], false, paths);
 	     DistanceMatrix distmat0 = penalizeArcsInDistanceMatrix(distmat, branchingVariable[0], branchingVariable[1], false);
-	     getRoutesInternal(paths0, distmat0, branchTimeLimit, compTimeLimit, generateOutput, treeDepth + 1, currentTreeLevelSearched);  
+	     getRoutesInternal(paths0, distmat0, branchTimeLimit, compTimeLimit, generateOutput, treeDepth + 1, currentTreeLevelSearched); 
 	}
 	
 	@SuppressWarnings("unused")
@@ -408,7 +409,8 @@ public class ColumnGeneration {
 			 reducedCostsMatrix.subtractDuals(duals);
 			 
 			 // solve pricing problem
-			 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, nPaths, true);
+			 ESPPTWCC_Heuristic espptwcc_heuristic = new ESPPTWCC_Heuristic(distmat, reducedCostsMatrix, orders, currentTime, nPaths, true,
+		    		 startingTime, branchTimeLimit);
 			 ArrayList<Path> newPaths = espptwcc_heuristic.labelNodes();
 			 //System.out.println("Reduced costs of the best found new path in iteration " + iterationCount +": "+ newPaths.get(0).getReducedCosts());
 			 

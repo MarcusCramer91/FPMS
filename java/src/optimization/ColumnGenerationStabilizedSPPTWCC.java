@@ -49,11 +49,11 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
 		
 
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_30_1.csv");
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_20_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv"));
 
 		/*ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
@@ -70,8 +70,8 @@ public class ColumnGenerationStabilizedSPPTWCC {
 				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_"+
 		problemSize+"_"+problemInstance+".csv"));*/
 		int currentTime = 30*60;
-		int compTimeLimit = 300;
-		int branchTimeLimit = 300;
+		int compTimeLimit = 1200;
+		int branchTimeLimit = 1200;
 		ColumnGenerationStabilizedSPPTWCC colgen = new ColumnGenerationStabilizedSPPTWCC(distmat, orders, currentTime);
 		
 		// initialize with flaschenpost
@@ -342,7 +342,7 @@ public class ColumnGenerationStabilizedSPPTWCC {
 		 double relaxedCosts = relaxedResult[relaxedResult.length-1];
 		 
 	     if (relaxedResults.size() <= treeDepth) relaxedResults.add(new ArrayList<Double>());
-		 relaxedResults.get(treeDepth).add(relaxedCosts);
+		 relaxedResults.get(treeDepth).add(bestDual);
 
 		 // update lower bound if current level of the tree has been explored
 	     if (treeLevelCoverage[treeDepth] == Math.pow(2, treeDepth)) {
@@ -389,7 +389,7 @@ public class ColumnGenerationStabilizedSPPTWCC {
 	     System.out.println("Current lower bound: " + overallLowerBound);
 	     System.out.println("Current duality gap: " + dualityGap);
 	     
-		 if (relaxedCosts > overallUpperBound) {
+		 if (bestDual > overallUpperBound) {
 	    	 // if relaxed result in this branch is higher than the best solution so far with eliminated duplicates
 		     // cut off branch
 	    	 System.out.println();

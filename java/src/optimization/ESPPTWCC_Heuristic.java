@@ -32,48 +32,32 @@ public class ESPPTWCC_Heuristic {
 	private ArrayList<ArrayList<Integer>> noGoRoutes;
 	private int nBestRounds;
 	private boolean returnNegativeOnly;
+	private long startingTime;
+	private long compTimeLimit;
+	private int dominanceTimeConsumption;
+	private int repititionTimeConsumption;
+	private ColumnGenerationStabilized colgen;
 	
 	private int labelCount;
 	
 	public static void main(String[] args) throws IOException {
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
+		DistanceMatrix distmat = new DistanceMatrix(
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
+		DistanceMatrix reducedCostsMat = new DistanceMatrix(
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
+		double[] mus = new double[reducedCostsMat.getDimension()];
+		for (int i = 0; i < mus.length; i++) mus[i] = 1000;
+		reducedCostsMat.subtractDuals(mus);
 		
-		// initialize graph structure
-		 DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30TravelTimes.csv"));
-		 double[] reducedCosts = new double[distmat.getAllEntries().length];
-		 for (int i = 0; i < reducedCosts.length; i++) {
-			 reducedCosts[i] = distmat.getAllEntries()[i];
-		 }
-		 double[] duals = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6140.0, 
-				 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7228.0, 0.0, 0.0, 0.0, 0.0, 4870.0, 0.0, 0.0, 6504.0};
-		 distmat = distmat.insertDummyDepotAsFinalNode();
-		 distmat.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
-		 distmat.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
-		 // copy distmat
-		 double[] entries = distmat.getAllEntries();
-		 double[] newEntries = new double[entries.length];
-		 for (int i = 0; i < entries.length; i++) {
-			 newEntries[i] = entries[i];
-		 }
-		 DistanceMatrix reducedCostsMat = new DistanceMatrix(newEntries);
-		 reducedCostsMat = reducedCostsMat.subtractDuals(duals);
-		 
-		 // set entry from depot to depot to infinity
-		 reducedCostsMat.setEntry(Double.MAX_VALUE, 1, reducedCostsMat.getDimension());
-		 /**
-		 for (int i = 0; i < reducedCostsMat.getDimension(); i++) {
-			 for (int j = 0; j < reducedCostsMat.getDimension(); j++) {
-				 System.out.println("i " + i + " j " + j + " value "  + reducedCostsMat.getEntry(i+1, j+1));
-			 }
-		 }*/
-		 
-		 ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");	
-		 ESPPTWCC_Heuristic spptwcc = new ESPPTWCC_Heuristic(distmat, reducedCostsMat, orders, 40*60, 50, true);
-		 spptwcc.labelNodes();
+		
+		ESPPTWCC_Heuristic heur = new ESPPTWCC_Heuristic(distmat, reducedCostsMat, orders, 
+				30*60, 50, false, System.currentTimeMillis(), 600);
+		heur.labelNodes();
 	}
 	
 	public ESPPTWCC_Heuristic(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
-			int nBestRounds, boolean returnNegativeOnly) {
+			int nBestRounds, boolean returnNegativeOnly, long startingTime, int compTimeLimit) {
 		this.returnNegativeOnly = returnNegativeOnly;
 		this.nodes = new ArrayList<Node>();
 		this.labelList = new ArrayList<ArrayList<Label>>();
@@ -98,16 +82,51 @@ public class ESPPTWCC_Heuristic {
 			labelList.add(new ArrayList<Label>());
 		}
 		this.currentTime = currentTime;
+		this.startingTime = startingTime;
+		this.compTimeLimit = compTimeLimit;
+	}
+	
+	public ESPPTWCC_Heuristic(DistanceMatrix distmat, DistanceMatrix reducedCostsMat, ArrayList<Order> orders, int currentTime,
+			int nBestRounds, boolean returnNegativeOnly, long startingTime, int compTimeLimit, 
+			ColumnGenerationStabilized colgen) {
+		this.returnNegativeOnly = returnNegativeOnly;
+		this.nodes = new ArrayList<Node>();
+		this.labelList = new ArrayList<ArrayList<Label>>();
+		this.nps = new ArrayList<Label>();
+		this.shortestPath = new ArrayList<Integer>();
+		this.distanceMatrix = distmat;
+		this.reducedCostsMatrix = reducedCostsMat;
+		this.labelCount = 0;
+		this.nBestRounds = nBestRounds;
+		// initialize nodes
+		// add dummy node for the depots
+		nodes.add(new Node(0,0));
+		for (Order o : orders) {
+			int met = o.getMET(currentTime);
+			Node n = new Node(ModelConstants.TIME_WINDOW - o.getMET(currentTime), (int)o.getWeight());
+			nodes.add(n);
+		}
+		nodes.add(new Node(Integer.MAX_VALUE,0));
+		
+		// initialize labels
+		for (Node n : nodes) {
+			labelList.add(new ArrayList<Label>());
+		}
+		this.currentTime = currentTime;
+		this.startingTime = startingTime;
+		this.compTimeLimit = compTimeLimit;
+		this.colgen = colgen;
 	}
 	
 	
 	public ArrayList<Path> labelNodes() throws IOException {
+		determineNoGoRoutes(Math.floor(distanceMatrix.getDimension()/2));
 		long time = System.currentTimeMillis();
 		//determineNoGoRoutes(Math.floor(distanceMatrix.getDimension()/3));
 		Label initialLabel = new Label(0,0,0,0);
 		labelList.get(0).add(initialLabel);
 		nps.add(initialLabel);
-		while (!nps.isEmpty()) {
+		while (!nps.isEmpty() && (System.currentTimeMillis() - startingTime) < compTimeLimit * 1000) {
 			
 			// find label with the lowest costs that is not assigned to the final node
 			double lowestCosts = Double.MAX_VALUE;
@@ -148,6 +167,11 @@ public class ESPPTWCC_Heuristic {
 			paths.add(getNextBestPath(allFinalLabels));
 		}
 		//System.out.println(paths.get(0).getReducedCosts());
+		if (colgen != null) colgen.incrementDominanceTimeConsumption(dominanceTimeConsumption);
+		if (colgen != null) colgen.incrementRepititionTimeConsumption(repititionTimeConsumption);
+		//System.out.println("Time consumed: " + (System.currentTimeMillis() - startingTime));
+		//System.out.println("Time consumed for dominance: " + dominanceTimeConsumption);
+		//System.out.println("Time consumed for repetition: " + repititionTimeConsumption);
 		return paths;
 	}
 
@@ -158,7 +182,10 @@ public class ESPPTWCC_Heuristic {
 			if (i == currentLabel.getNode()) continue;
 			
 			// check elementary constraint
-			if (checkNodeRepetition(currentLabel,i)) continue;
+			long now = System.currentTimeMillis();
+			boolean repititon = checkNodeRepetition(currentLabel,i);
+			repititionTimeConsumption += (System.currentTimeMillis() - now);
+			if (repititon) continue;
 
 			// skip nogo routes
 			if (noGoRoutes != null && noGoRoutes.get(currentLabel.getNode()).contains(i)) continue;
@@ -176,6 +203,7 @@ public class ESPPTWCC_Heuristic {
 			ArrayList<Label> labels = labelList.get(i);
 			// different dominance criterion for the final node
 			// only depends on the costs
+			now = System.currentTimeMillis();
 			if (i == distanceMatrix.getDimension()-1) {
 				if (l.getCosts() < 0) {
 					boolean dominated = false;
@@ -225,7 +253,7 @@ public class ESPPTWCC_Heuristic {
 					labelCount++;
 				}
 			}
-			
+			dominanceTimeConsumption += System.currentTimeMillis() - now;
 		}
 	}
 	

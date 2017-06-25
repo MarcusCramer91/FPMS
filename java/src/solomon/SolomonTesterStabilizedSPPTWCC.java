@@ -1,5 +1,6 @@
 package solomon;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class SolomonTesterStabilizedSPPTWCC {
 		/**String[] approaches = {"espptwcc_heur", "spptwcc",
 				"spptwcc2", "spptwcc_heur", "spptwcc2_heur"};*/
 
-		String set = "c";
+		String set = "r";
 		String[] solomonProblems = new String[8];
 		if (set == "c") {
 			solomonProblems[0] = "C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\c101.txt"; 
@@ -79,11 +80,11 @@ public class SolomonTesterStabilizedSPPTWCC {
 			solomonProblems[7] = "C:\\Users\\Marcus\\Documents\\FPMS\\Solomon test instances\\rc108.txt";	
 		}
 		int currentTime = 0;
-		int compTimeLimit = 300;
-		int branchTimeLimit = 300;
-		int[] instanceSizes = new int[]{100};
+		int compTimeLimit = 600;
+		int branchTimeLimit = 600;
+		int[] instanceSizes = new int[]{25,50};
 		for (int i : instanceSizes) {
-			for (int j = 0; j < solomonProblems.length; j++) {
+			for (int j = 0; j < 1; j++) {
 				String solomonPath = solomonProblems[j];
 				String id = "_" + set + "_" + i + "_" + (j+1);
 				System.out.println("Current problem: " + id);
@@ -133,24 +134,25 @@ public class SolomonTesterStabilizedSPPTWCC {
 		 }
 		 mus[nLocations-1] = initialMuDepotValue;
 		 
+		 long startTime = System.currentTimeMillis();
 		 getRoutesInternal(distmat, compTimeLimit, branchTimeLimit, mus, 0, false, paths.size(), null);
+		 System.out.println("Time consumed: " + (System.currentTimeMillis() - startTime));
 		 
 		 // postprocessing - optimizing the routes via TSPTW
 		 double costs = 0;
-		 for (ArrayList<Integer> route : bestSolution) costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
-
-		 ArrayList<ArrayList<Integer>> improvedBestSolution = new ArrayList<ArrayList<Integer>>();
-		 for (ArrayList<Integer> route : bestSolution) improvedBestSolution.add(tsptwOptimize(route, distmat, currentTime, orders));
-		 costs = 0;
-		 for (ArrayList<Integer> route : improvedBestSolution) {
+		 for (ArrayList<Integer> route : bestSolution) {
 			 costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, route);
 			 for (int i : route) System.out.print(i + " ");
 			 System.out.println();
 		 }
-
-		 FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilizedSolomon\\_Summary" + id + ".csv", true);
+		 String rootPath = new File("").getAbsolutePath();
+		 rootPath = rootPath.substring(0, rootPath.length() - 5);
+		 FileWriter writer = new FileWriter(rootPath + "\\results\\colgen\\solomonESPPTWCC\\_Summary" + id + ".csv", true);
 		 writer.write(costs + "," + (costs - (distmat.getDimension()-2) * serviceTime) + "\n");
 	     writer.close();
+		 //FileWriter writer = new FileWriter("C:\\Users\\Marcus\\Documents\\FPMS\\results\\colgen\\stabilizedSolomon\\_Summary" + id + ".csv", true);
+		 //writer.write(costs + "," + (costs - (distmat.getDimension()-2) * serviceTime) + "\n");
+	     //writer.close();
 	}
 		 
 	

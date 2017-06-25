@@ -29,6 +29,7 @@ public class ESPPTWCC {
 	private DistanceMatrix reducedCostsMatrix;
 	private ArrayList<Integer> shortestPath;
 	private int currentTime;
+	private int dominanceCheckingTime;
 	
 	private int labelCount;
 	
@@ -269,12 +270,6 @@ public class ESPPTWCC {
 		//		")=" + currentLabel.getCosts());
 		if (currentLabel.getPredecessor() == null) return;
 		getShortestPath(currentLabel.getPredecessor());	
-	}
-	
-	private boolean checkNodeRepetition(Label currentLabel, int next) {
-		if (currentLabel.getPredecessor() == null) return false;
-		else if (currentLabel.getPredecessor().getNode() == next) return true;
-		else return checkNodeRepetition(currentLabel.getPredecessor(), next);
 	}
 	
 	private double getPathCosts(ArrayList<Integer> path) {	
