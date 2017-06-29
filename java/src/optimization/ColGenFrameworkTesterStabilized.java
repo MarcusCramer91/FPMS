@@ -41,8 +41,8 @@ public class ColGenFrameworkTesterStabilized {
 		int currentTime = 30*60;
 		int compTimeLimit = 600;
 		int branchTimeLimit = 600;
-		for (int i = 20; i <= 20; i += 10) {
-			for (int j = 10; j <= 10; j++) {
+		for (int i = 40; i <= 40; i += 10) {
+			for (int j = 1; j <= 10; j++) {
 				String searchMethod = "depth first";
 				String rootPath = new File("").getAbsolutePath();
 				 rootPath = rootPath.substring(0, rootPath.length() - 5);
@@ -56,7 +56,7 @@ public class ColGenFrameworkTesterStabilized {
 				System.out.println("Current problem: " + id);
 				ColGenFrameworkTesterStabilized tester = new ColGenFrameworkTesterStabilized(distmat, orders, currentTime, id);
 							
-				ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
+				ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 99, currentTime, false, true);
 				ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
 				for (int k = 0; k < initialPathsOrders.size(); k++) {
 					Order[] current = initialPathsOrders.get(k);
@@ -248,6 +248,7 @@ public class ColGenFrameworkTesterStabilized {
 	    	 allPaths.addAll(addList);
 	    	 
 	    	// logging
+	    	 /*
 	    	 double[] mipResult = solveMIP(distmat, allPaths);
 			 if (mipResult != null) {
 				 int[] decision = new int[mipResult.length-1];
@@ -273,7 +274,7 @@ public class ColGenFrameworkTesterStabilized {
 				 FileWriter writer = new FileWriter(rootPath + "\\results\\colgen\\stabilized\\" + id + ".csv", true);
 				 writer.write((Math.floor(System.currentTimeMillis() - startingTime) / 1000)+  "," + overallLowerBound + "," + overallCosts + "\n");
 			     writer.close();
-			 }
+			 }*/
 	    	 
 		     // update s values per path
 		     for (Path p : addList) p.setSValue(this.getSValue(p, distmat, nVehicles));

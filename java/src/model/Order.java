@@ -4,6 +4,7 @@ public class Order {
 	private int time;
 	private double weight;
 	private int distanceMatrixLink;
+	private int actualDistanceMatrixLink;
 	private int id;
 	private int status;
 	private int earliest;
@@ -33,6 +34,15 @@ public class Order {
 		this.status = 0;
 		this.earliest = earliest;
 		this.latest = latest;
+	}
+	
+
+	public int getActualDistanceMatrixLink() {
+		return actualDistanceMatrixLink;
+	}
+
+	public void setActualDistanceMatrixLink(int actualDistanceMatrixLink) {
+		this.actualDistanceMatrixLink = actualDistanceMatrixLink;
 	}
 
 	public int getTime() {

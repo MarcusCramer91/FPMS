@@ -41,6 +41,7 @@ public class FPOptimize {
 		// assign distance matrix link to the new cropped distance matrix
 		ordersCopy.sort(new OrdersDistanceMatrixLinkSorter());
 		for (int i = 0; i < ordersCopy.size(); i++) {
+			ordersCopy.get(i).setActualDistanceMatrixLink(ordersCopy.get(i).getDistanceMatrixLink());
 			ordersCopy.get(i).setDistanceMatrixLink(i+2);
 		}
 		
@@ -55,7 +56,7 @@ public class FPOptimize {
 			ArrayList<Order> route = new ArrayList<Order>();
 			route.add(oldestOrder);
 			// store previous route as well in case the current route produces a route failure
-			int[] previousTspRoute = null;
+			int[] previousTspRoute = new int[]{1,2,1};
 			if (sortedOrders.length == 0) tspRoute = new int[]{1,2,1};
 			for (int i = 0; i < sortedOrders.length; i++) {
 				route.add(sortedOrders[i]);

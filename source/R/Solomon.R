@@ -1,4 +1,4 @@
-allResults = list.files("results")
+allResults = list.files("results/solomon")
 
 results_20_2 = data.frame(time = seq(10, 300, by = 10))
 results_30_3 = data.frame(time = seq(10, 300, by = 10))
@@ -7,31 +7,37 @@ results_50_5 = data.frame(time = seq(10, 300, by = 10))
 
 for (i in 1:length(allResults)) {
   if (grepl("c10", allResults[i])) {
-    if (file.size(paste("results/", allResults[i], sep = "")) == 0) next
-    data = read.csv(paste("results/", allResults[i], sep = ""), header = FALSE)
+    if (file.size(paste("results/solomon/", allResults[i], sep = "")) == 0) next
+    data = read.csv(paste("results/solomon/", allResults[i], sep = ""), header = FALSE)
     if (nrow(data) > 30) data = data[1:30,]
     # remove weirdly high values
-    data[data[,1]>10000,1] = NA
-    data[data[,2]>=1,2] = NA
+    data[data[,1]>10000,1] = max(data[data[,1]<10000,1])
+    data[data[,2]>=1,2] = max(data[data[,2]<1,2])
+    # remove 0 values
     if (nrow(data) < 30) {
-      for (j in (nrow(data)+1):30) {
-        data = rbind(data, c(data[nrow(data),1], 0))
-      }
+      for (j in (nrow(data)+1):30) data = rbind(data, c(min(data[,1]), min(data[,2])))
     }
+    
+    #if (nrow(data) < 30) {
+    #  for (j in (nrow(data)+1):30) {
+    #    data = rbind(data, c(data[nrow(data),1], 0))
+    #  }
+    #}
     if (grepl("22_2", allResults[i])) {
       results_20_2 = cbind(results_20_2, data)
     }
-    else if (grepl("32_3", allResults[i])) {
+    if (grepl("32_3", allResults[i])) {
       results_30_3 = cbind(results_30_3, data)
     }
-    else if (grepl("42_4", allResults[i])) {
+    if (grepl("42_4", allResults[i])) {
       results_40_4 = cbind(results_40_4, data)
     }
-    else if (grepl("52_5", allResults[i])) {
+    if (grepl("52_5", allResults[i])) {
       results_50_5 = cbind(results_50_5, data)
     }
   }
 }
+
 require(ggplot2)
 plotData_20_2 = data.frame(time = results_20_2[,1], 
                               distanceMean = apply(results_20_2[,seq(2, ncol(results_20_2), by = 2)], 1, mean), 
@@ -135,8 +141,8 @@ ggplot(data = plotData, aes(x = time, y = distance, group = group, colour = as.f
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
   scale_colour_discrete(name = "Aggregation") + 
-  xlab("Gap to lower bound in %") +
-  ylab("Travel distance")
+  xlab("Computation time in s") +
+  ylab("Gap to lower bound in %")
 dev.off()
 
 plotData_30_3 = data.frame(time = results_30_3[,1], 
@@ -156,8 +162,8 @@ ggplot(data = plotData, aes(x = time, y = distance, group = group, colour = as.f
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
   scale_colour_discrete(name = "Aggregation") + 
-  xlab("Gap to lower bound in %") +
-  ylab("Travel distance")
+  xlab("Computation time in s") +
+  ylab("Gap to lower bound in %")
 dev.off()
 
 plotData_40_4 = data.frame(time = results_40_4[,1], 
@@ -177,8 +183,8 @@ ggplot(data = plotData, aes(x = time, y = distance, group = group, colour = as.f
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
   scale_colour_discrete(name = "Aggregation") + 
-  xlab("Gap to lower bound in %") +
-  ylab("Travel distance")
+  xlab("Computation time in s") +
+  ylab("Gap to lower bound in %")
 dev.off()
 
 
@@ -199,8 +205,8 @@ ggplot(data = plotData, aes(x = time, y = distance, group = group, colour = as.f
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") + 
   scale_colour_discrete(name = "Aggregation") + 
-  xlab("Gap to lower bound in %") +
-  ylab("Travel distance")
+  xlab("Computation time in s") +
+  ylab("Gap to lower bound in %")
 dev.off()
 
 
@@ -209,7 +215,7 @@ dev.off()
 
 #############################
 # r instances
-allResults = list.files("results")
+allResults = list.files("results/solomon")
 
 results_20_2 = data.frame(time = seq(10, 300, by = 10))
 results_30_3 = data.frame(time = seq(10, 300, by = 10))
@@ -218,31 +224,37 @@ results_50_5 = data.frame(time = seq(10, 300, by = 10))
 
 for (i in 1:length(allResults)) {
   if (grepl("r10", allResults[i])) {
-    if (file.size(paste("results/", allResults[i], sep = "")) == 0) next
-    data = read.csv(paste("results/", allResults[i], sep = ""), header = FALSE)
+    if (file.size(paste("results/solomon/", allResults[i], sep = "")) == 0) next
+    data = read.csv(paste("results/solomon/", allResults[i], sep = ""), header = FALSE)
     if (nrow(data) > 30) data = data[1:30,]
     # remove weirdly high values
-    data[data[,1]>10000,1] = NA
-    data[data[,2]>=1,2] = NA
+    data[data[,1]>10000,1] = max(data[data[,1]<10000,1])
+    data[data[,2]>=1,2] = max(data[data[,2]<1,2])
+    # remove 0 values
     if (nrow(data) < 30) {
-      for (j in (nrow(data)+1):30) {
-        data = rbind(data, c(data[nrow(data),1], 0))
-      }
+      for (j in (nrow(data)+1):30) data = rbind(data, c(min(data[,1]), min(data[,2])))
     }
+    
+    #if (nrow(data) < 30) {
+    #  for (j in (nrow(data)+1):30) {
+    #    data = rbind(data, c(data[nrow(data),1], 0))
+    #  }
+    #}
     if (grepl("22_2", allResults[i])) {
       results_20_2 = cbind(results_20_2, data)
     }
-    else if (grepl("32_3", allResults[i])) {
+    if (grepl("32_3", allResults[i])) {
       results_30_3 = cbind(results_30_3, data)
     }
-    else if (grepl("42_4", allResults[i])) {
+    if (grepl("42_4", allResults[i])) {
       results_40_4 = cbind(results_40_4, data)
     }
-    else if (grepl("52_5", allResults[i])) {
+    if (grepl("52_5", allResults[i])) {
       results_50_5 = cbind(results_50_5, data)
     }
   }
 }
+
 require(ggplot2)
 plotData_20_2 = data.frame(time = results_20_2[,1], 
                            distanceMean = apply(results_20_2[,seq(2, ncol(results_20_2), by = 2)], 1, mean), 

@@ -24,7 +24,7 @@ public class FPCalculator {
 				DistanceMatrix distmatair = new DistanceMatrix(
 						 DistanceMatrixImporter.importCSV(rootPath + "\\data\\testcases\\TravelTimes_"+i+"_"+j+".csv"));
 				int currentTime = 30*60;		
-				ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
+				ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 99, currentTime, false, true);
 				ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
 				double costs = 0;
 				distmat = distmat.insertDummyDepotAsFinalNode();
@@ -39,7 +39,7 @@ public class FPCalculator {
 					costs += ModelHelperMethods.getRouteCostsIndexed0(distmat, currentList);
 					initialPathsNodes.add(currentList);			    
 				}
-			 FileWriter writer = new FileWriter(rootPath + "\\results\\fp\\fpResults70.csv", true);
+			 FileWriter writer = new FileWriter(rootPath + "\\results\\fp\\fpResults100_tw90.csv", true);
 			 writer.write(id + "," + initialPathsNodes.size() + "," + costs + "," + 
 			 (costs + (i * ModelConstants.CUSTOMER_LOADING_TIME) + (initialPathsNodes.size() * ModelConstants.DEPOT_LOADING_TIME)) +
 			 "\n");

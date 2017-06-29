@@ -1,0 +1,23 @@
+\begin{table} 
+\centering 
+\begin{tabular}{p{0.15\linewidth} p{0.1\linewidth} p{0.1\linewidth}} 
+\multirow{2}{*}{\parbox[t]{2cm}{\textbf{Number of customers}}} & \multicolumn{4}{c}{\textbf{Maximum vehicle capacity}} \\& 70 & 100 \\ 
+\toprule 
+\begin{table} 
+\centering 
+\begin{tabular}{p{0.15\linewidth} p{0.1\linewidth} p{0.1\linewidth}} 
+\multirow{2}{*}{\parbox[t]{2cm}{\textbf{Number of customers}}} & \multicolumn{4}{c}{\textbf{Maximum vehicle capacity}} \\& 70 & 100 \\ 
+\toprule 
+20&14\\ 
+30&6.3\\ 
+40&5.7\\ 
+50&1.2\\ 
+60&3.2\\ 
+70&-0.62\\ 
+80&-1.2\\ 
+90&-3.1\\ 
+\bottomrule 
+\end{tabular} 
+\caption{Summary of initial Flaschenpost heuristic results vs. results of the stabilized cutting plane approach after 600 seconds computation time (improvement in bold)} 
+\label{tab:stabilizedVsSummary} 
+\end{table} 

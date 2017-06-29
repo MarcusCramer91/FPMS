@@ -52,11 +52,11 @@ public class ColumnGenerationStabilized {
 		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
 		
 
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_90_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_90_1.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_50_1.csv"));
+				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_90_1.csv"));
 
 		/*ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_50_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
@@ -78,7 +78,7 @@ public class ColumnGenerationStabilized {
 		ColumnGenerationStabilized colgen = new ColumnGenerationStabilized(distmat, orders, currentTime);
 		
 		// initialize with flaschenpost
-		ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 10, currentTime, false, true);
+		ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 99, currentTime, false, true);
 		ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
 		for (int i = 0; i < initialPathsOrders.size(); i++) {
 			Order[] current = initialPathsOrders.get(i);

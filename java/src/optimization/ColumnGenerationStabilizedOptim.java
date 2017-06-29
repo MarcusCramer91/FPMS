@@ -211,6 +211,16 @@ public class ColumnGenerationStabilizedOptim {
 	     // calculate results for this node
 	     ArrayList<Path> allPaths = new ArrayList<Path>();
 	     for (ArrayList<Path> pathList : pathsPerIteration) allPaths.addAll(pathList);
+	     /*int[] dimcount = new int[distmat.getDimension()];
+	     for (Path p : allPaths) {
+	    	 for (int i = 0; i < distmat.getDimension(); i++) {
+	    		 if (p.getNodes().contains(i)) dimcount[i]++;
+	    	 }
+	     }
+	     for (int i = 0; i < distmat.getDimension(); i++) {
+    		 System.out.println(i + " " + dimcount[i]);
+    	 }*/
+	     
 	     
 		 double[] relaxedResult = solveRelaxation(distmat, allPaths);
 		 

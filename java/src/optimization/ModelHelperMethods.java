@@ -86,7 +86,6 @@ public class ModelHelperMethods {
 		if (tspSequence.length != orders.size()) new Exception("TSP sequence and orders ArrayList must be of same length");
 		Order[] sortedOrders = sortOrders(orders.toArray(new Order[orders.size()]));
 		for (int i = 0; i < tspSequence.length-2; i++) {
-			//System.out.println(i);
 			result[i] = sortedOrders[tspSequence[i+1]-2];
 		}
 		return result;
@@ -149,12 +148,12 @@ public class ModelHelperMethods {
 	}
 	
 	public static double getRouteCosts(DistanceMatrix distanceMatrix, Order[] route) {
-		double currentDistance = distanceMatrix.getEntry(1, route[0].getDistanceMatrixLink());
+		double currentDistance = distanceMatrix.getEntry(1, route[0].getActualDistanceMatrixLink());
 		for (int i = 0; i < route.length-1; i++) {
-			currentDistance += distanceMatrix.getEntry(route[i].getDistanceMatrixLink(), 
-					route[i+1].getDistanceMatrixLink());
+			currentDistance += distanceMatrix.getEntry(route[i].getActualDistanceMatrixLink(), 
+					route[i+1].getActualDistanceMatrixLink());
 		}
-		currentDistance += distanceMatrix.getEntry(route[route.length-1].getDistanceMatrixLink(), 1);
+		currentDistance += distanceMatrix.getEntry(route[route.length-1].getActualDistanceMatrixLink(), 1);
 		return currentDistance;
 	}
 	

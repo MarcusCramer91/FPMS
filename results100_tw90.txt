@@ -1,0 +1,113 @@
+\begin{longtable} {p{.07\linewidth} p{.04\linewidth} p{.04\linewidth} p{.1\linewidth} p{.1\linewidth} p{.1\linewidth} p{.1\linewidth} p{.1\linewidth} p{.1\linewidth} p{.1\linewidth} } 
+\hline 
+& \multicolumn{2}{c}{\textbf{No. paths}} & \multicolumn{2}{c}{\textbf{Overall time}} & \multicolumn{2}{c}{\textbf{Driving time}} & 
+    \multicolumn{2}{c}{\textbf{Improvement in \%}} \\\textbf{Instance} & \textbf{FP} & \textbf{CG} & \textbf{FP} & \textbf{CG} & \textbf{FP} & \textbf{CG} & \textbf{All} & \textbf{Driving} \\ 
+\hline 
+\toprule 
+20\_1&4&\textbf{2}&19413&\textbf{14264}&9987&\textbf{6464}&\textbf{26.5}&\textbf{35.3}&\\ 
+20\_2&4&\textbf{3}&18441&\textbf{14357}&8841&\textbf{5657}&\textbf{22.1}&\textbf{36}&\\ 
+20\_3&4&\textbf{2}&17818&\textbf{12962}&8458&\textbf{5162}&\textbf{27.3}&\textbf{39}&\\ 
+20\_4&4&\textbf{3}&19074&\textbf{15197}&9474&\textbf{6497}&\textbf{20.3}&\textbf{31.4}&\\ 
+20\_5&4&\textbf{2}&18427&\textbf{13256}&9067&\textbf{5456}&\textbf{28.1}&\textbf{39.8}&\\ 
+20\_6&4&\textbf{3}&18820&\textbf{15089}&9220&\textbf{6389}&\textbf{19.8}&\textbf{30.7}&\\ 
+20\_7&3&\textbf{2}&15304&\textbf{12942}&6604&\textbf{5142}&\textbf{15.4}&\textbf{22.1}&\\ 
+20\_8&4&\textbf{2}&18429&\textbf{14025}&9069&\textbf{6225}&\textbf{23.9}&\textbf{31.4}&\\ 
+20\_9&4&\textbf{3}&18047&\textbf{14404}&8447&\textbf{5704}&\textbf{20.2}&\textbf{32.5}&\\ 
+20\_10&4&\textbf{3}&17418&\textbf{14751}&7818&\textbf{6051}&\textbf{15.3}&\textbf{22.6}&\\ 
+\midrule 
+ Avg. &3.9&2.5&18119.1&14124.7&8698.5&5874.7&21.89&32.08\\ \midrule 
+\midrule 
+30\_1&5&\textbf{4}&24657&\textbf{21928}&11457&\textbf{9328}&\textbf{11.1}&\textbf{18.6}&\\ 
+30\_2&5&\textbf{4}&24377&\textbf{22542}&11177&\textbf{9942}&\textbf{7.5}&\textbf{11}&\\ 
+30\_3&6&\textbf{4}&27019&\textbf{22518}&12963&\textbf{9918}&\textbf{16.7}&\textbf{23.5}&\\ 
+30\_4&6&\textbf{4}&26766&\textbf{22856}&13566&\textbf{10256}&\textbf{14.6}&\textbf{24.4}&\\ 
+30\_5&5&\textbf{4}&25319&\textbf{21227}&11819&\textbf{8627}&\textbf{16.2}&\textbf{27}&\\ 
+30\_6&5&\textbf{4}&25123&\textbf{22354}&11923&\textbf{9754}&\textbf{11}&\textbf{18.2}&\\ 
+30\_7&5&\textbf{4}&25596&\textbf{21596}&12096&\textbf{8996}&\textbf{15.6}&\textbf{25.6}&\\ 
+30\_8&6&\textbf{4}&27036&\textbf{21641}&12996&\textbf{9041}&\textbf{20}&\textbf{30.4}&\\ 
+30\_9&5&\textbf{4}&24928&\textbf{21413}&11428&\textbf{8813}&\textbf{14.1}&\textbf{22.9}&\\ 
+30\_10&6&\textbf{4}&27189&\textbf{22101}&13149&\textbf{9501}&\textbf{18.7}&\textbf{27.7}&\\ 
+\midrule 
+ Avg. &5.4&4&25801&22017.6&12257.4&9417.6&14.55&22.93\\ \midrule 
+\midrule 
+40\_1&7&\textbf{5}&33031&\textbf{27818}&14731&\textbf{11318}&\textbf{15.8}&\textbf{23.2}&\\ 
+40\_2&7&\textbf{6}&35560&\textbf{31018}&17260&\textbf{13618}&\textbf{12.8}&\textbf{21.1}&\\ 
+40\_3&7&\textbf{5}&33385&\textbf{27562}&15493&\textbf{11062}&\textbf{17.4}&\textbf{28.6}&\\ 
+40\_4&7&\textbf{5}&34873&\textbf{28522}&16573&\textbf{12022}&\textbf{18.2}&\textbf{27.5}&\\ 
+40\_5&7&\textbf{5}&33621&\textbf{28121}&15321&\textbf{11621}&\textbf{16.4}&\textbf{24.1}&\\ 
+40\_6&7&\textbf{5}&34529&\textbf{29338}&16249&\textbf{12838}&\textbf{15}&\textbf{21}&\\ 
+40\_7&7&\textbf{5}&35475&\textbf{28579}&17175&\textbf{12079}&\textbf{19.4}&\textbf{29.7}&\\ 
+40\_8&6&\textbf{5}&32974&\textbf{28223}&15574&\textbf{11723}&\textbf{14.4}&\textbf{24.7}&\\ 
+40\_9&7&\textbf{5}&33589&\textbf{28382}&15289&\textbf{11882}&\textbf{15.5}&\textbf{22.3}&\\ 
+40\_10&7&\textbf{5}&34296&\textbf{28061}&15996&\textbf{11561}&\textbf{18.2}&\textbf{27.7}&\\ 
+\midrule 
+ Avg. &6.9&5.1&34133.3&28562.4&15966.1&11972.4&16.31&24.99\\ \midrule 
+\midrule 
+50\_1&8&\textbf{6}&38615&\textbf{33885}&16415&\textbf{13485}&\textbf{12.2}&\textbf{17.8}&\\ 
+50\_2&8&\textbf{6}&40523&\textbf{34404}&18803&\textbf{14004}&\textbf{15.1}&\textbf{25.5}&\\ 
+50\_3&8&\textbf{6}&40047&\textbf{33814}&18221&\textbf{13414}&\textbf{15.6}&\textbf{26.4}&\\ 
+50\_4&8&\textbf{6}&41489&\textbf{34068}&19289&\textbf{13668}&\textbf{17.9}&\textbf{29.1}&\\ 
+50\_5&8&\textbf{6}&39458&\textbf{34597}&17391&\textbf{14197}&\textbf{12.3}&\textbf{18.4}&\\ 
+50\_6&8&\textbf{6}&39954&\textbf{34710}&17754&\textbf{14310}&\textbf{13.1}&\textbf{19.4}&\\ 
+50\_7&8&\textbf{6}&39965&\textbf{33973}&18245&\textbf{13573}&\textbf{15}&\textbf{25.6}&\\ 
+50\_8&9&\textbf{7}&40661&\textbf{37069}&18304&\textbf{15769}&\textbf{8.8}&\textbf{13.8}&\\ 
+50\_9&8&\textbf{6}&40460&\textbf{34330}&18740&\textbf{13930}&\textbf{15.2}&\textbf{25.7}&\\ 
+50\_10&8&\textbf{7}&40471&\textbf{36654}&18271&\textbf{15354}&\textbf{9.4}&\textbf{16}&\\ 
+\midrule 
+ Avg. &8.1&6.2&40164.3&34750.4&18143.3&14170.4&13.46&21.77\\ \midrule 
+\midrule 
+60\_1&9&\textbf{7}&46110&\textbf{41189}&20010&\textbf{16889}&\textbf{10.7}&\textbf{15.6}&\\ 
+60\_2&10&\textbf{8}&50832&\textbf{43771}&23832&\textbf{18571}&\textbf{13.9}&\textbf{22.1}&\\ 
+60\_3&8&8&44479&\textbf{41658}&19279&\textbf{16458}&\textbf{6.3}&\textbf{14.6}&\\ 
+60\_4&9&\textbf{8}&44128&\textbf{42701}&18028&\textbf{17501}&\textbf{3.2}&\textbf{2.9}&\\ 
+60\_5&9&\textbf{8}&44806&\textbf{41524}&18706&\textbf{16324}&\textbf{7.3}&\textbf{12.7}&\\ 
+60\_6&9&\textbf{8}&48481&\textbf{43041}&22381&\textbf{17841}&\textbf{11.2}&\textbf{20.3}&\\ 
+60\_7&9&\textbf{8}&46322&\textbf{42173}&20222&\textbf{16973}&\textbf{9}&\textbf{16.1}&\\ 
+60\_8&10&\textbf{9}&50539&\textbf{44285}&23539&\textbf{18185}&\textbf{12.4}&\textbf{22.7}&\\ 
+60\_9&9&\textbf{8}&46860&\textbf{43502}&20760&\textbf{18302}&\textbf{7.2}&\textbf{11.8}&\\ 
+60\_10&9&\textbf{8}&45137&\textbf{42607}&19577&\textbf{17407}&\textbf{5.6}&\textbf{11.1}&\\ 
+\midrule 
+ Avg. &9.1&8&46769.4&42645.1&20633.4&17445.1&8.68&14.99\\ \midrule 
+\midrule 
+70\_1&11&\textbf{10}&55105&\textbf{51218}&24865&\textbf{21218}&\textbf{7.1}&\textbf{14.7}&\\ 
+70\_2&11&\textbf{10}&53663&\textbf{51050}&23423&\textbf{21050}&\textbf{4.9}&\textbf{10.1}&\\ 
+70\_3&11&\textbf{9}&52880&\textbf{49117}&22640&\textbf{20017}&\textbf{7.1}&\textbf{11.6}&\\ 
+70\_4&10&\textbf{9}&51835&\textbf{49691}&22435&\textbf{20591}&\textbf{4.1}&\textbf{8.2}&\\ 
+70\_5&10&\textbf{9}&52555&\textbf{49486}&23155&\textbf{20386}&\textbf{5.8}&\textbf{12}&\\ 
+70\_6&11&\textbf{10}&54071&\textbf{51223}&23831&\textbf{21223}&\textbf{5.3}&\textbf{10.9}&\\ 
+70\_7&11&\textbf{10}&55264&\textbf{51972}&25024&\textbf{21972}&\textbf{6}&\textbf{12.2}&\\ 
+70\_8&11&\textbf{9}&54987&\textbf{49281}&24087&\textbf{20181}&\textbf{10.4}&\textbf{16.2}&\\ 
+70\_9&12&\textbf{9}&56535&\textbf{49685}&24735&\textbf{20585}&\textbf{12.1}&\textbf{16.8}&\\ 
+70\_10&11&\textbf{9}&55383&\textbf{49335}&24483&\textbf{20235}&\textbf{10.9}&\textbf{17.4}&\\ 
+\midrule 
+ Avg. &10.9&9.4&54227.8&50205.8&23867.8&20745.8&7.37&13.01\\ \midrule 
+\midrule 
+80\_1&12&\textbf{10}&62657&\textbf{54845}&27971&\textbf{21845}&\textbf{12.5}&\textbf{21.9}&\\ 
+80\_2&13&\textbf{11}&61740&\textbf{57272}&26820&\textbf{23372}&\textbf{7.2}&\textbf{12.9}&\\ 
+80\_3&12&\textbf{11}&59711&\textbf{57119}&24911&\textbf{23219}&\textbf{4.3}&\textbf{6.8}&\\ 
+80\_4&13&\textbf{10}&61374&\textbf{53615}&26454&\textbf{20615}&\textbf{12.6}&\textbf{22.1}&\\ 
+80\_5&12&\textbf{10}&61392&\textbf{55025}&26592&\textbf{22025}&\textbf{10.4}&\textbf{17.2}&\\ 
+80\_6&13&\textbf{10}&63351&\textbf{53958}&27651&\textbf{20958}&\textbf{14.8}&\textbf{24.2}&\\ 
+80\_7&12&\textbf{10}&61400&\textbf{55418}&26600&\textbf{22418}&\textbf{9.7}&\textbf{15.7}&\\ 
+80\_8&13&\textbf{10}&65218&\textbf{55587}&29518&\textbf{22587}&\textbf{14.8}&\textbf{23.5}&\\ 
+80\_9&12&\textbf{10}&61484&\textbf{54795}&26684&\textbf{21795}&\textbf{10.9}&\textbf{18.3}&\\ 
+80\_10&12&\textbf{10}&62085&\textbf{54449}&27285&\textbf{21449}&\textbf{12.3}&\textbf{21.4}&\\ 
+\midrule 
+ Avg. &12.4&10.2&62041.2&55208.3&27048.6&22028.3&10.95&18.4\\ \midrule 
+\midrule 
+90\_1&14&\textbf{11}&67874&\textbf{60812}&29114&\textbf{23912}&\textbf{10.4}&\textbf{17.9}&\\ 
+90\_2&14&\textbf{11}&69121&\textbf{61739}&29822&\textbf{24839}&\textbf{10.7}&\textbf{16.7}&\\ 
+90\_3&13&\textbf{11}&67388&\textbf{61257}&28688&\textbf{24357}&\textbf{9.1}&\textbf{15.1}&\\ 
+90\_4&14&\textbf{11}&68753&\textbf{60821}&29993&\textbf{23921}&\textbf{11.5}&\textbf{20.2}&\\ 
+90\_5&13&\textbf{11}&67460&\textbf{60565}&28782&\textbf{23665}&\textbf{10.2}&\textbf{17.8}&\\ 
+90\_6&14&\textbf{11}&68212&\textbf{60771}&29452&\textbf{23871}&\textbf{10.9}&\textbf{18.9}&\\ 
+90\_7&13&\textbf{11}&68422&\textbf{60806}&29722&\textbf{23906}&\textbf{11.1}&\textbf{19.6}&\\ 
+90\_8&14&\textbf{11}&67624&\textbf{60439}&28864&\textbf{23539}&\textbf{10.6}&\textbf{18.4}&\\ 
+90\_9&13&\textbf{11}&64999&\textbf{60794}&26960&\textbf{23894}&\textbf{6.5}&\textbf{11.4}&\\ 
+90\_10&13&\textbf{11}&66441&\textbf{60980}&28521&\textbf{24080}&\textbf{8.2}&\textbf{15.6}&\\ 
+\midrule 
+ Avg. &13.5&11&67629.4&60898.4&28991.8&23998.4&9.92&17.16\\ \midrule 
+\bottomrule 
+\caption{Comparison of initial Flaschenpost heuristic results vs. results of the stabilized cutting plane approach after 600 seconds computation time with a maximum vehicle capacity of 100 and a time window of 90 (improvement in bold)} 
+\label{tab:stabilizedVsFp100_tw90} 
+\end{longtable} 

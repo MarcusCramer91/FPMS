@@ -10,5 +10,5 @@ public class ModelConstants {
 	public static final int VEHICLE_CAPACITY = 100;
 	public static final int SOLOMON_VEHICLE_CAPACITY = 200;
 	public static final double DRIVING_COSTS = 5; // 1€/l, 15l/100km, 33km/h in city
-	public static final double EMPLOYEE_COSTS = 10;
+	public static final double EMPLOYEE_COSTS = 10; // average wage
 }

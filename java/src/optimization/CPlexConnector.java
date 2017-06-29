@@ -326,7 +326,7 @@ public class CPlexConnector {
 		 for (Vehicle v : vehicles) if (v.isAvailable()) nVehicles++;
 		 
 	     IloCplex cplex = new IloCplex();
-	     cplex.use(new CPlexLogger(problemInstancePath + "_" + nLocations + "_" + nVehicles));
+	     cplex.use(new CPlexLogger("solomon/" + problemInstancePath + "_" + nLocations + "_" + nVehicles));
 		 cplex.setParam(IloCplex.Param.MIP.Strategy.NodeSelect, 1);
 		 cplex.setParam(IloCplex.Param.MIP.Strategy.Branch,1);
          if (!verbose) cplex.setOut(null);

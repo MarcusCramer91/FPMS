@@ -97,8 +97,8 @@ public class DayTesterFP {
 		overallEmployeeCosts += employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60);
 		System.out.println("Overall seconds driven " + drivingTime);
 		System.out.println("Overall seconds worked " + employeeTime);
-		log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
-				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal);
+		//log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
+		//		employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal);
 	}
 	
 	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
