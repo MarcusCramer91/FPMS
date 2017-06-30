@@ -42,7 +42,7 @@ public class DayTesterColgenProblemSize {
 		
 		int startingTime = 0; // 9 am
 		int endTime = 43200; // 9 pm
-		int problemSize = 50;
+		int problemSize = 70;
 		DayTesterColgenProblemSize tester = new DayTesterColgenProblemSize(distmat, orders);
 		tester.getColgenCosts(startingTime, endTime, problemSize);
 	}
@@ -98,7 +98,6 @@ public class DayTesterColgenProblemSize {
 				double fpCosts = 0;
 				for (Order[] orders : orderRoutes) fpCosts += ModelHelperMethods.getRouteCosts(distanceMatrix, orders);
 				try {
-					croppedMatrix = croppedMatrix.insertDummyDepotAsFinalNode();
 					croppedMatrix.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
 					croppedMatrix.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
 					routes = colgen.getRoutes(croppedMatrix, 600, 600);
@@ -118,6 +117,7 @@ public class DayTesterColgenProblemSize {
 					else System.out.println("Column generation led to no improvement. Using FP heuristic solution instead");
 				}
 				catch(Exception e) {
+					e.printStackTrace();
 					System.out.println("Column generation lead to exception. Changing to FP heuristic solution");
 					for (Order[] orders : orderRoutes) {
 						ArrayList<Integer> route = new ArrayList<Integer>();
