@@ -97,8 +97,8 @@ public class DayTesterFP {
 		overallEmployeeCosts += employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60);
 		System.out.println("Overall seconds driven " + drivingTime);
 		System.out.println("Overall seconds worked " + employeeTime);
-		//log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
-		//		employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal);
+		log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
+				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal);
 	}
 	
 	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
@@ -155,7 +155,7 @@ public class DayTesterFP {
 		System.out.println("Number of customers served: " + nCust);
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);
-		FileWriter writer = new FileWriter(rootPath + "/results/days/Day1.csv", true);
+		FileWriter writer = new FileWriter(rootPath + "/results/days/FP_Day1.csv", true);
 		// time, number of routes, number of customers, time driven, overall time, costs driving, overall costs, overall METs
 		writer.write(time + "," +  routes.size() + "," +   nCust + "," +   drivingTime + "," +  
 				overallTime + "," +   drivingCosts + "," +   overallCosts + "," + overallMETs + "\n");

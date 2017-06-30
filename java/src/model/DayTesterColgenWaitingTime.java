@@ -40,7 +40,8 @@ public class DayTesterColgenWaitingTime {
 		
 		int startingTime = 0; // 9 am
 		int endTime = 43200; // 9 pm
-		int waitingTime = 20*60;
+		int waitingTime = 10*60;
+		
 		DayTesterColgenWaitingTime tester = new DayTesterColgenWaitingTime(distmat, orders);
 		tester.getColgenCosts(startingTime, endTime, waitingTime);
 	}
@@ -59,8 +60,8 @@ public class DayTesterColgenWaitingTime {
 			}
 		}
 		for (int time = startingTime; time <= endTime; time += 60) {
-			if (getOldestOrder(orders).getMET(time) >= waitingTime || (time == endTime && orders.size() > 0) || 
-					getOldestOrder(orders).getMET(time) >= ModelConstants.TIME_WINDOW / 2) {
+			if (orders.size() > 0 && (getOldestOrder(orders).getMET(time) >= waitingTime || (time == endTime && orders.size() > 0) || 
+					getOldestOrder(orders).getMET(time) >= ModelConstants.TIME_WINDOW / 2)) {
 			    System.out.println();
 				System.out.println("########################################");
 				System.out.println();
@@ -82,32 +83,24 @@ public class DayTesterColgenWaitingTime {
 				}
 				
 				croppedMatrix = croppedMatrix.getCroppedMatrix(routeIndices);
-				croppedMatrix = croppedMatrix.insertDummyDepotAsFinalNode();
-				croppedMatrix.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
-				croppedMatrix.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
-				
-				/*String rootPath = new File("").getAbsolutePath();
-				 rootPath = rootPath.substring(0, rootPath.length() - 5);
-				 FileWriter writer = new FileWriter(rootPath + "\\results\\days\\distmat.csv", true);
-				 for (int i = 0; i < croppedMatrix.getDimension(); i++) {
-					 for (int j = 0; j < croppedMatrix.getDimension(); j++) {
-						 writer.write(croppedMatrix.getEntry(i+1, j+1) + ",");
-					 }
-					 writer.write("\n");
-				 }
-			     writer.close();*/
-				
-				
+
 				ColumnGenerationStabilizedOptim colgen = new ColumnGenerationStabilizedOptim(croppedMatrix, croppedOrders, time);
 				ArrayList<ArrayList<Integer>> routes = new ArrayList<ArrayList<Integer>>();
 				ArrayList<Order[]> orderRoutes = FPOptimize.assignRoutes(croppedMatrix, croppedMatrix, croppedOrders, 
 						nVehicles, time, false, true);
 				double fpCosts = 0;
-				for (Order[] orders : orderRoutes) fpCosts += ModelHelperMethods.getRouteCosts(croppedMatrix, orders);
+				for (Order[] orders : orderRoutes) fpCosts += ModelHelperMethods.getRouteCosts(distanceMatrix, orders);
 				try {
+					croppedMatrix = croppedMatrix.insertDummyDepotAsFinalNode();
+					croppedMatrix.addCustomerServiceTimes(ModelConstants.CUSTOMER_LOADING_TIME);
+					croppedMatrix.addDepotLoadingTime(ModelConstants.DEPOT_LOADING_TIME);
 					routes = colgen.getRoutes(croppedMatrix, 600, 600);
 					double colgenCosts = 0;
-					for (ArrayList<Integer> route : routes) colgenCosts += ModelHelperMethods.getRouteCostsIndexed0(croppedMatrix, route);
+					for (ArrayList<Integer> route : routes) {
+						colgenCosts += ModelHelperMethods.getRouteCostsIndexed0(croppedMatrix, route);
+						colgenCosts -= ModelConstants.DEPOT_LOADING_TIME;;
+						colgenCosts -= (route.size() - 2) * ModelConstants.CUSTOMER_LOADING_TIME;
+					}
 					// take colgen solution only if it beats the fp solution
 					if (colgenCosts < fpCosts) {
 						orderRoutes = new ArrayList<Order[]>();
@@ -115,9 +108,10 @@ public class DayTesterColgenWaitingTime {
 							orderRoutes.add(ModelHelperMethods.parseColgenOutput(routes.get(i), croppedOrders));
 						}
 					}
+					else System.out.println("Column generation led to no improvement. Using FP heuristic solution instead");
 				}
 				catch(Exception e) {
-					System.out.println("Column generation lead to exception. Changing to FP heuristic solution");
+					System.out.println("Column generation led to exception. Changing to FP heuristic solution");
 					for (Order[] orders : orderRoutes) {
 						ArrayList<Integer> route = new ArrayList<Integer>();
 						for (Order o : orders) {
@@ -161,7 +155,7 @@ public class DayTesterColgenWaitingTime {
 		double nCustExceeded = 0;
 		for (int i = 0; i < routes.size(); i++) {
 			 double currentRouteLength = ModelConstants.DEPOT_LOADING_TIME;
-			 currentRouteLength += distanceMatrix.getEntry(1, routes.get(i)[0].getDistanceMatrixLink());
+			 currentRouteLength += distanceMatrix.getEntry(1, routes.get(i)[0].getActualDistanceMatrixLink());
 			 Order[] currentOrders = routes.get(i);
 			 for (int j = 0; j < currentOrders.length; j++) {
 				 Order o = currentOrders[j];
@@ -173,8 +167,8 @@ public class DayTesterColgenWaitingTime {
 				 mets.put(o, currentMET);
 				 currentMETTotal += currentMET;
 				 currentRouteLength += ModelConstants.CUSTOMER_LOADING_TIME;
-				 if (j < currentOrders.length-1) currentRouteLength += distanceMatrix.getEntry(o.getDistanceMatrixLink(), 
-						 currentOrders[j+1].getDistanceMatrixLink());
+				 if (j < currentOrders.length-1) currentRouteLength += distanceMatrix.getEntry(o.getActualDistanceMatrixLink(), 
+						 currentOrders[j+1].getActualDistanceMatrixLink());
 			 }
 		}
 		result[0] = currentMETTotal;
