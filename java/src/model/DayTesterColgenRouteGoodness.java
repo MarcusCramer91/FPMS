@@ -15,7 +15,7 @@ import optimization.ModelHelperMethods;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 
-public class DayTesterColgenProblemSize {
+public class DayTesterColgenRouteGoodness {
 	private ArrayList<Order> orders;
 	private ArrayList<Vehicle> vehicles;
 	private DistanceMatrix distanceMatrix;
@@ -42,17 +42,17 @@ public class DayTesterColgenProblemSize {
 		
 		int startingTime = 0; // 9 am
 		int endTime = 43200; // 9 pm
-		int[] problemSizes = {60};
+		int[] problemSizes = {90};
 		for (int problemSize : problemSizes) {
 			try {
-				DayTesterColgenProblemSize tester = new DayTesterColgenProblemSize(distmat, orders);
+				DayTesterColgenRouteGoodness tester = new DayTesterColgenRouteGoodness(distmat, orders);
 				tester.getColgenCosts(startingTime, endTime, problemSize);
 			}
 			catch(Exception e) {}
 		}
 	}
 	
-	public DayTesterColgenProblemSize(DistanceMatrix distmat, ArrayList<Order> orders) {
+	public DayTesterColgenRouteGoodness(DistanceMatrix distmat, ArrayList<Order> orders) {
 		this.distanceMatrix = distmat;
 		this.orders = orders;
 	}
@@ -241,6 +241,16 @@ public class DayTesterColgenProblemSize {
 			}
 		}
 		return oldestOrder;
+	}
+	
+	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes) throws FileNotFoundException {
+		PrintWriter writer = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\results\\days\\RouteLengths.csv"));
+		for (Order[] orderRoute : orderRoutes) {
+			double length = ModelHelperMethods.getRouteLengthToLastCustomer(distmat, orderRoute);
+			writer.write(length + ",");
+		}
+		writer.write("\n");
+		writer.close();
 	}
 	
 	private void logDistmat(DistanceMatrix distmat, int time) throws FileNotFoundException {

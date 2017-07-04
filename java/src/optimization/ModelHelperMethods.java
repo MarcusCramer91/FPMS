@@ -334,4 +334,30 @@ public class ModelHelperMethods {
 		}
 		return true;
 	}
+	
+	public static double getRouteLengthToLastCustomer(DistanceMatrix distmat, Order[] orderRoute) {
+		double length = ModelConstants.DEPOT_LOADING_TIME;
+		length += distmat.getEntry(1, orderRoute[0].getActualDistanceMatrixLink());
+		for (int i = 0; i < orderRoute.length - 1; i++) {
+			length += distmat.getEntry(orderRoute[i].getActualDistanceMatrixLink(), orderRoute[i+1].getActualDistanceMatrixLink());
+		}
+		return length;
+	}
+	
+	public static double getShortestRouteLength(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes) {
+		double lowestLength = Double.MAX_VALUE;
+		for (Order[] orders : orderRoutes) {
+			double length = getRouteLengthToLastCustomer(distmat, orders);
+			if (length < lowestLength) lowestLength = length;
+		}
+		return lowestLength;
+	}
+	
+	public static double getAverageRouteLength(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes) {
+		double length = 0;
+		for (Order[] orders : orderRoutes) {
+			length += getRouteLengthToLastCustomer(distmat, orders);
+		}
+		return length / orderRoutes.size();
+	}
 }

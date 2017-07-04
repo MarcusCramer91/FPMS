@@ -40,10 +40,18 @@ public class DayTesterColgenWaitingTime {
 		
 		int startingTime = 0; // 9 am
 		int endTime = 43200; // 9 pm
-		int waitingTime = 10*60;
+		int[] waitingTimes = {30*60, 35*60, 40*60};
 		
-		DayTesterColgenWaitingTime tester = new DayTesterColgenWaitingTime(distmat, orders);
-		tester.getColgenCosts(startingTime, endTime, waitingTime);
+		for (int waitingTime : waitingTimes) {
+			System.out.println("Currently considering a waiting time of " + waitingTime);
+			try {
+				DayTesterColgenWaitingTime tester = new DayTesterColgenWaitingTime(distmat, orders);
+				tester.getColgenCosts(startingTime, endTime, waitingTime);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public DayTesterColgenWaitingTime(DistanceMatrix distmat, ArrayList<Order> orders) {

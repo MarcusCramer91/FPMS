@@ -96,5 +96,12 @@ for (i in 0:7) {
 driving_20 = read.csv("results/days/20_Day1.csv", header = FALSE)[,4]/read.csv("results/days/20_Day1.csv", header = FALSE)[3]
 
 allResults = list.files("results/days/distmats")
+separatenesses = numeric(0)
 
+for (result in allResults) {
+  travelTimes = read.csv(paste("results/days/distmats/", result, sep = ""), header = FALSE)
+  travelTimes = travelTimes[,-ncol(travelTimes)]
+  separateness = sum(travelTimes) / (nrow(travelTimes) * ncol(travelTimes))
+  separatenesses = c(separatenesses, separateness)
+}
 
