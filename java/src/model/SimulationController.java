@@ -98,7 +98,7 @@ public class SimulationController {
 	}
 	
 	private ArrayList<Order[]> getRoutesFP(int currentTime) throws Exception {
-		boolean optimizationNecessary = FPOptimize.checkOptimizationNecessity(currentTime, orders);
+		boolean optimizationNecessary = FPOptimize.checkOptimizationNecessity(currentTime, orders, 30);
 		System.out.println("Routing step due: " + optimizationNecessary + " in iteration " + currentTime);
 		if (!optimizationNecessary) return null;
 		ArrayList<Order[]> routes = FPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, false);
@@ -226,7 +226,7 @@ public class SimulationController {
 			o.setStatus(1);
 		}
 		if (mode.equals("fp")) {
-			System.out.println("Routing step due: " + FPOptimize.checkOptimizationNecessity(currentTime, orders));
+			System.out.println("Routing step due: " + FPOptimize.checkOptimizationNecessity(currentTime, orders, 30));
 			ArrayList<Order[]> routes = FPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
 			for (int i = 0; i < routes.size(); i++) {
 				System.out.println("Route for vehicle " + i);

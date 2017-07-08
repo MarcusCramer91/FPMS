@@ -38,8 +38,12 @@ public class DayTesterFP {
 		
 		int startingTime = 0; // 9 am
 		int endTime = 43200; // 9 pm
-		DayTesterFP tester = new DayTesterFP(distmat, orders);
-		tester.getFlaschenPostCosts(startingTime, endTime);
+		int[] waitingTimes = {50};
+		for (int i = 0; i < waitingTimes.length; i++) {
+			System.out.println("Considering a waiting time of: " + waitingTimes[i]);
+			DayTesterFP tester = new DayTesterFP(distmat, orders);
+			tester.getFlaschenPostCosts(startingTime, endTime, waitingTimes[i]);
+		}
 	}
 	
 	public DayTesterFP(DistanceMatrix distmat, ArrayList<Order> orders) {
@@ -47,9 +51,9 @@ public class DayTesterFP {
 		this.orders = orders;
 	}
 	
-	public void getFlaschenPostCosts(int startingTime, int endTime) throws Exception {
+	public void getFlaschenPostCosts(int startingTime, int endTime, int waitingTime) throws Exception {
 		for (int time = startingTime; time <= endTime; time += 60) {
-			if (FPOptimize.checkOptimizationNecessity(time, orders)) {
+			if (FPOptimize.checkOptimizationNecessity(time, orders, waitingTime)) {
 			     System.out.println();
 				 System.out.println("########################################");
 				 System.out.println();
@@ -73,12 +77,12 @@ public class DayTesterFP {
 				croppedMatrix = croppedMatrix.getCroppedMatrix(routeIndices);
 				ArrayList<Order[]> routes = FPOptimize.assignRoutes(croppedMatrix, croppedMatrix, croppedOrders, 
 						nVehicles, time, false, true);
-				handleMETsAndCosts(time, routes);
+				handleMETsAndCosts(time, routes, waitingTime);
 			}
 		}
 	}
 	
-	private void handleMETsAndCosts(int currentTime, ArrayList<Order[]> routes) throws IOException {
+	private void handleMETsAndCosts(int currentTime, ArrayList<Order[]> routes, int waitingTime) throws IOException {
 		// calculate METs for orders upon fulfillment
 		double[] mets = calculateMETs(currentTime, routes);
 		double currentMETTotal = mets[0];
@@ -98,7 +102,7 @@ public class DayTesterFP {
 		System.out.println("Overall seconds driven " + drivingTime);
 		System.out.println("Overall seconds worked " + employeeTime);
 		log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
-				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal);
+				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, waitingTime);
 	}
 	
 	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
@@ -149,13 +153,13 @@ public class DayTesterFP {
 	}
 	
 	private void log(int time, ArrayList<Order[]> routes, double drivingTime, double overallTime, 
-			double drivingCosts, double overallCosts, double overallMETs) throws IOException {
+			double drivingCosts, double overallCosts, double overallMETs, int waitingTime) throws IOException {
 		int nCust = 0;
 		for (Order[] orders : routes) nCust += orders.length;
 		System.out.println("Number of customers served: " + nCust);
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);
-		FileWriter writer = new FileWriter(rootPath + "/results/days/FP_Day1.csv", true);
+		FileWriter writer = new FileWriter(rootPath  + "/results/days/" + "_" + waitingTime + "_FP_Day1.csv", true);
 		// time, number of routes, number of customers, time driven, overall time, costs driving, overall costs, overall METs
 		writer.write(time + "," +  routes.size() + "," +   nCust + "," +   drivingTime + "," +  
 				overallTime + "," +   drivingCosts + "," +   overallCosts + "," + overallMETs + "\n");

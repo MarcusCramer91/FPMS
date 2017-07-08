@@ -42,7 +42,7 @@ public class DayTesterColgenRouteGoodness {
 		
 		int startingTime = 0; // 9 am
 		int endTime = 43200; // 9 pm
-		int[] problemSizes = {90};
+		int[] problemSizes = {70};
 		for (int problemSize : problemSizes) {
 			try {
 				DayTesterColgenRouteGoodness tester = new DayTesterColgenRouteGoodness(distmat, orders);
@@ -67,7 +67,7 @@ public class DayTesterColgenRouteGoodness {
 		}
 		for (int time = startingTime; time <= endTime; time += 60) {
 			if (orders.size() > 0 && (numberOfAvailableOrders(time) >= problemSize || (time == endTime && orders.size() > 0) || 
-					getOldestOrder(orders).getMET(time) >= (ModelConstants.TIME_WINDOW / 2))) {
+					getOldestOrder(orders).getMET(time) >= ModelConstants.FP_TIME_WINDOW / 2)) {
 			    System.out.println();
 				System.out.println("########################################");
 				System.out.println();
@@ -132,12 +132,12 @@ public class DayTesterColgenRouteGoodness {
 						routes.add(route);
 					}
 				}
-				handleMETsAndCosts(time, orderRoutes, problemSize);
+				handleMETsAndCosts(distanceMatrix, time, orderRoutes, problemSize);
 			}
 		}
 	}
 	
-	private void handleMETsAndCosts(int currentTime, ArrayList<Order[]> routes, int problemSize) throws IOException {
+	private void handleMETsAndCosts(DistanceMatrix distmat, int currentTime, ArrayList<Order[]> routes, int problemSize) throws IOException {
 		// calculate METs for orders upon fulfillment
 		double[] mets = calculateMETs(currentTime, routes);
 		double currentMETTotal = mets[0];
@@ -158,6 +158,7 @@ public class DayTesterColgenRouteGoodness {
 		System.out.println("Overall seconds worked " + employeeTime);
 		log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
 				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, problemSize);
+		logRouteLengths(distmat, routes);
 	}
 	
 	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
@@ -214,7 +215,7 @@ public class DayTesterColgenRouteGoodness {
 		System.out.println("Number of customers served: " + nCust);
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);
-		FileWriter writer = new FileWriter(rootPath + "/results/days/"+problemSize + "_Day1.csv", true);
+		FileWriter writer = new FileWriter(rootPath + "/results/days/optimal_Day1.csv", true);
 		// time, number of routes, number of customers, time driven, overall time, costs driving, overall costs, overall METs
 		writer.write(time + "," +  routes.size() + "," +   nCust + "," +   drivingTime + "," +  
 				overallTime + "," +   drivingCosts + "," +   overallCosts + "," + overallMETs + "\n");
@@ -243,29 +244,16 @@ public class DayTesterColgenRouteGoodness {
 		return oldestOrder;
 	}
 	
-	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes) throws FileNotFoundException {
-		PrintWriter writer = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\results\\days\\RouteLengths.csv"));
+	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes) throws IOException {
+		String rootPath = new File("").getAbsolutePath();
+		rootPath = rootPath.substring(0, rootPath.length() - 5);
+		
+		FileWriter writer = new FileWriter(rootPath + "/results/days/RouteLengths.csv", true);
 		for (Order[] orderRoute : orderRoutes) {
 			double length = ModelHelperMethods.getRouteLengthToLastCustomer(distmat, orderRoute);
 			writer.write(length + ",");
 		}
 		writer.write("\n");
-		writer.close();
-	}
-	
-	private void logDistmat(DistanceMatrix distmat, int time) throws FileNotFoundException {
-		PrintWriter writer = new PrintWriter(new File("C:\\Users\\Marcus\\Documents\\FPMS\\results\\days\\distmats\\Distmat_" + time + "_" +
-						distmat.getDimension() + ".csv"));
-		int counter = 0;
-		StringBuilder sb = new StringBuilder();
-		for (int i = 1; i <= distmat.getDimension(); i++) {
-			for (int j = 1; j <= distmat.getDimension(); j++) {
-				sb.append(distmat.getEntry(i, j));
-				sb.append(",");
-			}
-			sb.append("\n");
-		}
-		writer.write(sb.toString());
 		writer.close();
 	}
 }

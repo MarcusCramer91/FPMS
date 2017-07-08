@@ -34,6 +34,7 @@ public class DayTesterColgenProblemSize {
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);
 		String distanceMatrixFile = rootPath + "/data/daytestcases/TravelTimesDay1.csv";
+		//String ordersFile = rootPath + "/data/daytestcases/OrdersDay1_uniform.csv";
 		String ordersFile = rootPath + "/data/daytestcases/OrdersDay1.csv";
 		
 		ArrayList<Order> orders = OrdersImporter.importCSV(ordersFile);
@@ -44,6 +45,7 @@ public class DayTesterColgenProblemSize {
 		int endTime = 43200; // 9 pm
 		int[] problemSizes = {60};
 		for (int problemSize : problemSizes) {
+			ArrayList<Order> orderCopy = new ArrayList<>(orders);
 			try {
 				DayTesterColgenProblemSize tester = new DayTesterColgenProblemSize(distmat, orders);
 				tester.getColgenCosts(startingTime, endTime, problemSize);

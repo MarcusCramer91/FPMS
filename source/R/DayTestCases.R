@@ -44,3 +44,22 @@ orders = data.frame(id = seq(1:1200), weight = round(runif(1200,1,15)), time = o
 write.table(orders, paste("data/daytestcases/OrdersDay1.csv", sep = ""), row.names = FALSE, sep = ",")
 # generate distance matrix (work with air distances due to google maps api restrictions)
 write.table(travelTimesMat, paste("data/daytestcases/TravelTimesDay1.csv", sep = ""), col.names = FALSE, row.names = FALSE, sep = ",")
+
+# generate orders with a uniform distribution
+orderTimes = c(sort(floor(runif(100,0,59))), 
+               sort(floor(runif(100,60,119))), 
+               sort(floor(runif(100,120,179))), 
+               sort(floor(runif(100,180,239))), 
+               sort(floor(runif(100,240,299))), 
+               sort(floor(runif(100,300,359))), 
+               sort(floor(runif(100,360,419))), 
+               sort(floor(runif(100,420,479))), 
+               sort(floor(runif(100,480,539))), 
+               sort(floor(runif(100,540,599))), 
+               sort(floor(runif(100,600,659))), 
+               sort(floor(runif(100,660,719))))
+hist(orderTimes, breaks = 13)
+
+               
+orders = data.frame(id = seq(1:1200), weight = round(runif(1200,1,15)), time = orderTimes, location_id = 2:(1200+1))
+write.table(orders, paste("data/daytestcases/OrdersDay1_uniform.csv", sep = ""), row.names = FALSE, sep = ",")

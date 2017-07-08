@@ -40,9 +40,10 @@ public class DayTesterColgenWaitingTime {
 		
 		int startingTime = 0; // 9 am
 		int endTime = 43200; // 9 pm
-		int[] waitingTimes = {30*60, 35*60, 40*60};
+		int[] waitingTimes = {55*60};
 		
 		for (int waitingTime : waitingTimes) {
+			ArrayList<Order> orderCopy = new ArrayList<>(orders);
 			System.out.println("Currently considering a waiting time of " + waitingTime);
 			try {
 				DayTesterColgenWaitingTime tester = new DayTesterColgenWaitingTime(distmat, orders);

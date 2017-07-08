@@ -22,9 +22,9 @@ public class FPOptimize {
 	 * @param orders
 	 * @return
 	 */
-	public static boolean checkOptimizationNecessity(int currentTime, ArrayList<Order> orders) {
+	public static boolean checkOptimizationNecessity(int currentTime, ArrayList<Order> orders, int waitingTime) {
 		for (Order o : orders) {
-			if (o.getMET(currentTime) >= 30 * 60) {
+			if (o.getMET(currentTime) >= waitingTime * 60) {
 				return true;
 			}
 		}
