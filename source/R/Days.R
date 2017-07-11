@@ -538,29 +538,3 @@ ggplot(data = plotData, aes(x = time, y = ncust, color = group)) + geom_line(siz
 dev.off()
 
 
-###########
-# advanced waiting strategies
-
-results = read.csv("results/days/optimal_Day1.csv", header = FALSE)
-colnames(results) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
-routeLengths = read.csv("results/days/RouteLengths.csv", header = FALSE)
-routeLengths = routeLengths[,-ncol(routeLengths)]
-minimum = apply(routeLengths, 1, function(x) {
-  na.omit(min(x))})
-maximum = apply(routeLengths, 1, function(x) na.omit(max(x)))
-avg = apply(routeLengths, 1, function(x) na.omit(mean(x)))
-
-plotdata = as.data.frame(cbind(time = results$time,
-                          value = c(avg, minimum, maximum),
-                         group = c(rep("Average", length(avg)),
-                                   rep("Maximum", length(max)),
-                                   rep("Minimum", length(min)))))
-
-pdf("images/wait_routeLengths_tw120.pdf")
-ggplot(data = plotData, aes(x = time, y = value, color = group)) + geom_line(size = 2) + theme_bw() + 
-  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "Route length in seconds", labels = comma) +
-  theme(legend.text = element_text(size = 14), legend.title = element_text(size = 16, face = "bold"), 
-        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
-  guides(color=guide_legend(nrow = 3, title="Aggregation"))
-
-dev.off()
