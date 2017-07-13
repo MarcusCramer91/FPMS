@@ -30,7 +30,8 @@ public class DayTesterFP {
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);
 		String distanceMatrixFile = rootPath + "/data/daytestcases/TravelTimesDay1.csv";
-		String ordersFile = rootPath + "/data/daytestcases/OrdersDay1.csv";
+		//String ordersFile = rootPath + "/data/daytestcases/OrdersDay1.csv";
+		String ordersFile = rootPath + "/data/daytestcases/OrdersDay1_uniform.csv";
 		
 		ArrayList<Order> orders = OrdersImporter.importCSV(ordersFile);
 		DistanceMatrix distmat = new DistanceMatrix(

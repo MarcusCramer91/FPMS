@@ -15,7 +15,7 @@ import optimization.ModelHelperMethods;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 
-public class DayTesterColgenRouteGoodness {
+public class DayTesterColgenRouteGoodnessAnalysis {
 	private ArrayList<Order> orders;
 	private ArrayList<Vehicle> vehicles;
 	private DistanceMatrix distanceMatrix;
@@ -45,14 +45,14 @@ public class DayTesterColgenRouteGoodness {
 		int[] problemSizes = {70};
 		for (int problemSize : problemSizes) {
 			try {
-				DayTesterColgenRouteGoodness tester = new DayTesterColgenRouteGoodness(distmat, orders);
+				DayTesterColgenRouteGoodnessAnalysis tester = new DayTesterColgenRouteGoodnessAnalysis(distmat, orders);
 				tester.getColgenCosts(startingTime, endTime, problemSize);
 			}
 			catch(Exception e) {}
 		}
 	}
 	
-	public DayTesterColgenRouteGoodness(DistanceMatrix distmat, ArrayList<Order> orders) {
+	public DayTesterColgenRouteGoodnessAnalysis(DistanceMatrix distmat, ArrayList<Order> orders) {
 		this.distanceMatrix = distmat;
 		this.orders = orders;
 	}
