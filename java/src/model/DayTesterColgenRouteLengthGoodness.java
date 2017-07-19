@@ -15,7 +15,7 @@ import optimization.ModelHelperMethods;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 
-public class DayTesterColgenRouteMETGoodness {
+public class DayTesterColgenRouteLengthGoodness {
 	private ArrayList<Order> orders;
 	private ArrayList<Vehicle> vehicles;
 	private DistanceMatrix distanceMatrix;
@@ -31,9 +31,10 @@ public class DayTesterColgenRouteMETGoodness {
 	private int currentSize = 0;
 
 	public static void main(String[] args) throws Exception {
-		
-		int[] metThresholds = {80};
-		for (int metThreshold : metThresholds) {
+
+		//int[] minimumRouteLengths = {40*60, 45*60, 50*60, 55*60, 60*60, 65*60, 70*60};
+		int[] minimumRouteLengths = {28*60, 30*60, 32*60, 34*60, 36*60};
+		for (int minimumRouteLength : minimumRouteLengths) {
 			String rootPath = new File("").getAbsolutePath();
 			rootPath = rootPath.substring(0, rootPath.length() - 5);
 			String distanceMatrixFile = rootPath + "/data/daytestcases/TravelTimesDay1.csv";
@@ -46,19 +47,19 @@ public class DayTesterColgenRouteMETGoodness {
 			int startingTime = 0; // 9 am
 			int endTime = 43200; // 9 pm
 			try {
-				DayTesterColgenRouteMETGoodness tester = new DayTesterColgenRouteMETGoodness(distmat, orders);
-				tester.getColgenCosts(startingTime, endTime, metThreshold);
+				DayTesterColgenRouteLengthGoodness tester = new DayTesterColgenRouteLengthGoodness(distmat, orders);
+				tester.getColgenCosts(startingTime, endTime, minimumRouteLength);
 			}
 			catch(Exception e) {}
 		}
 	}
 	
-	public DayTesterColgenRouteMETGoodness(DistanceMatrix distmat, ArrayList<Order> orders) {
+	public DayTesterColgenRouteLengthGoodness(DistanceMatrix distmat, ArrayList<Order> orders) {
 		this.distanceMatrix = distmat;
 		this.orders = orders;
 	}
 	
-	public void getColgenCosts(int startingTime, int endTime, int metThreshold) throws Exception {
+	public void getColgenCosts(int startingTime, int endTime, int minimumRouteLength) throws Exception {
 		for (int i = 0; i < orders.size(); i++) {
 			Order o = orders.get(i);
 			if (o.getTime() < startingTime) {
@@ -66,9 +67,8 @@ public class DayTesterColgenRouteMETGoodness {
 				i--;
 			}
 		}
-		double previousAverageMET = 0*60;
+		double previousMinimumRouteLength = 0*60;
 		int previousNumberOfAvailableOrders = 0;
-		ArrayList<Order[]> previousOrderRoutes = null;
 		for (int time = startingTime; time <= endTime; time += 60) {
 			int numberOfAvailableOrders = numberOfAvailableOrders(time);
 			if (orders.size() > 0 && (numberOfAvailableOrders >= 70 || (time == endTime && orders.size() > 0) || 
@@ -144,29 +144,29 @@ public class DayTesterColgenRouteMETGoodness {
 						routes.add(route);
 					}
 				}
-				double currentMET = calculateMETs(time, orderRoutes)[0];
+				double shortestRouteLength = ModelHelperMethods.getShortestRouteLength(distanceMatrix, orderRoutes);
 				
 				// if route goodness (MET) not reached and average MET was raised -> likely cost decrease if one more iteration is waited
-				if (orders.size() != 0 && currentMET/croppedOrders.size() < metThreshold && previousAverageMET < currentMET/croppedOrders.size()) {
+				if (orders.size() != 0 && shortestRouteLength < minimumRouteLength && previousMinimumRouteLength < shortestRouteLength) {
 					int reinsertionCounter = 0;
 					for (int i = 0; i < backupOrders.size(); i++) {
 						this.orders.add(i, backupOrders.get(i));
 						reinsertionCounter++;
 					}
 					System.out.println("Number of order reinserted: " + reinsertionCounter);
-					previousAverageMET = currentMET/croppedOrders.size();
+					previousMinimumRouteLength = minimumRouteLength;
 					System.out.println("Route goodness not reached. Postponing decision to next iteration");
 				}
 				else {
-					previousAverageMET = 0;
-					handleMETsAndCosts(distanceMatrix, time, orderRoutes, metThreshold);
+					previousMinimumRouteLength = 0;
+					handleMETsAndCosts(distanceMatrix, time, orderRoutes, minimumRouteLength);
 					previousNumberOfAvailableOrders = 0;
 				}
 			}
 		}
 	}
 	
-	private void handleMETsAndCosts(DistanceMatrix distmat, int currentTime, ArrayList<Order[]> routes, int metThreshold) throws IOException {
+	private void handleMETsAndCosts(DistanceMatrix distmat, int currentTime, ArrayList<Order[]> routes, int minimumRouteLength) throws IOException {
 		// calculate METs for orders upon fulfillment
 		double[] mets = calculateMETs(currentTime, routes);
 		double currentMETTotal = mets[0];
@@ -186,8 +186,8 @@ public class DayTesterColgenRouteMETGoodness {
 		System.out.println("Overall seconds driven " + drivingTime);
 		System.out.println("Overall seconds worked " + employeeTime);
 		log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
-				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, metThreshold);
-		logRouteLengths(distmat, routes);
+				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, minimumRouteLength);
+		logRouteLengths(distmat, routes, minimumRouteLength);
 	}
 	
 	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
@@ -238,7 +238,7 @@ public class DayTesterColgenRouteMETGoodness {
 	}
 	
 	private void log(int time, ArrayList<Order[]> routes, double drivingTime, double overallTime, 
-			double drivingCosts, double overallCosts, double overallMETs, int metThreshold) throws IOException {
+			double drivingCosts, double overallCosts, double overallMETs, int minimumRouteLength) throws IOException {
 		int nCust = 0;
 		for (Order[] orders : routes) nCust += orders.length;
 		if (nCust != currentSize) {
@@ -250,7 +250,7 @@ public class DayTesterColgenRouteMETGoodness {
 		System.out.println("Number of customers served: " + nCust);
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);
-		FileWriter writer = new FileWriter(rootPath + "/results/days/" + metThreshold + "_routeGoodnessMET_Day1.csv", true);
+		FileWriter writer = new FileWriter(rootPath + "/results/days/" + minimumRouteLength + "_routeGoodnessRouteLength_Day1.csv", true);
 		// time, number of routes, number of customers, time driven, overall time, costs driving, overall costs, overall METs
 		writer.write(time + "," +  routes.size() + "," +   nCust + "," +   drivingTime + "," +  
 				overallTime + "," +   drivingCosts + "," +   overallCosts + "," + overallMETs + "\n");
@@ -278,11 +278,11 @@ public class DayTesterColgenRouteMETGoodness {
 		return oldestOrder;
 	}
 	
-	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes) throws IOException {
+	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes, int minimumRouteLength) throws IOException {
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);
 		
-		FileWriter writer = new FileWriter(rootPath + "/results/days/RouteLengths.csv", true);
+		FileWriter writer = new FileWriter(rootPath + "/results/days/" + minimumRouteLength + "_RouteLengths.csv", true);
 		for (Order[] orderRoute : orderRoutes) {
 			double length = ModelHelperMethods.getRouteLengthToLastCustomer(distmat, orderRoute);
 			writer.write(length + ",");

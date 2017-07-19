@@ -538,3 +538,156 @@ ggplot(data = plotData, aes(x = time, y = ncust, color = group)) + geom_line(siz
 dev.off()
 
 
+
+
+
+#######################
+# repeat for uniform day distribution
+days_fp = read.csv("results/days_tw90/FP_Day1.csv", header = FALSE)
+colnames(days_fp) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+
+wait10 = read.csv("results/days_tw90_uniform/wait_600_Day1.csv", header = FALSE)
+colnames(wait10) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait15 = read.csv("results/days_tw90_uniform/wait_900_Day1.csv", header = FALSE)
+colnames(wait15) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait20 = read.csv("results/days_tw90_uniform/wait_1200_Day1.csv", header = FALSE)
+colnames(wait20) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait25 = read.csv("results/days_tw90_uniform/wait_1500_Day1.csv", header = FALSE)
+colnames(wait25) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait30 = read.csv("results/days_tw90_uniform/wait_1800_Day1.csv", header = FALSE)
+colnames(wait30) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait35 = read.csv("results/days_tw90_uniform/wait_2100_Day1.csv", header = FALSE)
+colnames(wait35) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait40 = read.csv("results/days_tw90_uniform/wait_2400_Day1.csv", header = FALSE)
+colnames(wait40) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait45 = read.csv("results/days_tw90_uniform/wait_2700_Day1.csv", header = FALSE)
+colnames(wait45) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait50 = read.csv("results/days_tw90_uniform/wait_3000_Day1.csv", header = FALSE)
+colnames(wait50) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+
+days_fp_10 = read.csv("results/days_tw90_uniform/_10_FP_Day1.csv", header = FALSE)
+colnames(days_fp_10) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_15 = read.csv("results/days_tw90_uniform/_15_FP_Day1.csv", header = FALSE)
+colnames(days_fp_15) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_20 = read.csv("results/days_tw90_uniform/_20_FP_Day1.csv", header = FALSE)
+colnames(days_fp_20) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_25 = read.csv("results/days_tw90_uniform/_25_FP_Day1.csv", header = FALSE)
+colnames(days_fp_25) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_30 = read.csv("results/days_tw90_uniform/_30_FP_Day1.csv", header = FALSE)
+colnames(days_fp_30) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_35 = read.csv("results/days_tw90_uniform/_35_FP_Day1.csv", header = FALSE)
+colnames(days_fp_35) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_40 = read.csv("results/days_tw90_uniform/_40_FP_Day1.csv", header = FALSE)
+colnames(days_fp_40) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_45 = read.csv("results/days_tw90_uniform/_45_FP_Day1.csv", header = FALSE)
+colnames(days_fp_45) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_50 = read.csv("results/days_tw90_uniform/_50_FP_Day1.csv", header = FALSE)
+colnames(days_fp_50) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+
+
+plotdata = data.frame(setting = rep(c("10", "15", "20", "25", "30", "35", "40", "45", "50"),2), costs = c(sum(wait10$secondsDriving),
+                                                                                                          sum(wait15$secondsDriving),
+                                                                                                          sum(wait20$secondsDriving),
+                                                                                                          sum(wait25$secondsDriving),
+                                                                                                          sum(wait30$secondsDriving),
+                                                                                                          sum(wait35$secondsDriving),
+                                                                                                          sum(wait40$secondsDriving),
+                                                                                                          sum(wait45$secondsDriving),
+                                                                                                          sum(wait50$secondsDriving),
+                                                                                                          
+                                                                                                          sum(days_fp_10$secondsDriving),
+                                                                                                          sum(days_fp_15$secondsDriving),
+                                                                                                          sum(days_fp_20$secondsDriving),
+                                                                                                          sum(days_fp_25$secondsDriving),
+                                                                                                          sum(days_fp_30$secondsDriving),
+                                                                                                          sum(days_fp_35$secondsDriving),
+                                                                                                          sum(days_fp_40$secondsDriving),
+                                                                                                          sum(days_fp_45$secondsDriving),
+                                                                                                          sum(days_fp_50$secondsDriving)),
+                      group = c(rep("Stabilized cutting planes", 9), rep("ADA_HEUR",9)))
+require(scales)
+pdf("images/wait_waitingTimes_drivingSeconds_tw90_uniform.pdf")
+ggplot(data = plotdata, aes(x = setting, y = costs, group = group)) + geom_line(size = 2, aes(color = group)) + 
+  geom_point(size = 4, aes(color = group)) + theme_bw() + 
+  scale_x_discrete(name ="Minutes waited") + scale_y_continuous(name = "Time spent driving (s)", labels = comma) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
+  geom_hline(yintercept = sum(days_fp$secondsDriving), size = 2) +
+  guides(color=guide_legend(nrow = 1, title="Solution approach"))
+dev.off()
+
+
+
+days_fp = read.csv("results/days_tw120/FP_Day1.csv", header = FALSE)
+colnames(days_fp) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+
+
+wait10 = read.csv("results/days_tw120_uniform/wait_600_Day1.csv", header = FALSE)
+colnames(wait10) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait15 = read.csv("results/days_tw120_uniform/wait_900_Day1.csv", header = FALSE)
+colnames(wait15) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait20 = read.csv("results/days_tw120_uniform/wait_1200_Day1.csv", header = FALSE)
+colnames(wait20) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait25 = read.csv("results/days_tw120_uniform/wait_1500_Day1.csv", header = FALSE)
+colnames(wait25) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait30 = read.csv("results/days_tw120_uniform/wait_1800_Day1.csv", header = FALSE)
+colnames(wait30) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait35 = read.csv("results/days_tw120_uniform/wait_2100_Day1.csv", header = FALSE)
+colnames(wait35) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait40 = read.csv("results/days_tw120_uniform/wait_2400_Day1.csv", header = FALSE)
+colnames(wait40) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait45 = read.csv("results/days_tw120_uniform/wait_2700_Day1.csv", header = FALSE)
+colnames(wait45) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+wait50 = read.csv("results/days_tw120_uniform/wait_3000_Day1.csv", header = FALSE)
+colnames(wait50) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+
+days_fp_10 = read.csv("results/days_tw120_uniform/_10_FP_Day1.csv", header = FALSE)
+colnames(days_fp_10) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_15 = read.csv("results/days_tw120_uniform/_15_FP_Day1.csv", header = FALSE)
+colnames(days_fp_15) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_20 = read.csv("results/days_tw120_uniform/_20_FP_Day1.csv", header = FALSE)
+colnames(days_fp_20) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_25 = read.csv("results/days_tw120_uniform/_25_FP_Day1.csv", header = FALSE)
+colnames(days_fp_25) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_30 = read.csv("results/days_tw120_uniform/_30_FP_Day1.csv", header = FALSE)
+colnames(days_fp_30) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_35 = read.csv("results/days_tw120_uniform/_35_FP_Day1.csv", header = FALSE)
+colnames(days_fp_35) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_40 = read.csv("results/days_tw120_uniform/_40_FP_Day1.csv", header = FALSE)
+colnames(days_fp_40) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_45 = read.csv("results/days_tw120_uniform/_45_FP_Day1.csv", header = FALSE)
+colnames(days_fp_45) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+days_fp_50 = read.csv("results/days_tw120_uniform/_50_FP_Day1.csv", header = FALSE)
+colnames(days_fp_50) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
+
+
+plotdata = data.frame(setting = rep(c("10", "15", "20", "25", "30", "35", "40", "45", "50"),2), costs = c(sum(wait10$secondsDriving),
+                                                                                                          sum(wait15$secondsDriving),
+                                                                                                          sum(wait20$secondsDriving),
+                                                                                                          sum(wait25$secondsDriving),
+                                                                                                          sum(wait30$secondsDriving),
+                                                                                                          sum(wait35$secondsDriving),
+                                                                                                          sum(wait40$secondsDriving),
+                                                                                                          sum(wait45$secondsDriving),
+                                                                                                          sum(wait50$secondsDriving),
+                                                                                                          
+                                                                                                          sum(days_fp_10$secondsDriving),
+                                                                                                          sum(days_fp_15$secondsDriving),
+                                                                                                          sum(days_fp_20$secondsDriving),
+                                                                                                          sum(days_fp_25$secondsDriving),
+                                                                                                          sum(days_fp_30$secondsDriving),
+                                                                                                          sum(days_fp_35$secondsDriving),
+                                                                                                          sum(days_fp_40$secondsDriving),
+                                                                                                          sum(days_fp_45$secondsDriving),
+                                                                                                          sum(days_fp_50$secondsDriving)),
+                      group = c(rep("Stabilized cutting planes", 9), rep("ADA_HEUR",9)))
+
+pdf("images/wait_waitingTimes_drivingSeconds_tw120_uniform.pdf")
+ggplot(data = plotdata, aes(x = setting, y = costs, group = group)) + geom_line(size = 2, aes(color = group)) + 
+  geom_point(size = 4, aes(color = group)) + theme_bw() + 
+  scale_x_discrete(name ="Minutes waited") + scale_y_continuous(name = "Time spent driving (s)", labels = comma) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
+  geom_hline(yintercept = sum(days_fp$secondsDriving), size = 2) +
+  guides(color=guide_legend(nrow = 1, title="Solution approach"))
+dev.off()

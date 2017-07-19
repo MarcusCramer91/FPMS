@@ -32,8 +32,7 @@ public class ColumnGenerationStabilizedOptim {
 	private ArrayList<ArrayList<Double>> relaxedResults = new ArrayList<ArrayList<Double>>();
 	private double initialMuValues;
 	private double initialMuDepotValue;
-	private int[] treeLevelCoverage;
-	
+	private int[] treeLevelCoverage;	
 	
 	public ColumnGenerationStabilizedOptim(DistanceMatrix distmat, ArrayList<Order> orders, 
 			   int currentTime) {
@@ -504,7 +503,7 @@ public class ColumnGenerationStabilizedOptim {
 	     return result;
 	}
 	
-	private ArrayList<ArrayList<Integer>> eliminateDuplicateCustomers(DistanceMatrix distmat, ArrayList<ArrayList<Integer>> routes) {
+	private static ArrayList<ArrayList<Integer>> eliminateDuplicateCustomers(DistanceMatrix distmat, ArrayList<ArrayList<Integer>> routes) {
 		
 		// find all duplicates first
 		ArrayList<Integer> nodes = new ArrayList<Integer>();
@@ -522,6 +521,7 @@ public class ColumnGenerationStabilizedOptim {
 			}
 		}
 		
+		// add routes which contain the duplicates
 		for (int i = 0; i < duplicates.size(); i++) {
 			for (int j = 0; j < routes.size(); j++) {
 				ArrayList<Integer> route = routes.get(j);
@@ -540,7 +540,7 @@ public class ColumnGenerationStabilizedOptim {
 		return eliminateDuplicateCustomersBranchingStep(distmat, routes, duplicatesMap);
 	}
 	
-	private ArrayList<ArrayList<Integer>> eliminateDuplicateCustomersBranchingStep(DistanceMatrix distmat, ArrayList<ArrayList<Integer>> routes,
+	private static ArrayList<ArrayList<Integer>> eliminateDuplicateCustomersBranchingStep(DistanceMatrix distmat, ArrayList<ArrayList<Integer>> routes,
 			HashMap<Integer, ArrayList<Integer>> duplicatesMap) {
 		if (duplicatesMap.size() == 0) return routes;
 		int duplicate = duplicatesMap.keySet().iterator().next();
