@@ -269,7 +269,7 @@ public class DayTesterColgenProblemSize {
 		FileWriter writer = new FileWriter(rootPath + "/results/days/RouteLengths.csv", true);
 		writer.write(time + ",");
 		for (Order[] orderRoute : orderRoutes) {
-			double length = ModelHelperMethods.getRouteLengthToLastCustomer(distmat, orderRoute);
+			double length = ModelHelperMethods.getRouteLength(distmat, orderRoute);
 			writer.write(length + ",");
 		}
 		writer.write("\n");

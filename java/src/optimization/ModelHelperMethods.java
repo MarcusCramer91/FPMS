@@ -345,6 +345,18 @@ public class ModelHelperMethods {
 		return length;
 	}
 	
+	public static double getRouteLength(DistanceMatrix distmat, Order[] orderRoute) {
+		double length = ModelConstants.DEPOT_LOADING_TIME;
+		length += distmat.getEntry(1, orderRoute[0].getActualDistanceMatrixLink());
+		for (int i = 0; i < orderRoute.length; i++) {
+			length += distmat.getEntry(orderRoute[i].getActualDistanceMatrixLink(), orderRoute[i+1].getActualDistanceMatrixLink());
+			length += ModelConstants.CUSTOMER_LOADING_TIME;
+		}
+		length -= ModelConstants.CUSTOMER_LOADING_TIME;
+		length += ModelConstants.DEPOT_UNLOADING_TIME;
+		return length;
+	}
+	
 	public static double getShortestRouteLength(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes) {
 		double lowestLength = Double.MAX_VALUE;
 		for (Order[] orders : orderRoutes) {

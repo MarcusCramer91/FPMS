@@ -78,7 +78,7 @@ public class DayTesterFP {
 				
 				croppedMatrix = croppedMatrix.getCroppedMatrix(routeIndices);
 				ArrayList<Order[]> routes = FPOptimize.assignRoutes(croppedMatrix, croppedMatrix, croppedOrders, 
-						nVehicles, time, false, true); // true = correct TW handling
+						nVehicles, time, false, false); // true = correct TW handling
 				handleMETsAndCosts(time, routes, waitingTime);
 			}
 		}
@@ -189,7 +189,7 @@ public class DayTesterFP {
 		FileWriter writer = new FileWriter(rootPath + "/results/days/RouteLengths.csv", true);
 		writer.write(time + ",");
 		for (Order[] orderRoute : orderRoutes) {
-			double length = ModelHelperMethods.getRouteLengthToLastCustomer(distmat, orderRoute);
+			double length = ModelHelperMethods.getRouteLength(distmat, orderRoute);
 			writer.write(length + ",");
 		}
 		writer.write("\n");
