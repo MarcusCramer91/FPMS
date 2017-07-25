@@ -27,23 +27,23 @@ public class DayTesterFP {
 
 	public static void main(String[] args) throws Exception {
 
-		String rootPath = new File("").getAbsolutePath();
-		rootPath = rootPath.substring(0, rootPath.length() - 5);
-		String distanceMatrixFile = rootPath + "/data/daytestcases/TravelTimesDay1.csv";
-		//String ordersFile = rootPath + "/data/daytestcases/OrdersDay1.csv";
-		String ordersFile = rootPath + "/data/daytestcases/OrdersDay1_uniform.csv";
-		
-		ArrayList<Order> orders = OrdersImporter.importCSV(ordersFile);
-		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV(distanceMatrixFile));
-		
-		int startingTime = 0; // 9 am
-		int endTime = 43200; // 9 pm
-		int[] waitingTimes = {50};
+		int[] waitingTimes = {30};
 		for (int i = 0; i < waitingTimes.length; i++) {
-			System.out.println("Considering a waiting time of: " + waitingTimes[i]);
-			DayTesterFP tester = new DayTesterFP(distmat, orders);
-			tester.getFlaschenPostCosts(startingTime, endTime, waitingTimes[i]);
+			String rootPath = new File("").getAbsolutePath();
+			rootPath = rootPath.substring(0, rootPath.length() - 5);
+			String distanceMatrixFile = rootPath + "/data/daytestcases/TravelTimesDay1.csv";
+			//String ordersFile = rootPath + "/data/daytestcases/OrdersDay1.csv";
+			String ordersFile = rootPath + "/data/daytestcases/OrdersDay1_uniform.csv";
+			
+			ArrayList<Order> orders = OrdersImporter.importCSV(ordersFile);
+			DistanceMatrix distmat = new DistanceMatrix(
+					 DistanceMatrixImporter.importCSV(distanceMatrixFile));
+			
+			int startingTime = 0; // 9 am
+			int endTime = 43200; // 9 pm
+				System.out.println("Considering a waiting time of: " + waitingTimes[i]);
+				DayTesterFP tester = new DayTesterFP(distmat, orders);
+				tester.getFlaschenPostCosts(startingTime, endTime, waitingTimes[i]);
 		}
 	}
 	
@@ -54,7 +54,8 @@ public class DayTesterFP {
 	
 	public void getFlaschenPostCosts(int startingTime, int endTime, int waitingTime) throws Exception {
 		for (int time = startingTime; time <= endTime; time += 60) {
-			if (FPOptimize.checkOptimizationNecessity(time, orders, waitingTime)) {
+			if (FPOptimize.checkOptimizationNecessity(time, orders, waitingTime) || time == endTime || 
+					getOldestOrder(orders).getMET(time) >= (ModelConstants.TIME_WINDOW / 2)) {
 			     System.out.println();
 				 System.out.println("########################################");
 				 System.out.println();
@@ -77,7 +78,7 @@ public class DayTesterFP {
 				
 				croppedMatrix = croppedMatrix.getCroppedMatrix(routeIndices);
 				ArrayList<Order[]> routes = FPOptimize.assignRoutes(croppedMatrix, croppedMatrix, croppedOrders, 
-						nVehicles, time, false, true);
+						nVehicles, time, false, true); // true = correct TW handling
 				handleMETsAndCosts(time, routes, waitingTime);
 			}
 		}
@@ -88,7 +89,7 @@ public class DayTesterFP {
 		double[] mets = calculateMETs(currentTime, routes);
 		double currentMETTotal = mets[0];
 		double currentMETExceeded = mets[1];
-		double nCustExceeded = mets[2];
+		int nCustExceeded = (int)mets[2];
 		overallMET += currentMETTotal;
 		overallMETExceeded += currentMETExceeded;
 		overallNCustExceeded += nCustExceeded;
@@ -103,7 +104,8 @@ public class DayTesterFP {
 		System.out.println("Overall seconds driven " + drivingTime);
 		System.out.println("Overall seconds worked " + employeeTime);
 		log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
-				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, waitingTime);
+				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, waitingTime, currentMETExceeded, nCustExceeded);
+		logRouteLengths(this.distanceMatrix, routes, currentTime);
 	}
 	
 	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
@@ -154,7 +156,8 @@ public class DayTesterFP {
 	}
 	
 	private void log(int time, ArrayList<Order[]> routes, double drivingTime, double overallTime, 
-			double drivingCosts, double overallCosts, double overallMETs, int waitingTime) throws IOException {
+			double drivingCosts, double overallCosts, double overallMETs, int waitingTime, 
+			double metExceeded, int nCustExceeded) throws IOException {
 		int nCust = 0;
 		for (Order[] orders : routes) nCust += orders.length;
 		System.out.println("Number of customers served: " + nCust);
@@ -166,4 +169,30 @@ public class DayTesterFP {
 				overallTime + "," +   drivingCosts + "," +   overallCosts + "," + overallMETs + "\n");
 		writer.close();
 	}	
+	
+	private static Order getOldestOrder(ArrayList<Order> orders) {
+		int oldestTime = Integer.MAX_VALUE;
+		Order oldestOrder = null;
+		for (int i = 0; i < orders.size(); i++) {
+			if (orders.get(i).getTime() < oldestTime) {
+				oldestTime = orders.get(i).getTime();
+				oldestOrder = orders.get(i);
+			}
+		}
+		return oldestOrder;
+	}
+	
+	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes, int time) throws IOException {
+		String rootPath = new File("").getAbsolutePath();
+		rootPath = rootPath.substring(0, rootPath.length() - 5);
+		
+		FileWriter writer = new FileWriter(rootPath + "/results/days/RouteLengths.csv", true);
+		writer.write(time + ",");
+		for (Order[] orderRoute : orderRoutes) {
+			double length = ModelHelperMethods.getRouteLengthToLastCustomer(distmat, orderRoute);
+			writer.write(length + ",");
+		}
+		writer.write("\n");
+		writer.close();
+	}
 }

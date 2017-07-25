@@ -43,7 +43,7 @@ public class DayTesterColgenProblemSize {
 		
 		int startingTime = 0; // 9 am
 		int endTime = 43200; // 9 pm
-		int[] problemSizes = {60};
+		int[] problemSizes = {80};
 		for (int problemSize : problemSizes) {
 			ArrayList<Order> orderCopy = new ArrayList<>(orders);
 			try {
@@ -134,12 +134,12 @@ public class DayTesterColgenProblemSize {
 						routes.add(route);
 					}
 				}
-				handleMETsAndCosts(time, orderRoutes, problemSize);
+				handleMETsAndCosts(distanceMatrix, time, orderRoutes, problemSize);
 			}
 		}
 	}
 	
-	private void handleMETsAndCosts(int currentTime, ArrayList<Order[]> routes, int problemSize) throws IOException {
+	private void handleMETsAndCosts(DistanceMatrix distmat, int currentTime, ArrayList<Order[]> routes, int problemSize) throws IOException {
 		// calculate METs for orders upon fulfillment
 		double[] mets = calculateMETs(currentTime, routes);
 		double currentMETTotal = mets[0];
@@ -160,6 +160,7 @@ public class DayTesterColgenProblemSize {
 		System.out.println("Overall seconds worked " + employeeTime);
 		log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
 				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, problemSize);
+		logRouteLengths(distmat, routes, currentTime);
 	}
 	
 	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
@@ -258,6 +259,20 @@ public class DayTesterColgenProblemSize {
 			sb.append("\n");
 		}
 		writer.write(sb.toString());
+		writer.close();
+	}
+	
+	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes, int time) throws IOException {
+		String rootPath = new File("").getAbsolutePath();
+		rootPath = rootPath.substring(0, rootPath.length() - 5);
+		
+		FileWriter writer = new FileWriter(rootPath + "/results/days/RouteLengths.csv", true);
+		writer.write(time + ",");
+		for (Order[] orderRoute : orderRoutes) {
+			double length = ModelHelperMethods.getRouteLengthToLastCustomer(distmat, orderRoute);
+			writer.write(length + ",");
+		}
+		writer.write("\n");
 		writer.close();
 	}
 }

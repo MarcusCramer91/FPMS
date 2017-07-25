@@ -15,7 +15,7 @@ import optimization.ModelHelperMethods;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 
-public class DayTesterColgenRouteMETGoodness {
+public class DayTesterColgenMETGoodness {
 	private ArrayList<Order> orders;
 	private ArrayList<Vehicle> vehicles;
 	private DistanceMatrix distanceMatrix;
@@ -32,7 +32,7 @@ public class DayTesterColgenRouteMETGoodness {
 
 	public static void main(String[] args) throws Exception {
 		
-		int[] metThresholds = {80};
+		int[] metThresholds = {72*60};
 		for (int metThreshold : metThresholds) {
 			String rootPath = new File("").getAbsolutePath();
 			rootPath = rootPath.substring(0, rootPath.length() - 5);
@@ -46,14 +46,14 @@ public class DayTesterColgenRouteMETGoodness {
 			int startingTime = 0; // 9 am
 			int endTime = 43200; // 9 pm
 			try {
-				DayTesterColgenRouteMETGoodness tester = new DayTesterColgenRouteMETGoodness(distmat, orders);
+				DayTesterColgenMETGoodness tester = new DayTesterColgenMETGoodness(distmat, orders);
 				tester.getColgenCosts(startingTime, endTime, metThreshold);
 			}
 			catch(Exception e) {}
 		}
 	}
 	
-	public DayTesterColgenRouteMETGoodness(DistanceMatrix distmat, ArrayList<Order> orders) {
+	public DayTesterColgenMETGoodness(DistanceMatrix distmat, ArrayList<Order> orders) {
 		this.distanceMatrix = distmat;
 		this.orders = orders;
 	}
@@ -187,7 +187,7 @@ public class DayTesterColgenRouteMETGoodness {
 		System.out.println("Overall seconds worked " + employeeTime);
 		log(currentTime, routes, drivingTime, employeeTime, drivingTime * (ModelConstants.DRIVING_COSTS / 60), 
 				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, metThreshold);
-		logRouteLengths(distmat, routes);
+		logRouteLengths(distmat, routes, currentTime);
 	}
 	
 	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
@@ -278,11 +278,12 @@ public class DayTesterColgenRouteMETGoodness {
 		return oldestOrder;
 	}
 	
-	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes) throws IOException {
+	private void logRouteLengths(DistanceMatrix distmat, ArrayList<Order[]> orderRoutes, int time) throws IOException {
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);
 		
 		FileWriter writer = new FileWriter(rootPath + "/results/days/RouteLengths.csv", true);
+		writer.write(time + ",");
 		for (Order[] orderRoute : orderRoutes) {
 			double length = ModelHelperMethods.getRouteLengthToLastCustomer(distmat, orderRoute);
 			writer.write(length + ",");

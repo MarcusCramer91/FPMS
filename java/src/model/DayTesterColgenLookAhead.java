@@ -32,7 +32,7 @@ public class DayTesterColgenLookAhead {
 
 	public static void main(String[] args) throws Exception {
 
-		int[] lookAheadStages = {1,2,3,4};
+		int[] lookAheadStages = {5};
 		for (int lookAheadStage : lookAheadStages) {
 			String rootPath = new File("").getAbsolutePath();
 			rootPath = rootPath.substring(0, rootPath.length() - 5);
@@ -49,7 +49,9 @@ public class DayTesterColgenLookAhead {
 				DayTesterColgenLookAhead tester = new DayTesterColgenLookAhead(distmat, orders);
 				tester.getColgenCosts(startingTime, endTime, lookAheadStage);
 			}
-			catch(Exception e) {}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -67,15 +69,11 @@ public class DayTesterColgenLookAhead {
 			}
 		}
 		
-		int previousNumberOfAvailableOrders = 0;
 		for (int time = startingTime; time <= endTime; time += 60) {
 			int numberOfAvailableOrders = numberOfAvailableOrders(time);
 			if (orders.size() > 0 && (numberOfAvailableOrders >= 70 || (time == endTime && orders.size() > 0) || 
 					getOldestOrder(orders).getMET(time) >= ModelConstants.FP_TIME_WINDOW / 2)) {
 				
-				// if no new orders continue
-				if (numberOfAvailableOrders > previousNumberOfAvailableOrders) previousNumberOfAvailableOrders = numberOfAvailableOrders;
-				else continue;
 			    System.out.println();
 				System.out.println("########################################");
 				System.out.println();
@@ -89,14 +87,16 @@ public class DayTesterColgenLookAhead {
 				int counter = 0;
 				int timeLookAhead = time;
 				int previousNumberOfOrders = 0;
-				while (counter < lookAheadStage && lookAheadStage <= endTime) {
+				while (counter <= lookAheadStage && lookAheadStage <= endTime) {
 					
 					// if no new order was added, go to next iteration
 					int newNumberOfOrders = numberOfAvailableOrders(timeLookAhead);
 					if (newNumberOfOrders == previousNumberOfOrders) {
 						timeLookAhead += 60;
 						continue;
-					}				
+					}
+					else previousNumberOfOrders = newNumberOfOrders;
+					simulationTimes.add(timeLookAhead);
 					
 					// else start optimization
 					ArrayList<Order> croppedOrders = new ArrayList<Order>();
@@ -137,15 +137,15 @@ public class DayTesterColgenLookAhead {
 						}
 						// take colgen solution only if it beats the fp solution
 						if (colgenCosts < fpCosts) {
-							allColgenCosts.add(colgenCosts);
 							orderRoutes = new ArrayList<Order[]>();
 							for (int i = 0; i < routes.size(); i++) {
 								orderRoutes.add(ModelHelperMethods.parseColgenOutput(routes.get(i), croppedOrders));
 							}
 							allOrderRoutes.add(orderRoutes);
+							allColgenCosts.add(colgenCosts + orderRoutes.size() * 900);
 						}
 						else {
-							allColgenCosts.add(fpCosts);
+							allColgenCosts.add(fpCosts + orderRoutes.size() * 900);
 							allOrderRoutes.add(orderRoutes);
 							System.out.println("Column generation led to no improvement. Using FP heuristic solution instead");
 						}
@@ -153,7 +153,7 @@ public class DayTesterColgenLookAhead {
 					catch(Exception e) {
 						e.printStackTrace();
 						System.out.println("Column generation lead to exception. Changing to FP heuristic solution");
-						allColgenCosts.add(fpCosts);
+						allColgenCosts.add(fpCosts + orderRoutes.size() * 900);
 						allOrderRoutes.add(orderRoutes);
 						for (Order[] orders : orderRoutes) {
 							ArrayList<Integer> route = new ArrayList<Integer>();
@@ -164,6 +164,7 @@ public class DayTesterColgenLookAhead {
 						}
 					}
 					counter++;
+					timeLookAhead += 60;
 				}
 				
 				// find out best stage for a decision
@@ -183,6 +184,8 @@ public class DayTesterColgenLookAhead {
 					}
 				}
 				int bestSimulationTime = simulationTimes.get(bestStage);
+				System.out.println("Decision time used: " + bestSimulationTime);
+				System.out.println("Stage used: " + bestStage + "/" + lookAheadStage);
 				// log
 				handleMETsAndCosts(distanceMatrix, bestSimulationTime, allOrderRoutes.get(bestStage), lookAheadStage);
 				
@@ -195,6 +198,7 @@ public class DayTesterColgenLookAhead {
 				}
 				// increment current time
 				time = bestSimulationTime + 60;
+				previousNumberOfOrders = 0;
 			}
 		}
 	}
@@ -273,12 +277,6 @@ public class DayTesterColgenLookAhead {
 			double drivingCosts, double overallCosts, double overallMETs, int lookAheadStage) throws IOException {
 		int nCust = 0;
 		for (Order[] orders : routes) nCust += orders.length;
-		if (nCust != currentSize) {
-			for (Order[] orders : routes) {
-				for (Order o : orders) System.out.print(o.getDistanceMatrixLink() + "\t");
-			}
-			System.out.println();
-		}
 		System.out.println("Number of customers served: " + nCust);
 		String rootPath = new File("").getAbsolutePath();
 		rootPath = rootPath.substring(0, rootPath.length() - 5);

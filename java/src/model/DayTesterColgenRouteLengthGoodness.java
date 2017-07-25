@@ -33,7 +33,7 @@ public class DayTesterColgenRouteLengthGoodness {
 	public static void main(String[] args) throws Exception {
 
 		//int[] minimumRouteLengths = {40*60, 45*60, 50*60, 55*60, 60*60, 65*60, 70*60};
-		int[] minimumRouteLengths = {28*60, 30*60, 32*60, 34*60, 36*60};
+		int[] minimumRouteLengths = {30*60, 32*60, 34*60, 36*60};
 		for (int minimumRouteLength : minimumRouteLengths) {
 			String rootPath = new File("").getAbsolutePath();
 			rootPath = rootPath.substring(0, rootPath.length() - 5);

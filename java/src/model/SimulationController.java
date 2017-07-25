@@ -31,16 +31,20 @@ public class SimulationController {
 	// CPLEX parameters
 	int compTimeLimit = 600;
 	boolean useInitial = true;
-	boolean useUpperBound = false;
+	boolean useUpperBound = true;
 	boolean useMaxRoute = true;
 	boolean useEarliestArrival = true;
 	
 
-	private static String distanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv";
-	private static String airDistanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_20_1.csv";
-	private static String ordersFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_20_1.csv";
+	//private static String distanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv";
+	//private static String airDistanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_30_1.csv";
+	//private static String ordersFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_30_1.csv";
+
+	private static String distanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30TravelTimes.csv";
+	private static String airDistanceMatrixFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30TravelTimes.csv";
+	private static String ordersFile = "C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv";
 	
-	private static String mode = "fp";
+	private static String mode = "cg";
 	
 	
 	public SimulationController(String distanceMatrixFile, String ordersFile, int currentTime) {
@@ -59,9 +63,7 @@ public class SimulationController {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int startTime = 0;
 		int currentTime = 30*60;
-		int lastOrderTime = 720; // simulated from 9 a.m. to 9 p.m. every minute
 		SimulationController controller = new SimulationController(SimulationController.distanceMatrixFile, SimulationController.airDistanceMatrixFile,
 				SimulationController.ordersFile, currentTime);
 
@@ -76,9 +78,8 @@ public class SimulationController {
 		boolean useUpperBound = false;
 		boolean useMaxRoute = false;
 		boolean useEarliestArrival = false;
-		int computationTime = 15000;
+		int computationTime = 3600;
 		controller.testOneIterationCPlex(currentTime, computationTime, useInitial, useUpperBound, useMaxRoute, useEarliestArrival);
-		//controller.testOneIterationCPlexExperimental(currentTime, computationTime);
 	}
 
 	
@@ -246,16 +247,6 @@ public class SimulationController {
 	
 	private void testOneIterationCPlex(int currentTime, int compTimeLimit, boolean useInitial,
 			boolean useUpperBound, boolean useMaxRoute, boolean useEarliestArrival) throws Exception {
-		
-		/**
-		// Crop problem to 20 customers and 3 vehicles
-		distanceMatrix = distanceMatrix.getCroppedMatrix(new int[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21});
-		airDistanceMatrix = airDistanceMatrix.getCroppedMatrix(new int[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21});
-		for (int i = 0; i < 10; i ++) {
-			orders.remove(20);
-		}
-		vehicles.remove(3);*/
-		// +++++++++++++++++++++++++++++++++++++++++++++++++++
 		
 		ArrayList<ArrayList<Integer>> routes = null;
 		

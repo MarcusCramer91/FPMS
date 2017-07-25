@@ -102,7 +102,7 @@ public class CPlexConnector {
 		 int nCustomers = nLocations - 2;
 		 
 	     IloCplex cplex = new IloCplex();
-	     cplex.use(new CPlexLogger("CramerInstance_30_4"));
+	     cplex.use(new CPlexLogger("CramerInstance_50_1"));
 		 //cplex.setParam(IloCplex.Param.MIP.Strategy.NodeSelect, 1); //0 = depth first, 1 = best-bound, 2 = best-estimate, 3 = alternative
 		 //cplex.setParam(IloCplex.Param.MIP.Strategy.Branch,1); //-1 = down branch selected first, 0 let CPLEX choose, 1 = up branch selected fist
          if (!verbose) cplex.setOut(null);

@@ -27,22 +27,22 @@ public class DayTesterFPProblemSize {
 
 	public static void main(String[] args) throws Exception {
 
-		String rootPath = new File("").getAbsolutePath();
-		rootPath = rootPath.substring(0, rootPath.length() - 5);
-		String distanceMatrixFile = rootPath + "/data/daytestcases/TravelTimesDay1.csv";
-		String ordersFile = rootPath + "/data/daytestcases/OrdersDay1.csv";
-		
-		ArrayList<Order> orders = OrdersImporter.importCSV(ordersFile);
-		DistanceMatrix distmat = new DistanceMatrix(
-				 DistanceMatrixImporter.importCSV(distanceMatrixFile));
-		
-		int startingTime = 0; // 9 am
-		int endTime = 43200; // 9 pm
-		int[] problemSizes = {90};
+		int[] problemSizes = {20, 30, 40, 50, 60, 70, 80, 90}; 
 		for (int i = 0; i < problemSizes.length; i++) {
-			System.out.println("Considering a waiting time of: " + problemSizes[i]);
-			DayTesterFPProblemSize tester = new DayTesterFPProblemSize(distmat, orders);
-			tester.getFlaschenPostCosts(startingTime, endTime, problemSizes[i]);
+			String rootPath = new File("").getAbsolutePath();
+			rootPath = rootPath.substring(0, rootPath.length() - 5);
+			String distanceMatrixFile = rootPath + "/data/daytestcases/TravelTimesDay1.csv";
+			String ordersFile = rootPath + "/data/daytestcases/OrdersDay1.csv";
+			
+			ArrayList<Order> orders = OrdersImporter.importCSV(ordersFile);
+			DistanceMatrix distmat = new DistanceMatrix(
+					 DistanceMatrixImporter.importCSV(distanceMatrixFile));
+			
+			int startingTime = 0; // 9 am
+			int endTime = 43200; // 9 pm
+				System.out.println("Considering a waiting time of: " + problemSizes[i]);
+				DayTesterFPProblemSize tester = new DayTesterFPProblemSize(distmat, orders);
+				tester.getFlaschenPostCosts(startingTime, endTime, problemSizes[i]);
 		}
 	}
 	
