@@ -16,6 +16,8 @@ import ilog.cplex.IloCplex;
 import model.DistanceMatrix;
 import model.ModelConstants;
 import model.Order;
+import optimization.pricingproblem.ESPPTWCC_Heuristic;
+import optimization.pricingproblem.Path;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 

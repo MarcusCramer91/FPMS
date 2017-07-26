@@ -37,7 +37,7 @@ summaries$improvementDriven = as.numeric(format((summaries$fpCostsDriven-summari
 
 # generate latex code
 # large tables
-cat("\\begin{longtable} {p{.07\\linewidth} p{.04\\linewidth} p{.04\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} } \n", file = "results100.txt", append = TRUE)
+cat("\\begin{longtable} {p{.07\\linewidth} p{.04\\linewidth} p{.04\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth}} \n", file = "results100.txt", append = TRUE)
 cat("\\hline \n", file = "results100.txt", append = TRUE)
 cat("& \\multicolumn{2}{c}{\\textbf{No. paths}} & \\multicolumn{2}{c}{\\textbf{Overall time}} & \\multicolumn{2}{c}{\\textbf{Driving time}} & 
     \\multicolumn{2}{c}{\\textbf{Improvement in \\%}} \\\\", file = "results100.txt", append = TRUE)
@@ -50,30 +50,37 @@ for (i in c(20,30,40,50,60,70,80,90)) {
     current = summaries[grepl(paste(i,"_",j,".csv", sep =""), summaries$instance),]
     if (nrow(current) == 0) next
     catString = paste(i,"\\_",j, "&",current$fpPaths,"&", sep ="")
-    if (current$fpPaths > current$finalPaths) catString = paste(catString, "\\textbf{", current$finalPaths, "}&", sep = "")
-    else catString = paste(catString, current$finalPaths, "&", sep = "")
-    catString = paste(catString, current$fpCosts, "&", sep = "")
-    if (current$fpCosts > current$costs) catString = paste(catString, "\\textbf{", current$costs, "}&", sep = "")
-    else catString = paste(catString, current$costs, "&", sep = "")
-    catString = paste(catString, current$fpCostsDriven, "&", sep = "")
-    if (current$fpCostsDriven > current$costsDriven) catString = paste(catString, "\\textbf{", current$costsDriven, "}&", sep = "")
-    else catString = paste(catString, current$costsDriven, "&", sep = "")
-    if (current$improvementAll > 0) catString = paste(catString, "\\textbf{", current$improvementAll, "}&", sep = "")
-    else catString = paste(catString, current$improvementAll, "&", sep = "")
-    if (current$improvementDriven > 0) catString = paste(catString, "\\textbf{", current$improvementDriven, "}&", sep = "")
-    else catString = paste(catString, current$improvementDriven, sep = "")
+    if (current$fpPaths > current$finalPaths) catString = paste(catString, "\\textbf{", 
+                                                                format(current$finalPaths, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$finalPaths, nsmall = 0, big.mark = ","), "&", sep = "")
+    catString = paste(catString, format(current$fpCosts, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    if (current$fpCosts > current$costs) catString = paste(catString, "\\textbf{", 
+                                                           format(current$costs, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$costs, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    catString = paste(catString, format(current$fpCostsDriven, nsmall = 0, big.mark = ","), "&", sep = "")
+    if (current$fpCostsDriven > current$costsDriven) catString = paste(catString, "\\textbf{", 
+                                                                       format(current$costsDriven, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$costsDriven, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    if (current$improvementAll > 0) catString = paste(catString, "\\textbf{", format(current$improvementAll, nsmall = 2), "}&", sep = "")
+    else catString = paste(catString, format(current$improvementAll, nsmall = 2), "&", sep = "")
+    
+    if (current$improvementDriven > 0) catString = paste(catString, "\\textbf{", format(current$improvementDriven, nsmall = 2), "}", sep = "")
+    else catString = paste(catString, format(current$improvementDriven, nsmall = 2), sep = "")
     catString = paste(catString, "\\\\ \n", sep = "")
     print(catString)
     cat(catString, file = "results100.txt", append = TRUE)
   }
-  cat(paste("\\midrule \n Avg. &", mean(cur$fpPaths), "&", 
-            mean(cur$finalPaths), "&", 
-            mean(cur$fpCosts), "&", 
-            mean(cur$costs), "&", 
-            mean(cur$fpCostsDriven), "&", 
-            mean(cur$costsDriven), "&", 
-            mean(cur$improvementAll), "&", 
-            mean(cur$improvementDriven), "\\\\ \\midrule \n", sep = ""), file = "results100.txt", append = TRUE)
+  cat(paste("\\midrule \n Avg. &", format(mean(cur$fpPaths), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$finalPaths), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$fpCosts), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$costs), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$fpCostsDriven), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$costsDriven), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$improvementAll), nsmall = 2, digits = 2), "&", 
+            format(mean(cur$improvementDriven), nsmall = 2,digits = 2), "\\\\ \\midrule \n", sep = ""), file = "results100.txt", append = TRUE)
   if (i != 90) cat("\\midrule \n", file = "results100.txt", append = TRUE)
 }
 cat("\\bottomrule \n", file = "results100.txt", append = TRUE)
@@ -122,7 +129,7 @@ summaries$improvementDriven = as.numeric(format((summaries$fpCostsDriven-summari
 
 
 
-cat("\\begin{longtable} {p{.07\\linewidth} p{.04\\linewidth} p{.04\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} } \n", file = "results70.txt", append = TRUE)
+cat("\\begin{longtable} {p{.07\\linewidth} p{.04\\linewidth} p{.04\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} } \n", file = "results70.txt", append = TRUE)
 cat("\\hline \n", file = "results70.txt", append = TRUE)
 cat("& \\multicolumn{2}{c}{\\textbf{No. paths}} & \\multicolumn{2}{c}{\\textbf{Overall time}} & \\multicolumn{2}{c}{\\textbf{Driving time}} & 
     \\multicolumn{2}{c}{\\textbf{Improvement in \\%}} \\\\", file = "results70.txt", append = TRUE)
@@ -135,30 +142,37 @@ for (i in c(20,30,40,50,60,70,80,90)) {
     current = summaries[grepl(paste(i,"_",j,".csv", sep =""), summaries$instance),]
     if (nrow(current) == 0) next
     catString = paste(i,"\\_",j, "&",current$fpPaths,"&", sep ="")
-    if (current$fpPaths > current$finalPaths) catString = paste(catString, "\\textbf{", current$finalPaths, "}&", sep = "")
-    else catString = paste(catString, current$finalPaths, "&", sep = "")
-    catString = paste(catString, current$fpCosts, "&", sep = "")
-    if (current$fpCosts > current$costs) catString = paste(catString, "\\textbf{", current$costs, "}&", sep = "")
-    else catString = paste(catString, current$costs, "&", sep = "")
-    catString = paste(catString, current$fpCostsDriven, "&", sep = "")
-    if (current$fpCostsDriven > current$costsDriven) catString = paste(catString, "\\textbf{", current$costsDriven, "}&", sep = "")
-    else catString = paste(catString, current$costsDriven, "&", sep = "")
-    if (current$improvementAll > 0) catString = paste(catString, "\\textbf{", current$improvementAll, "}&", sep = "")
-    else catString = paste(catString, current$improvementAll, "&", sep = "")
-    if (current$improvementDriven > 0) catString = paste(catString, "\\textbf{", current$improvementDriven, "}&", sep = "")
-    else catString = paste(catString, current$improvementDriven, sep = "")
+    if (current$fpPaths > current$finalPaths) catString = paste(catString, "\\textbf{", 
+                                                                format(current$finalPaths, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$finalPaths, nsmall = 0, big.mark = ","), "&", sep = "")
+    catString = paste(catString, format(current$fpCosts, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    if (current$fpCosts > current$costs) catString = paste(catString, "\\textbf{", 
+                                                           format(current$costs, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$costs, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    catString = paste(catString, format(current$fpCostsDriven, nsmall = 0, big.mark = ","), "&", sep = "")
+    if (current$fpCostsDriven > current$costsDriven) catString = paste(catString, "\\textbf{", 
+                                                                       format(current$costsDriven, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$costsDriven, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    if (current$improvementAll > 0) catString = paste(catString, "\\textbf{", format(current$improvementAll, nsmall = 2), "}&", sep = "")
+    else catString = paste(catString, format(current$improvementAll, nsmall = 2), "&", sep = "")
+    
+    if (current$improvementDriven > 0) catString = paste(catString, "\\textbf{", format(current$improvementDriven, nsmall = 2), "}", sep = "")
+    else catString = paste(catString, format(current$improvementDriven, nsmall = 2), sep = "")
     catString = paste(catString, "\\\\ \n", sep = "")
     print(catString)
     cat(catString, file = "results70.txt", append = TRUE)
   }
-  cat(paste("\\midrule \n Avg. &", mean(cur$fpPaths), "&", 
-            mean(cur$finalPaths), "&", 
-            mean(cur$fpCosts), "&", 
-            mean(cur$costs), "&", 
-            mean(cur$fpCostsDriven), "&", 
-            mean(cur$costsDriven), "&", 
-            mean(cur$improvementAll), "&", 
-            mean(cur$improvementDriven), "\\\\ \\midrule \n", sep = ""), file = "results70.txt", append = TRUE)
+  cat(paste("\\midrule \n Avg. &", format(mean(cur$fpPaths), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$finalPaths), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$fpCosts), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$costs), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$fpCostsDriven), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$costsDriven), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$improvementAll), nsmall = 2, digits = 2), "&", 
+            format(mean(cur$improvementDriven), nsmall = 2,digits = 2), "\\\\ \\midrule \n", sep = ""), file = "results70.txt", append = TRUE)
   if (i != 90) cat("\\midrule \n", file = "results70.txt", append = TRUE)
 }
 cat("\\bottomrule \n", file = "results70.txt", append = TRUE)
@@ -208,7 +222,7 @@ summaries$improvementDriven = as.numeric(format((summaries$fpCostsDriven-summari
 
 
 
-cat("\\begin{longtable} {p{.07\\linewidth} p{.04\\linewidth} p{.04\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} } \n", file = "results100_tw90.txt", append = TRUE)
+cat("\\begin{longtable} {p{.07\\linewidth} p{.04\\linewidth} p{.04\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} } \n", file = "results100_tw90.txt", append = TRUE)
 cat("\\hline \n", file = "results100_tw90.txt", append = TRUE)
 cat("& \\multicolumn{2}{c}{\\textbf{No. paths}} & \\multicolumn{2}{c}{\\textbf{Overall time}} & \\multicolumn{2}{c}{\\textbf{Driving time}} & 
     \\multicolumn{2}{c}{\\textbf{Improvement in \\%}} \\\\", file = "results100_tw90.txt", append = TRUE)
@@ -221,30 +235,37 @@ for (i in c(20,30,40,50,60,70,80,90)) {
     current = summaries[grepl(paste(i,"_",j,".csv", sep =""), summaries$instance),]
     if (nrow(current) == 0) next
     catString = paste(i,"\\_",j, "&",current$fpPaths,"&", sep ="")
-    if (current$fpPaths > current$finalPaths) catString = paste(catString, "\\textbf{", current$finalPaths, "}&", sep = "")
-    else catString = paste(catString, current$finalPaths, "&", sep = "")
-    catString = paste(catString, current$fpCosts, "&", sep = "")
-    if (current$fpCosts > current$costs) catString = paste(catString, "\\textbf{", current$costs, "}&", sep = "")
-    else catString = paste(catString, current$costs, "&", sep = "")
-    catString = paste(catString, current$fpCostsDriven, "&", sep = "")
-    if (current$fpCostsDriven > current$costsDriven) catString = paste(catString, "\\textbf{", current$costsDriven, "}&", sep = "")
-    else catString = paste(catString, current$costsDriven, "&", sep = "")
-    if (current$improvementAll > 0) catString = paste(catString, "\\textbf{", current$improvementAll, "}&", sep = "")
-    else catString = paste(catString, current$improvementAll, "&", sep = "")
-    if (current$improvementDriven > 0) catString = paste(catString, "\\textbf{", current$improvementDriven, "}&", sep = "")
-    else catString = paste(catString, current$improvementDriven, sep = "")
+    if (current$fpPaths > current$finalPaths) catString = paste(catString, "\\textbf{", 
+                                                                format(current$finalPaths, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$finalPaths, nsmall = 0, big.mark = ","), "&", sep = "")
+    catString = paste(catString, format(current$fpCosts, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    if (current$fpCosts > current$costs) catString = paste(catString, "\\textbf{", 
+                                                           format(current$costs, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$costs, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    catString = paste(catString, format(current$fpCostsDriven, nsmall = 0, big.mark = ","), "&", sep = "")
+    if (current$fpCostsDriven > current$costsDriven) catString = paste(catString, "\\textbf{", 
+                                                                       format(current$costsDriven, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$costsDriven, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    if (current$improvementAll > 0) catString = paste(catString, "\\textbf{", format(current$improvementAll, nsmall = 2), "}&", sep = "")
+    else catString = paste(catString, format(current$improvementAll, nsmall = 2), "&", sep = "")
+    
+    if (current$improvementDriven > 0) catString = paste(catString, "\\textbf{", format(current$improvementDriven, nsmall = 2), "}", sep = "")
+    else catString = paste(catString, format(current$improvementDriven, nsmall = 2), sep = "")
     catString = paste(catString, "\\\\ \n", sep = "")
     print(catString)
     cat(catString, file = "results100_tw90.txt", append = TRUE)
   }
-  cat(paste("\\midrule \n Avg. &", mean(cur$fpPaths), "&", 
-            mean(cur$finalPaths), "&", 
-            mean(cur$fpCosts), "&", 
-            mean(cur$costs), "&", 
-            mean(cur$fpCostsDriven), "&", 
-            mean(cur$costsDriven), "&", 
-            mean(cur$improvementAll), "&", 
-            mean(cur$improvementDriven), "\\\\ \\midrule \n", sep = ""), file = "results100_tw90.txt", append = TRUE)
+  cat(paste("\\midrule \n Avg. &", format(mean(cur$fpPaths), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$finalPaths), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$fpCosts), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$costs), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$fpCostsDriven), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$costsDriven), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$improvementAll), nsmall = 2, digits = 2), "&", 
+            format(mean(cur$improvementDriven), nsmall = 2,digits = 2), "\\\\ \\midrule \n", sep = ""), file = "results100_tw90.txt", append = TRUE)
   if (i != 90) cat("\\midrule \n", file = "results100_tw90.txt", append = TRUE)
 }
 cat("\\bottomrule \n", file = "results100_tw90.txt", append = TRUE)
@@ -296,7 +317,7 @@ summaries$improvementDriven = as.numeric(format((summaries$fpCostsDriven-summari
 
 
 
-cat("\\begin{longtable} {p{.07\\linewidth} p{.04\\linewidth} p{.04\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} } \n", file = "results70_tw90.txt", append = TRUE)
+cat("\\begin{longtable} {p{.07\\linewidth} p{.04\\linewidth} p{.04\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} p{.1\\linewidth} } \n", file = "results70_tw90.txt", append = TRUE)
 cat("\\hline \n", file = "results70_tw90.txt", append = TRUE)
 cat("& \\multicolumn{2}{c}{\\textbf{No. paths}} & \\multicolumn{2}{c}{\\textbf{Overall time}} & \\multicolumn{2}{c}{\\textbf{Driving time}} & 
     \\multicolumn{2}{c}{\\textbf{Improvement in \\%}} \\\\", file = "results70_tw90.txt", append = TRUE)
@@ -309,30 +330,37 @@ for (i in c(20,30,40,50,60,70,80,90)) {
     current = summaries[grepl(paste(i,"_",j,".csv", sep =""), summaries$instance),]
     if (nrow(current) == 0) next
     catString = paste(i,"\\_",j, "&",current$fpPaths,"&", sep ="")
-    if (current$fpPaths > current$finalPaths) catString = paste(catString, "\\textbf{", current$finalPaths, "}&", sep = "")
-    else catString = paste(catString, current$finalPaths, "&", sep = "")
-    catString = paste(catString, current$fpCosts, "&", sep = "")
-    if (current$fpCosts > current$costs) catString = paste(catString, "\\textbf{", current$costs, "}&", sep = "")
-    else catString = paste(catString, current$costs, "&", sep = "")
-    catString = paste(catString, current$fpCostsDriven, "&", sep = "")
-    if (current$fpCostsDriven > current$costsDriven) catString = paste(catString, "\\textbf{", current$costsDriven, "}&", sep = "")
-    else catString = paste(catString, current$costsDriven, "&", sep = "")
-    if (current$improvementAll > 0) catString = paste(catString, "\\textbf{", current$improvementAll, "}&", sep = "")
-    else catString = paste(catString, current$improvementAll, "&", sep = "")
-    if (current$improvementDriven > 0) catString = paste(catString, "\\textbf{", current$improvementDriven, "}&", sep = "")
-    else catString = paste(catString, current$improvementDriven, sep = "")
+    if (current$fpPaths > current$finalPaths) catString = paste(catString, "\\textbf{", 
+                                                                format(current$finalPaths, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$finalPaths, nsmall = 0, big.mark = ","), "&", sep = "")
+    catString = paste(catString, format(current$fpCosts, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    if (current$fpCosts > current$costs) catString = paste(catString, "\\textbf{", 
+                                                           format(current$costs, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$costs, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    catString = paste(catString, format(current$fpCostsDriven, nsmall = 0, big.mark = ","), "&", sep = "")
+    if (current$fpCostsDriven > current$costsDriven) catString = paste(catString, "\\textbf{", 
+                                                                       format(current$costsDriven, nsmall = 0, big.mark = ","), "}&", sep = "")
+    else catString = paste(catString, format(current$costsDriven, nsmall = 0, big.mark = ","), "&", sep = "")
+    
+    if (current$improvementAll > 0) catString = paste(catString, "\\textbf{", format(current$improvementAll, nsmall = 2), "}&", sep = "")
+    else catString = paste(catString, format(current$improvementAll, nsmall = 2), "&", sep = "")
+    
+    if (current$improvementDriven > 0) catString = paste(catString, "\\textbf{", format(current$improvementDriven, nsmall = 2), "}", sep = "")
+    else catString = paste(catString, format(current$improvementDriven, nsmall = 2), sep = "")
     catString = paste(catString, "\\\\ \n", sep = "")
     print(catString)
     cat(catString, file = "results70_tw90.txt", append = TRUE)
   }
-  cat(paste("\\midrule \n Avg. &", mean(cur$fpPaths), "&", 
-            mean(cur$finalPaths), "&", 
-            mean(cur$fpCosts), "&", 
-            mean(cur$costs), "&", 
-            mean(cur$fpCostsDriven), "&", 
-            mean(cur$costsDriven), "&", 
-            mean(cur$improvementAll), "&", 
-            mean(cur$improvementDriven), "\\\\ \\midrule \n", sep = ""), file = "results70_tw90.txt", append = TRUE)
+  cat(paste("\\midrule \n Avg. &", format(mean(cur$fpPaths), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$finalPaths), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$fpCosts), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$costs), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$fpCostsDriven), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$costsDriven), nsmall=2, big.mark=","), "&", 
+            format(mean(cur$improvementAll), nsmall = 2, digits = 2), "&", 
+            format(mean(cur$improvementDriven), nsmall = 2,digits = 2), "\\\\ \\midrule \n", sep = ""), file = "results70_tw90.txt", append = TRUE)
   if (i != 90) cat("\\midrule \n", file = "results70_tw90.txt", append = TRUE)
 }
 cat("\\bottomrule \n", file = "results70_tw90.txt", append = TRUE)

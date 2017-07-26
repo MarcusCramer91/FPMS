@@ -527,11 +527,9 @@ colnames(ncars3) = c("time", "ncars")
 ncars4 = read.csv("results/days_tw120/nCars_default_fporig_tw120.csv")
 colnames(ncars4) = c("time", "ncars")
 
-plotdata = data.frame(time = c(ncars1$time, ncars2$time, ncars3$time, ncars4$time)/60, 
-                      ncars = c(ncars1$ncars, ncars2$ncars, ncars3$ncars, ncars4$ncars),
-                      group = c(rep("Optimal CG", times = nrow(ncars1)),
-                                rep("Optimal ADA_HEUR", times = nrow(ncars1)),
-                                rep("Default ADA_HEUR", times = nrow(ncars1)),
+plotdata = data.frame(time = c(ncars1$time, ncars4$time)/60, 
+                      ncars = c(ncars1$ncars, ncars4$ncars),
+                      group = c(rep("Optimal stabilized cutting planes", times = nrow(ncars1)),
                                 rep("Default ORIG_HEUR", times = nrow(ncars1))))
 plotdata$time = as.numeric(as.character(plotdata$time))
 
@@ -555,11 +553,9 @@ colnames(ncars3) = c("time", "ncars")
 ncars4 = read.csv("results/days_tw90/nCars_default_fporig_tw90.csv")
 colnames(ncars4) = c("time", "ncars")
 
-plotdata = data.frame(time = c(ncars1$time, ncars2$time, ncars3$time, ncars4$time)/60, 
-                      ncars = c(ncars1$ncars, ncars2$ncars, ncars3$ncars, ncars4$ncars),
-                      group = c(rep("Optimal CG", times = nrow(ncars1)),
-                                rep("Optimal ADA_HEUR", times = nrow(ncars1)),
-                                rep("Default ADA_HEUR", times = nrow(ncars1)),
+plotdata = data.frame(time = c(ncars1$time, ncars4$time)/60, 
+                      ncars = c(ncars1$ncars, ncars4$ncars),
+                      group = c(rep("Optimal stabilized cutting planes", times = nrow(ncars1)),
                                 rep("Default ORIG_HEUR", times = nrow(ncars1))))
 plotdata$time = as.numeric(as.character(plotdata$time))
 

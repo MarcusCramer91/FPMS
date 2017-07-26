@@ -13,8 +13,8 @@ import ilog.cplex.IloCplex;
 import model.DistanceMatrix;
 import model.ModelConstants;
 import model.Order;
-import optimization.ColGenTester;
 import optimization.ModelHelperMethods;
+import optimization.testers.ColGenTester;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 

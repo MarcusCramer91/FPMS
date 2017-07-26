@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import optimization.CPlexConnector;
-import optimization.FPOptimize;
+import optimization.PPOptimize;
 import optimization.ModelHelperMethods;
 import solomon.SolomonImporter;
 import util.DistanceMatrixImporter;
@@ -99,10 +99,10 @@ public class SimulationController {
 	}
 	
 	private ArrayList<Order[]> getRoutesFP(int currentTime) throws Exception {
-		boolean optimizationNecessary = FPOptimize.checkOptimizationNecessity(currentTime, orders, 30);
+		boolean optimizationNecessary = PPOptimize.checkOptimizationNecessity(currentTime, orders, 30);
 		System.out.println("Routing step due: " + optimizationNecessary + " in iteration " + currentTime);
 		if (!optimizationNecessary) return null;
-		ArrayList<Order[]> routes = FPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, false);
+		ArrayList<Order[]> routes = PPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, false);
 		
 		return routes;
 	}
@@ -110,7 +110,7 @@ public class SimulationController {
 	private ArrayList<Order[]> getRoutesCPLEX(int currentTime) throws Exception {
 		ArrayList<ArrayList<Integer>> routes = null;
 		// get Flaschenpost solution
-		ArrayList<Order[]> initial = FPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
+		ArrayList<Order[]> initial = PPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
 		double costs = 0;
 		for (Order[] route : initial) {
 			costs += ModelHelperMethods.getRouteCosts(distanceMatrix, route);
@@ -227,8 +227,8 @@ public class SimulationController {
 			o.setStatus(1);
 		}
 		if (mode.equals("fp")) {
-			System.out.println("Routing step due: " + FPOptimize.checkOptimizationNecessity(currentTime, orders, 30));
-			ArrayList<Order[]> routes = FPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
+			System.out.println("Routing step due: " + PPOptimize.checkOptimizationNecessity(currentTime, orders, 30));
+			ArrayList<Order[]> routes = PPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
 			for (int i = 0; i < routes.size(); i++) {
 				System.out.println("Route for vehicle " + i);
 				System.out.print("1->");
@@ -251,7 +251,7 @@ public class SimulationController {
 		ArrayList<ArrayList<Integer>> routes = null;
 		
 		// get Flaschenpost solution
-		ArrayList<Order[]> initial = FPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
+		ArrayList<Order[]> initial = PPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
 		double costs = 0;
 		for (Order[] route : initial) {
 			costs += ModelHelperMethods.getRouteCosts(distanceMatrix, route);

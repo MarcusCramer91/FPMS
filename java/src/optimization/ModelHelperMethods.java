@@ -348,11 +348,12 @@ public class ModelHelperMethods {
 	public static double getRouteLength(DistanceMatrix distmat, Order[] orderRoute) {
 		double length = ModelConstants.DEPOT_LOADING_TIME;
 		length += distmat.getEntry(1, orderRoute[0].getActualDistanceMatrixLink());
-		for (int i = 0; i < orderRoute.length; i++) {
+		for (int i = 0; i < orderRoute.length-1; i++) {
 			length += distmat.getEntry(orderRoute[i].getActualDistanceMatrixLink(), orderRoute[i+1].getActualDistanceMatrixLink());
 			length += ModelConstants.CUSTOMER_LOADING_TIME;
 		}
-		length -= ModelConstants.CUSTOMER_LOADING_TIME;
+		length += distmat.getEntry(orderRoute[orderRoute.length-1].getActualDistanceMatrixLink(),1);
+		length += ModelConstants.CUSTOMER_LOADING_TIME;
 		length += ModelConstants.DEPOT_UNLOADING_TIME;
 		return length;
 	}

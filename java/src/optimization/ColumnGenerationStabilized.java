@@ -16,6 +16,8 @@ import ilog.cplex.IloCplex;
 import model.DistanceMatrix;
 import model.ModelConstants;
 import model.Order;
+import optimization.pricingproblem.ESPPTWCC_Heuristic;
+import optimization.pricingproblem.Path;
 import util.DistanceMatrixImporter;
 import util.OrdersImporter;
 
@@ -78,7 +80,7 @@ public class ColumnGenerationStabilized {
 		ColumnGenerationStabilized colgen = new ColumnGenerationStabilized(distmat, orders, currentTime);
 		
 		// initialize with flaschenpost
-		ArrayList<Order[]> initialPathsOrders = FPOptimize.assignRoutes(distmat, distmatair, orders, 99, currentTime, false, true);
+		ArrayList<Order[]> initialPathsOrders = PPOptimize.assignRoutes(distmat, distmatair, orders, 99, currentTime, false, true);
 		ArrayList<ArrayList<Integer>> initialPathsNodes = new ArrayList<ArrayList<Integer>>();
 		for (int i = 0; i < initialPathsOrders.size(); i++) {
 			Order[] current = initialPathsOrders.get(i);
