@@ -111,18 +111,23 @@ public class DayTesterPPExceedingsLogged {
 				employeeTime * (ModelConstants.EMPLOYEE_COSTS / 60), currentMETTotal, waitingTime, currentMETExceeded, nCustExceeded);
 	}
 	
-	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) {
+	private double[] calculateMETs(int currentTime, ArrayList<Order[]> routes) throws IOException {
 		double[] result = new double[3];
 		double currentMETTotal = 0;
 		double currentMETExceeded = 0;
 		double nCustExceeded = 0;
+		String rootPath = new File("").getAbsolutePath();
+		rootPath = rootPath.substring(0, rootPath.length() - 5);
+		
+		FileWriter writer = new FileWriter(rootPath  + "/results/days/_30_FP_Day1_METs.csv", true);
 		for (int i = 0; i < routes.size(); i++) {
 			 double currentRouteLength = ModelConstants.DEPOT_LOADING_TIME;
-			 currentRouteLength += distanceMatrix.getEntry(1, routes.get(i)[0].getDistanceMatrixLink());
+			 currentRouteLength += distanceMatrix.getEntry(1, routes.get(i)[0].getActualDistanceMatrixLink());
 			 Order[] currentOrders = routes.get(i);
 			 for (int j = 0; j < currentOrders.length; j++) {
 				 Order o = currentOrders[j];
 				 double currentMET = o.getMET(currentTime) + currentRouteLength;
+				 writer.write(currentMET + ",");
 				 if (currentMET > ModelConstants.FP_TIME_WINDOW) {
 					 currentMETExceeded += (currentMET-ModelConstants.FP_TIME_WINDOW);
 					 nCustExceeded++;
@@ -130,10 +135,12 @@ public class DayTesterPPExceedingsLogged {
 				 mets.put(o, currentMET);
 				 currentMETTotal += currentMET;
 				 currentRouteLength += ModelConstants.CUSTOMER_LOADING_TIME;
-				 if (j < currentOrders.length-1) currentRouteLength += distanceMatrix.getEntry(o.getDistanceMatrixLink(), 
+				 if (j < currentOrders.length-1) currentRouteLength += distanceMatrix.getEntry(o.getActualDistanceMatrixLink(), 
 						 currentOrders[j+1].getDistanceMatrixLink());
 			 }
 		}
+		writer.write("\n");
+		writer.close();
 		result[0] = currentMETTotal;
 		result[1] = currentMETExceeded;
 		result[2] = nCustExceeded;

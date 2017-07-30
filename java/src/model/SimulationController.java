@@ -252,6 +252,10 @@ public class SimulationController {
 		
 		// get Flaschenpost solution
 		ArrayList<Order[]> initial = PPOptimize.assignRoutes(distanceMatrix, airDistanceMatrix, orders, nVehicles, currentTime, true, true);
+		/*for (Order[] order : initial) {
+			for (Order o : order) System.out.print(o.getDistanceMatrixLink() + "\t");
+			System.out.println();
+		}*/
 		double costs = 0;
 		for (Order[] route : initial) {
 			costs += ModelHelperMethods.getRouteCosts(distanceMatrix, route);

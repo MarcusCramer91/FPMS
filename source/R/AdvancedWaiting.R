@@ -543,6 +543,20 @@ ggplot(data = plotdata, aes(x = time, y = ncars, group = group)) + geom_line(siz
   guides(color=guide_legend(nrow = 2, title="Configuration")) 
 dev.off()
 
+plotdata = data.frame(time = c(ncars1$time, ncars2$time)/60, 
+                      ncars = c(ncars1$ncars, ncars2$ncars),
+                      group = c(rep("Optimal stabilized cutting planes", times = nrow(ncars1)),
+                                rep("Optimal ADA_HEUR", times = nrow(ncars1))))
+plotdata$time = as.numeric(as.character(plotdata$time))
+
+pdf("images/wait_ncars2_120.pdf")
+ggplot(data = plotdata, aes(x = time, y = ncars, group = group)) + geom_line(size = 2, aes(colour = group)) + 
+  theme_bw() + 
+  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "No. of active cars", labels = comma) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
+  guides(color=guide_legend(nrow = 2, title="Configuration")) 
+dev.off()
 
 ncars1 = read.csv("results/days_tw90/nCars_colgen_tw90.csv")
 colnames(ncars1) = c("time", "ncars")
@@ -561,6 +575,21 @@ plotdata$time = as.numeric(as.character(plotdata$time))
 
 
 pdf("images/wait_ncars_90.pdf")
+ggplot(data = plotdata, aes(x = time, y = ncars, group = group)) + geom_line(size = 2, aes(colour = group)) + 
+  theme_bw() + 
+  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "No. of active cars", labels = comma) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
+  guides(color=guide_legend(nrow = 2, title="Configuration")) 
+dev.off()
+
+plotdata = data.frame(time = c(ncars1$time, ncars2$time)/60, 
+                      ncars = c(ncars1$ncars, ncars2$ncars),
+                      group = c(rep("Optimal stabilized cutting planes", times = nrow(ncars1)),
+                                rep("Optimal ADA_HEUR", times = nrow(ncars1))))
+plotdata$time = as.numeric(as.character(plotdata$time))
+
+pdf("images/wait_ncars2_90.pdf")
 ggplot(data = plotdata, aes(x = time, y = ncars, group = group)) + geom_line(size = 2, aes(colour = group)) + 
   theme_bw() + 
   scale_x_continuous(name ="Time point") + scale_y_continuous(name = "No. of active cars", labels = comma) +

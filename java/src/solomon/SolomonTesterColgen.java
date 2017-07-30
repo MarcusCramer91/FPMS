@@ -157,26 +157,6 @@ public class SolomonTesterColgen {
 				 SPPTWCC spptwcc = new SPPTWCC(distmat, reducedCostsMatrix, orders, currentTime, true);
 				 newPath = spptwcc.labelNodes().get(0);			 
 			 }
-			 
-			 // 2-cycle elimination
-			 else if (sppAlgorithm.equals("spptwcc2")) {
-				 SPPTWCC2 spptwcc2 = new SPPTWCC2(distmat, reducedCostsMatrix, orders, currentTime);
-				 newPath = spptwcc2.labelNodes();			 
-			 }
-			 
-			 // 2-cycle elimination with nogo routes
-			 else if (sppAlgorithm.equals("spptwcc2_heur")) {
-				 double factor = 1.4;
-				 SPPTWCC2_Experimental spptwcc2_experimental = new SPPTWCC2_Experimental(distmat, reducedCostsMatrix, orders, currentTime, factor);
-				 newPath = spptwcc2_experimental.labelNodes();	 
-			 }
-
-			 // spptwcc nogo routes
-			 else if (sppAlgorithm.equals("spptwcc_heur")) {
-				 double factor = 1.4;
-				 SPPTWCC_Experimental spptwcc_experimental = new SPPTWCC_Experimental(distmat, reducedCostsMatrix, orders, currentTime, factor);
-				 newPath = spptwcc_experimental.labelNodes();	 
-			 }
 			 else return;
 			 
 			 // check if new path has negative costs/exists

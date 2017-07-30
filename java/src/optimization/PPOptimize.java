@@ -8,9 +8,6 @@ import java.util.Comparator;
 import model.DistanceMatrix;
 import model.Order;
 import model.Vehicle;
-import tsp.TSPExact;
-import tsp.TSPExact2;
-import tsp.TSPHeuristics;
 import util.CSVExporter;
 
 public class PPOptimize {

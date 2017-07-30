@@ -46,15 +46,15 @@ public class ColumnGenerationStabilized {
 	private double stoppingTolerance;
 	
 	public static void main(String[] args) throws Exception {
-		/*DistanceMatrix distmat = new DistanceMatrix(
+		DistanceMatrix distmat = new DistanceMatrix(
 				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30TravelTimes.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
 				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\Dummy30AirDistances.csv"));
 		
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");*/
+		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\DummyOrders_30.csv");
 		
 
-		ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_90_1.csv");
+		/*ArrayList<Order> orders = OrdersImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\Orders_90_1.csv");
 		DistanceMatrix distmat = new DistanceMatrix(
 				 DistanceMatrixImporter.importCSV("C:\\Users\\Marcus\\Documents\\FPMS\\data\\testcases\\TravelTimes_90_1.csv"));
 		DistanceMatrix distmatair = new DistanceMatrix(
