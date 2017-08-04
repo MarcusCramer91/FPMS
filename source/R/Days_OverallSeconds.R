@@ -71,9 +71,8 @@ ggplot(data = plotdata, aes(x = setting, y = costs, group = group)) + geom_line(
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
   geom_hline(yintercept = sum(days_fp$secondsAll), size = 2) +
-  guides(color=guide_legend(nrow = 2, title="Solution approach"))
+  guides(color=guide_legend(nrow = 1, title="Solution approach"))
 dev.off()
-
 
 # wait until a certain period is passed
 
@@ -145,7 +144,7 @@ ggplot(data = plotdata, aes(x = setting, y = costs, group = group)) + geom_line(
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
   geom_hline(yintercept = sum(days_fp$secondsAll), size = 2) +
-  guides(color=guide_legend(nrow = 2, title="Solution approach"))
+  guides(color=guide_legend(nrow = 1, title="Solution approach"))
 dev.off()
 
 
@@ -217,11 +216,12 @@ plotdata = data.frame(setting = rep(c("20", "30", "40", "50", "60", "70", "80", 
 pdf("images/wait_problemSizes_overallSeconds_tw90.pdf")
 ggplot(data = plotdata, aes(x = setting, y = costs, group = group)) + geom_line(size = 2, aes(color = group)) + 
   geom_point(size = 4, aes(color = group)) + theme_bw() + 
-  scale_x_discrete(name ="Problem size") + scale_y_continuous(name = "Time spent overall (s)", labels = comma) +
+  scale_x_discrete(name ="Problem size") + scale_y_continuous(name = "Time spent overall (s)", labels = comma,
+                                                              breaks = round(seq(900000, 1200000, by = 50000),1)) +
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
   geom_hline(yintercept = sum(days_fp$secondsAll), size = 2) +
-  guides(color=guide_legend(nrow = 1, title="Solution approach"))
+  guides(color=guide_legend(nrow = 2, title="Solution approach"))
 dev.off()
 
 
@@ -290,12 +290,47 @@ plotdata = data.frame(setting = rep(c("10", "15", "20", "25", "30", "35", "40", 
 pdf("images/wait_waitingTimes_overallSeconds_tw90.pdf")
 ggplot(data = plotdata, aes(x = setting, y = costs, group = group)) + geom_line(size = 2, aes(color = group)) + 
   geom_point(size = 4, aes(color = group)) + theme_bw() + 
-  scale_x_discrete(name ="Minutes waited") + scale_y_continuous(name = "Time spent overall (s)", labels = comma) +
+  scale_x_discrete(name ="Minutes waited") + scale_y_continuous(name = "Time spent overall (s)", labels = comma, 
+                                                                breaks = seq(900000, 1250000, by = 50000)) +
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
   geom_hline(yintercept = sum(days_fp$secondsAll), size = 2) +
   guides(color=guide_legend(nrow = 2, title="Solution approach"))
 dev.off()
+
+
+
+# plot how many customers are served in one batch
+plotData = data.frame(time = wait10$time/60, ncust = wait10$ncust)
+plotData = rbind(plotData, cbind(time = wait15$time/60, ncust = wait15$ncust))
+plotData = rbind(plotData, cbind(time = wait20$time/60, ncust = wait20$ncust))
+plotData = rbind(plotData, cbind(time = wait25$time/60, ncust = wait25$ncust))
+plotData = rbind(plotData, cbind(time = wait30$time/60, ncust = wait30$ncust))
+plotData = rbind(plotData, cbind(time = wait35$time/60, ncust = wait35$ncust))
+plotData = rbind(plotData, cbind(time = wait40$time/60, ncust = wait40$ncust))
+plotData = rbind(plotData, cbind(time = wait45$time/60, ncust = wait45$ncust))
+plotData = rbind(plotData, cbind(time = wait50$time/60, ncust = wait50$ncust))
+plotData$group = c(rep("10 minutes", nrow(wait10)),
+                   rep("15 minutes", nrow(wait15)),
+                   rep("20 minutes", nrow(wait20)),
+                   rep("25 minutes", nrow(wait25)),
+                   rep("30 minutes", nrow(wait30)),
+                   rep("35 minutes", nrow(wait35)),
+                   rep("40 minutes", nrow(wait40)),
+                   rep("45 minutes", nrow(wait45)),
+                   rep("50 minutes", nrow(wait50)))
+
+
+pdf("images/wait_waitingTimes_ncust_tw90.pdf")
+ggplot(data = plotData, aes(x = time, y = ncust, color = group)) + geom_line(size = 2) + theme_bw() + 
+  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "Number of customers", labels = comma) +
+  theme(legend.text = element_text(size = 14), legend.title = element_text(size = 16, face = "bold"), 
+        axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
+  guides(color=guide_legend(nrow = 3, title="Time waited"))
+
+dev.off()
+
+
 
 
 
@@ -343,36 +378,34 @@ days_fp_50 = read.csv("results/days_tw90_uniform/_50_FP_Day1.csv", header = FALS
 colnames(days_fp_50) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
 
 
-plotdata = data.frame(setting = rep(c("10", "15", "20", "25", "30", "35", "40", "45", "50"),2), costs = c(sum(wait10$secondsAll),
-                                                                                                          sum(wait15$secondsAll),
-                                                                                                          sum(wait20$secondsAll),
-                                                                                                          sum(wait25$secondsAll),
-                                                                                                          sum(wait30$secondsAll),
-                                                                                                          sum(wait35$secondsAll),
-                                                                                                          sum(wait40$secondsAll),
-                                                                                                          sum(wait45$secondsAll),
-                                                                                                          sum(wait50$secondsAll),
+plotdata = data.frame(setting = rep(c("10", "15", "20", "25", "30", "35", "40", "45", "50"),2), costs = c(sum(wait10$secondsDriving),
+                                                                                                          sum(wait15$secondsDriving),
+                                                                                                          sum(wait20$secondsDriving),
+                                                                                                          sum(wait25$secondsDriving),
+                                                                                                          sum(wait30$secondsDriving),
+                                                                                                          sum(wait35$secondsDriving),
+                                                                                                          sum(wait40$secondsDriving),
+                                                                                                          sum(wait45$secondsDriving),
+                                                                                                          sum(wait50$secondsDriving),
                                                                                                           
-                                                                                                          sum(days_fp_10$secondsAll),
-                                                                                                          sum(days_fp_15$secondsAll),
-                                                                                                          sum(days_fp_20$secondsAll),
-                                                                                                          sum(days_fp_25$secondsAll),
-                                                                                                          sum(days_fp_30$secondsAll),
-                                                                                                          sum(days_fp_35$secondsAll),
-                                                                                                          sum(days_fp_40$secondsAll),
-                                                                                                          sum(days_fp_45$secondsAll),
-                                                                                                          sum(days_fp_50$secondsAll)),
+                                                                                                          sum(days_fp_10$secondsDriving),
+                                                                                                          sum(days_fp_15$secondsDriving),
+                                                                                                          sum(days_fp_20$secondsDriving),
+                                                                                                          sum(days_fp_25$secondsDriving),
+                                                                                                          sum(days_fp_30$secondsDriving),
+                                                                                                          sum(days_fp_35$secondsDriving),
+                                                                                                          sum(days_fp_40$secondsDriving),
+                                                                                                          sum(days_fp_45$secondsDriving),
+                                                                                                          sum(days_fp_50$secondsDriving)),
                       group = c(rep("Stabilized cutting planes", 9), rep("ADA_HEUR",9)))
-
-
 require(scales)
-pdf("images/wait_waitingTimes_overallSeconds_tw90_uniform.pdf")
+pdf("images/wait_waitingTimes_drivingSeconds_tw90_uniform.pdf")
 ggplot(data = plotdata, aes(x = setting, y = costs, group = group)) + geom_line(size = 2, aes(color = group)) + 
   geom_point(size = 4, aes(color = group)) + theme_bw() + 
-  scale_x_discrete(name ="Minutes waited") + scale_y_continuous(name = "Time spent overall (s)", labels = comma) +
+  scale_x_discrete(name ="Minutes waited") + scale_y_continuous(name = "Time spent driving (s)", labels = comma) +
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
-  geom_hline(yintercept = sum(days_fp$secondsAll), size = 2) +
+  geom_hline(yintercept = sum(days_fp$secondsDriving), size = 2) +
   guides(color=guide_legend(nrow = 1, title="Solution approach"))
 dev.off()
 
@@ -421,33 +454,33 @@ days_fp_50 = read.csv("results/days_tw120_uniform/_50_FP_Day1.csv", header = FAL
 colnames(days_fp_50) = c("time", "npaths", "ncust", "secondsDriving", "secondsAll", "costsDriving", "costsAll","MET")
 
 
-plotdata = data.frame(setting = rep(c("10", "15", "20", "25", "30", "35", "40", "45", "50"),2), costs = c(sum(wait10$secondsAll),
-                                                                                                          sum(wait15$secondsAll),
-                                                                                                          sum(wait20$secondsAll),
-                                                                                                          sum(wait25$secondsAll),
-                                                                                                          sum(wait30$secondsAll),
-                                                                                                          sum(wait35$secondsAll),
-                                                                                                          sum(wait40$secondsAll),
-                                                                                                          sum(wait45$secondsAll),
-                                                                                                          sum(wait50$secondsAll),
+plotdata = data.frame(setting = rep(c("10", "15", "20", "25", "30", "35", "40", "45", "50"),2), costs = c(sum(wait10$secondsDriving),
+                                                                                                          sum(wait15$secondsDriving),
+                                                                                                          sum(wait20$secondsDriving),
+                                                                                                          sum(wait25$secondsDriving),
+                                                                                                          sum(wait30$secondsDriving),
+                                                                                                          sum(wait35$secondsDriving),
+                                                                                                          sum(wait40$secondsDriving),
+                                                                                                          sum(wait45$secondsDriving),
+                                                                                                          sum(wait50$secondsDriving),
                                                                                                           
-                                                                                                          sum(days_fp_10$secondsAll),
-                                                                                                          sum(days_fp_15$secondsAll),
-                                                                                                          sum(days_fp_20$secondsAll),
-                                                                                                          sum(days_fp_25$secondsAll),
-                                                                                                          sum(days_fp_30$secondsAll),
-                                                                                                          sum(days_fp_35$secondsAll),
-                                                                                                          sum(days_fp_40$secondsAll),
-                                                                                                          sum(days_fp_45$secondsAll),
-                                                                                                          sum(days_fp_50$secondsAll)),
+                                                                                                          sum(days_fp_10$secondsDriving),
+                                                                                                          sum(days_fp_15$secondsDriving),
+                                                                                                          sum(days_fp_20$secondsDriving),
+                                                                                                          sum(days_fp_25$secondsDriving),
+                                                                                                          sum(days_fp_30$secondsDriving),
+                                                                                                          sum(days_fp_35$secondsDriving),
+                                                                                                          sum(days_fp_40$secondsDriving),
+                                                                                                          sum(days_fp_45$secondsDriving),
+                                                                                                          sum(days_fp_50$secondsDriving)),
                       group = c(rep("Stabilized cutting planes", 9), rep("ADA_HEUR",9)))
 
-pdf("images/wait_waitingTimes_overallSeconds_tw120_uniform.pdf")
+pdf("images/wait_waitingTimes_drivingSeconds_tw120_uniform.pdf")
 ggplot(data = plotdata, aes(x = setting, y = costs, group = group)) + geom_line(size = 2, aes(color = group)) + 
   geom_point(size = 4, aes(color = group)) + theme_bw() + 
-  scale_x_discrete(name ="Minutes waited") + scale_y_continuous(name = "Time spent overall (s)", labels = comma) +
+  scale_x_discrete(name ="Minutes waited") + scale_y_continuous(name = "Time spent driving (s)", labels = comma) +
   theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
-  geom_hline(yintercept = sum(days_fp$secondsAll), size = 2) +
-  guides(color=guide_legend(nrow = 2, title="Solution approach"))
+  geom_hline(yintercept = sum(days_fp$secondsDriving), size = 2) +
+  guides(color=guide_legend(nrow = 1, title="Solution approach"))
 dev.off()

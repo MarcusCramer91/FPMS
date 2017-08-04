@@ -259,7 +259,7 @@ plotData$group = c(rep("10 minutes", nrow(wait10)),
 
 pdf("images/wait_waitingTimes_ncust.pdf")
 ggplot(data = plotData, aes(x = time, y = ncust, color = group)) + geom_line(size = 2) + theme_bw() + 
-  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "Number of customers", labels = comma) +
+  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "Number of customers served", labels = comma) +
   theme(legend.text = element_text(size = 14), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
   guides(color=guide_legend(nrow = 3, title="Time waited"))
@@ -428,7 +428,7 @@ plotdata = data.frame(time = timepoints,
 pdf("images/wait_problemSizes_waitingTimes_tw90.pdf")
 ggplot(data = NULL) + 
   geom_line(data = plotdata[!is.na(plotdata$wait),], aes(x = time/60, y = wait, colour = Size), size = 2) + theme_bw() + 
-  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "Waiting times") +
+  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "Waiting times", limits = c(0, 64)) +
   theme(legend.text = element_text(size = 14), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top")
 dev.off()
@@ -530,7 +530,8 @@ plotData$group = c(rep("10 minutes", nrow(wait10)),
 
 pdf("images/wait_waitingTimes_ncust_tw90.pdf")
 ggplot(data = plotData, aes(x = time, y = ncust, color = group)) + geom_line(size = 2) + theme_bw() + 
-  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "Number of customers", labels = comma) +
+  scale_x_continuous(name ="Time point") + scale_y_continuous(name = "Number of customers", labels = comma, breaks = c(0, 50, 100, 150),
+                                                              limits = c(0, 150)) +
   theme(legend.text = element_text(size = 14), legend.title = element_text(size = 16, face = "bold"), 
         axis.title = element_text(size = 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"), legend.position = "top") +
   guides(color=guide_legend(nrow = 3, title="Time waited"))

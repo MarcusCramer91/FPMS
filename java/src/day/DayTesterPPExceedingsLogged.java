@@ -136,7 +136,7 @@ public class DayTesterPPExceedingsLogged {
 				 currentMETTotal += currentMET;
 				 currentRouteLength += ModelConstants.CUSTOMER_LOADING_TIME;
 				 if (j < currentOrders.length-1) currentRouteLength += distanceMatrix.getEntry(o.getActualDistanceMatrixLink(), 
-						 currentOrders[j+1].getDistanceMatrixLink());
+						 currentOrders[j+1].getActualDistanceMatrixLink());
 			 }
 		}
 		writer.write("\n");
